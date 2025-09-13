@@ -9,5 +9,5 @@ npm run dev  # Or 'turbo run dev'
 Install a package to a workspace:
 
 ```bash
-npm i --workspace=<'backend' or 'frontend'> <package name>
+npm i --workspace=<workspace name> <package name>
 ```
