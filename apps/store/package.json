@@ -1,0 +1,8 @@
+{
+  "name": "store",
+  "private": true,
+  "dependencies": {},
+  "scripts": {
+    "dev": "python3 -m http.server 3001"
+  }
+}
