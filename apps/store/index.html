@@ -3,11 +3,180 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plantify Garden | Landing Page</title>
 
-    <title>Store Page</title>
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="images/favicon-flower/favicon-flower.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="images/favicon-flower/favicon-flower.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="images/favicon-flower/favicon-flower.png"
+    />
+
+    <!-- SEO Meta -->
+    <meta
+      name="description"
+      content="Plantify Garden - Shop plants, fertilizers, and guides. Happiness blooms from within!"
+    />
+    <meta
+      name="keywords"
+      content="plants, garden, fertilizer, indoor plants, flowers, gardening, houseplants"
+    />
+    <meta name="author" content="Plantify Garden" />
+
+    <!-- Open Graph (Social Share) -->
+    <meta property="og:title" content="Plantify Garden" />
+    <meta
+      property="og:description"
+      content="Shop plants, fertilizers and guides for your home garden. Special offers available!"
+    />
+    <meta property="og:image" content="images/preview.jpg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://yourdomain.com" />
+
+    <!-- Google Fonts Preload -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- FontAwesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- AOS Animation -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css" />
   </head>
-
   <body>
-    <h1>Store Page</h1>
+    <!-- Navbar -->
+    <header class="navbar">
+      <nav class="navbar__menu">
+        <ul class="navbar__links">
+          <li><a href="#">Shop</a></li>
+          <li><a href="#">Products ▾</a></li>
+          <li><a href="#">Fertilizer</a></li>
+          <li><a href="#">Guide</a></li>
+        </ul>
+      </nav>
+      <div class="navbar__logo">Plantify <span>Garden</span></div>
+      <div class="navbar__icons">
+        <a href="#" aria-label="Search"
+          ><i class="fa-solid fa-magnifying-glass"></i
+        ></a>
+        <a href="#" aria-label="User account"
+          ><i class="fa-regular fa-user"></i
+        ></a>
+        <a href="#" aria-label="Shopping cart"
+          ><i class="fa-solid fa-cart-shopping"></i
+        ></a>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero__text" data-aos="fade-right">
+        <h1>Happiness blooms from within</h1>
+        <p>
+          Our environment, the world in which we live and work, is a mirror of
+          our attitudes and expectations.
+        </p>
+        <div class="hero__buttons">
+          <a
+            href="#"
+            class="btn btn--primary"
+            role="button"
+            aria-label="Shop now"
+            >Shop now</a
+          >
+          <a
+            href="#"
+            class="btn btn--link"
+            role="button"
+            aria-label="Explore plants"
+            >Explore plants →</a
+          >
+        </div>
+      </div>
+
+      <div class="hero__cards" data-aos="fade-left">
+        <div class="card card--small">
+          <span class="tag">New</span>
+          <img
+            src="images/plant1.svg"
+            alt="Golden pothos in white pot"
+            loading="lazy"
+          />
+        </div>
+
+        <div class="card card--small">
+          <span class="tag tag--popular">Popular</span>
+          <img
+            src="images/plant2.jpg"
+            alt="Small cactus in ceramic pot"
+            loading="lazy"
+          />
+        </div>
+
+        <div class="card card--large">
+          <span class="tag tag--featured">Featured</span>
+          <img src="images/plant3.jpg" alt="Purple tulip flowers in vase" />
+          <div class="card__overlay">
+            <h3>Anthurium Flower</h3>
+            <p>
+              The flower of human being. It has meaningful of fact that the
+              plant always grow whatever season and weather.
+            </p>
+            <a
+              href="#"
+              class="btn btn--secondary"
+              role="button"
+              aria-label="Read more about Anthurium Flower"
+              >Read More</a
+            >
+          </div>
+        </div>
+
+        <div class="card card--promo">
+          <h4>Special Offer</h4>
+          <p>Get 20% off on your first order!</p>
+          <a
+            href="#"
+            class="btn btn--secondary"
+            role="button"
+            aria-label="Shop deals with discount"
+            >Shop Deals</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- JS (AOS init) -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js" defer></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        AOS.init({
+          duration: 1000,
+          once: true,
+        });
+      });
+    </script>
   </body>
 </html>
