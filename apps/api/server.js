@@ -1,12 +1,19 @@
 import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import passport from './utils/passport.js';
+import router from './routes/router.js';
+
+dotenv.config();
 
 const app = express();
-const port = 3000;
+app.use(express.json());
+app.use(cors());
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+app.use('/', router);
+app.use(passport.initialize());
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port http://localhost:${PORT}`);
 });

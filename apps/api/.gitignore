@@ -1,2 +1,4 @@
 .env
 library.txt
+/generated/prisma
+node_modules
