@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import FacebookStrategy from 'passport-facebook';
-import prisma from '../prisma/prismaClient';
+import prisma from '../prisma/prismaClient.js';
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -30,7 +30,6 @@ passport.use(new GoogleStrategy({
             let user = await prisma.user.findUnique({ where: { email } });
 
             if (!user) {
-                // Nếu chưa có user, tạo mới
                 user = await prisma.user.create({
                     data: {
                         fullName: displayName,
@@ -46,7 +45,6 @@ passport.use(new GoogleStrategy({
                     }
                 });
             } else {
-                // Đã có user, nhưng chưa liên kết với Google
                 await prisma.oAuthAccount.create({
                     data: {
                         provider: 'google',
@@ -63,10 +61,10 @@ passport.use(new GoogleStrategy({
     }
 ));
 
-// Serialize / Deserialize (cho session, hoặc có thể bỏ nếu dùng JWT)
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
+
 passport.deserializeUser(async (id, done) => {
     const user = await prisma.user.findUnique({ where: { id } });
     done(null, user);
@@ -93,7 +91,6 @@ passport.use(new FacebookStrategy({
             });
         }
 
-        // tạo oauth account (nếu bạn dùng bảng OAuthAccount)
         await prisma.oAuthAccount.upsert({
             where: {
                 provider_providerId: {
@@ -114,5 +111,16 @@ passport.use(new FacebookStrategy({
         done(err, null);
     }
 }));
+
+// Cập nhật callback cho Google và Facebook
+export const handleOAuthCallback = (req, res) => {
+    const jwt = require('jsonwebtoken');
+    const token = jwt.sign(
+        { userId: req.user.id, email: req.user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+    );
+    res.redirect(`${process.env.FRONTEND_URL}/oauth-success?token=${token}`);
+};
 
 export default passport;

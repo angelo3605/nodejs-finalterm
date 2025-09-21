@@ -1,13 +1,15 @@
 import prisma from "../prisma/prismaClient.js";
+import createSlug from "../utils/slugify.js";
 
 // Thêm sản phẩm
 export const addProduct = async (productData) => {
     try {
         const { name, desc, categoryId, brandId, variants, images } = productData;
-        
+
         const newProduct = await prisma.product.create({
             data: {
                 name,
+                slug: createSlug(name),
                 desc,
                 categoryId,
                 brandId,

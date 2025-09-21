@@ -1,5 +1,5 @@
 import prisma from "../prisma/prismaClient.js";
-import { getDiscountDetailsService } from "./discountService.js";
+import { getDiscountDetailsService } from "./discountCodeService.js";
 import { updateLoyaltyPoints } from './userService.js';
 
 // Thanh toán giỏ hàng của người dùng

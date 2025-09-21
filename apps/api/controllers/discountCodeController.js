@@ -1,4 +1,4 @@
-import { getDiscountDetailsService } from "../services/discountService.js";
+import { getDiscountDetailsService } from "../services/discountCodeService.js";
 
 export const applyDiscount = async (req, res) => {
     const { code } = req.body;

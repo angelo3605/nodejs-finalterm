@@ -11,7 +11,7 @@ export const getDashboard = async (req, res) => {
     }
 };
 
-export const getDashboardStats = async (req, res) => { // nâng cao
+export const getDashboardHigh = async (req, res) => { // nâng cao
     try {
         // Lấy thông tin khoảng thời gian từ request
         const { startDate, endDate } = req.query;

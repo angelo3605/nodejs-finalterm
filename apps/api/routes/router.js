@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import authRouter from './authRoutes.js'
 import userRouter from './userRoutes.js'
+import adminRouter from './adminRoutes.js'
 import authMiddleware from '../middleware/authMiddleware.js';
 import cartRoutes from './cartRoutes.js';
 import orderRoutes from './orderRoutes.js';
@@ -14,6 +15,7 @@ router.get('/', (req, res) => {
     res.send('Hello, World!');
 });
 
+router.use('/admin', adminRouter);
 router.use('/auth', authRouter);
 router.use('/user', userRouter);
 router.use('/cart', cartRoutes);

@@ -1,5 +1,5 @@
 import express from 'express';
-import { applyDiscount } from "../controllers/discountController.js";
+import { applyDiscount } from "../controllers/discountCodeController.js";
 
 const orderRoutes = express.Router();
 

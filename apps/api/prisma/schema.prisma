@@ -10,6 +10,7 @@ datasource db {
 enum Role {
   CUSTOMER
   ADMIN
+  BLOCKED
 }
 
 enum OrderStatus {
@@ -138,9 +139,10 @@ model Product {
   category    Category?        @relation(fields: [categoryId], references: [id])
   
   variants    ProductVariant[]
-  images      Image[]
+  imageUrls   String[]
   comments    Comment[]
   ratings     Rating[]
+  images      Image[]          @relation("ProductImages")
   
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
@@ -174,7 +176,7 @@ model Image {
   altText   String?
 
   productId String   @db.ObjectId
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation("ProductImages", fields: [productId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
