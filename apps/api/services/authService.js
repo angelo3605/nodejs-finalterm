@@ -9,7 +9,16 @@ export const loginService = async (email, password) => {
         where: { email }
     });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+        throw new Error('Invalid email or password');
+    }
+
+    if (user.role === 'BLOCKED') {
+        throw new Error('Your account has been blocked');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
         throw new Error('Invalid email or password');
     }
 

@@ -1,30 +1,34 @@
 import prisma from "../prisma/prismaClient.js";
 
-export const addToCartService = async (userId, productId, variantId, quantity) => {
+export const addToCartService = async (userId, variantId, quantity) => {
     try {
-        let cart = await prisma.cart.findUnique({
-            where: { userId: userId, status: 'ACTIVE' },
+        // Tìm giỏ hàng ACTIVE của user
+        let cart = await prisma.cart.findFirst({
+            where: { userId, status: 'ACTIVE' },
             include: { cartItems: true }
         });
 
         if (!cart) {
             cart = await prisma.cart.create({
-                data: { userId: userId, sumAmount: 0, status: 'ACTIVE' }
+                data: { userId, sumAmount: 0, status: 'ACTIVE' }
             });
         }
 
+        // Kiểm tra có item trong giỏ với variantId chưa
         const existingCartItem = await prisma.cartItem.findFirst({
-            where: { cartId: cart.id, variantId: variantId }
+            where: { cartId: cart.id, variantId }
         });
 
         if (existingCartItem) {
+            // Cập nhật số lượng
             await prisma.cartItem.update({
                 where: { id: existingCartItem.id },
                 data: { quantity: existingCartItem.quantity + quantity }
             });
         } else {
+            // Tạo mới cartItem
             await prisma.cartItem.create({
-                data: { cartId: cart.id, variantId: variantId, quantity }
+                data: { cartId: cart.id, variantId, quantity }
             });
         }
 
@@ -36,6 +40,8 @@ export const addToCartService = async (userId, productId, variantId, quantity) =
 
 export const updateCartService = async (userId, cartItemId, quantity) => {
     try {
+        // Có thể kiểm tra cartItem thuộc userId không (bảo mật), nếu cần
+
         await prisma.cartItem.update({
             where: { id: cartItemId },
             data: { quantity }
@@ -49,21 +55,22 @@ export const updateCartService = async (userId, cartItemId, quantity) => {
 
 export const removeFromCartService = async (userId, cartItemId) => {
     try {
+        // Có thể kiểm tra cartItem thuộc userId không (bảo mật), nếu cần
+
         await prisma.cartItem.delete({
             where: { id: cartItemId }
         });
 
-        return await getCartSummaryService(userId); // Tóm tắt giỏ hàng sau khi xóa
+        return await getCartSummaryService(userId);
     } catch (error) {
         throw new Error(error.message);
     }
 };
 
-// Tóm tắt giỏ hàng
 export const getCartSummaryService = async (userId) => {
     try {
-        const cart = await prisma.cart.findUnique({
-            where: { userId: userId, status: 'ACTIVE' },
+        const cart = await prisma.cart.findFirst({
+            where: { userId, status: 'ACTIVE' },
             include: {
                 cartItems: {
                     include: { variant: { include: { product: true } } }
@@ -72,7 +79,7 @@ export const getCartSummaryService = async (userId) => {
         });
 
         if (!cart) {
-            throw new Error('Giỏ hàng không tồn tại');
+            return { items: [], totalAmount: 0 };
         }
 
         let totalAmount = 0;
