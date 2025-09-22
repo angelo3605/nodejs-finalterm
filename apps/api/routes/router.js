@@ -7,6 +7,8 @@ import authMiddleware from '../middleware/authMiddleware.js';
 import cartRoutes from './cartRoutes.js';
 import orderRoutes from './orderRoutes.js';
 import discountRoutes from './discountRoutes.js';
+import brandRouter from './brandRoutes.js';
+import categoryRouter from './categoryRoutes.js';
 
 
 // router -> controller -> service
@@ -16,6 +18,8 @@ router.get('/', (req, res) => {
 });
 
 router.use('/admin', adminRouter);
+router.use('/brand', brandRouter);
+router.use('/category', categoryRouter);
 router.use('/auth', authRouter);
 router.use('/user', userRouter);
 router.use('/cart', cartRoutes);

@@ -13,8 +13,8 @@ router.use(checkAdmin);
 router.get('/dashboard', getDashboard);
 router.get('/high-dashboard', getDashboardHigh);
 router.post('/product', createProduct);  // Thêm sản phẩm
-router.put('/product/:productId', modifyProduct);  // Cập nhật sản phẩm
-router.delete('/product/:productId', removeProduct);  // Xóa sản phẩm
+router.put('/product/:slug', modifyProduct);  // Cập nhật sản phẩm
+router.delete('/product/:slug', removeProduct);  // Xóa sản phẩm
 router.get('/users', listUsers);  // Lấy danh sách người dùng
 router.put('/user/disable/:userId', disableUser);  // Cấm người dùng
 router.put('/user/:userId', editUser);

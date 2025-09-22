@@ -45,10 +45,11 @@ export const createProduct = async (req, res) => {
 
 // Cập nhật sản phẩm
 export const modifyProduct = async (req, res) => {
-    const { productId } = req.params;
-    const productData = req.body;
+    const { slug } = req.params;  // Lấy slug từ URL params
+    const { name, desc, categoryId, brandId, variants, images } = req.body;  // Lấy dữ liệu sản phẩm từ body
+
     try {
-        const updatedProduct = await updateProduct(productId, productData);
+        const updatedProduct = await updateProduct(slug, name, desc, categoryId, brandId, variants, images);
         return res.json(updatedProduct);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -57,9 +58,9 @@ export const modifyProduct = async (req, res) => {
 
 // Xóa sản phẩm
 export const removeProduct = async (req, res) => {
-    const { productId } = req.params;
+    const { slug } = req.params;
     try {
-        const deletedProduct = await deleteProduct(productId);
+        const deletedProduct = await deleteProduct(slug);
         return res.json(deletedProduct);
     } catch (error) {
         return res.status(500).json({ message: error.message });

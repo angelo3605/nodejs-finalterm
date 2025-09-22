@@ -4,16 +4,17 @@ import authMiddleware from '../middleware/authMiddleware.js';
 import checkAdmin from '../middleware/adminMiddleware.js';
 import { createBrand, deleteBrand, getBrandBySlug, getBrands, updateBrand } from '../controllers/brandController.js';
 import { getBrandServiceFromTrash, restoreBrandService } from '../services/brandService.js';
-const router = express.Router();
+const brandRouter = express.Router();
 
 
-router.post('/brand', authMiddleware, checkAdmin, createBrand);
-router.get('/brands', getBrands);
-router.get('/categories-trash', authMiddleware, checkAdmin, getBrandServiceFromTrash);
-router.get('/brand/:slug', getBrandBySlug);
-router.put('/brand/:slug', authMiddleware, checkAdmin, updateBrand);
-router.delete('/brand/:slug', authMiddleware, checkAdmin, deleteBrand);
-router.patch('/brand/:slug', authMiddleware, checkAdmin, restoreBrandService);
+brandRouter.post('/', authMiddleware, checkAdmin, createBrand);
+brandRouter.get('/', getBrands);
+// brandRouter.get('/trash', authMiddleware, checkAdmin, getBrandServiceFromTrash);
+
+brandRouter.get('/:slug', getBrandBySlug);
+brandRouter.put('/:slug', authMiddleware, checkAdmin, updateBrand);
+brandRouter.delete('/:slug', authMiddleware, checkAdmin, deleteBrand);
+// brandRouter.patch('/:slug/restore', authMiddleware, checkAdmin, restoreBrandService);
 
 
-export default router;
+export default brandRouter;

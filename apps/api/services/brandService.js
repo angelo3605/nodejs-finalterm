@@ -20,7 +20,7 @@ export const createBrandService = async (name) => {
     return brand
 };
 
-export const getBrandService = async () => {
+export const getBrandsService = async () => {
     const brands = await prisma.brand.findMany({ where: { isDeleted: false } });
     return brands
 }
@@ -41,7 +41,7 @@ export const getBrandBySlugService = async (slug) => {
 }
 
 export const updateBrandService = async (slug, name) => {
-    const updatedSlug = createSlug(name); 
+    const updatedSlug = createSlug(name);
 
     const brand = await prisma.brand.update({
         where: { slug },
@@ -63,11 +63,13 @@ export const deleteBrandService = async (slug) => {
     return { message: "Brand delted", brand }
 }
 
+//  restore bị ngáo
 export const restoreBrandService = async (slug) => {
     const brand = await prisma.brand.update({
-        where: { slug },
-        data: { isDeleted: false },
+        // where: { slug, isDeleted: true },
+        // data: { isDeleted: false },
     });
+    console.log(brand);
 
     return { message: "Brand restore", brand }
 }

@@ -52,7 +52,7 @@ export const updateCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
   const { slug } = req.params;
   try {
-    const result = await CategoryService(slug);
+    const result = await deleteCategoryService(slug);
     return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ message: error.message || 'Error deleting category' });
