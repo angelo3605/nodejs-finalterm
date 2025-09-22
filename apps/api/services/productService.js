@@ -2,7 +2,7 @@ import prisma from "../prisma/prismaClient.js";
 import createSlug from "../utils/slugify.js";
 
 // Thêm sản phẩm
-export const addProduct = async (productData) => {
+export const addProductService = async (productData) => {
     try {
         const { name, desc, categoryId, brandId, variants, images } = productData;
 
@@ -13,12 +13,8 @@ export const addProduct = async (productData) => {
                 desc,
                 categoryId,
                 brandId,
-                variants: {
-                    create: variants, // Tạo các variants cho sản phẩm
-                },
-                images: {
-                    create: images, // Thêm ảnh cho sản phẩm
-                },
+                variants: variants.length ? { create: variants } : undefined,  // Tạo variants nếu có
+                images: images.length ? { create: images } : undefined, 
             }
         });
 
@@ -28,18 +24,18 @@ export const addProduct = async (productData) => {
     }
 };
 
-// Cập nhật sản phẩm
-export const updateProduct = async (slug, name, desc, categoryId, brandId, variants, images) => {
-    const updatedSlug = createSlug(name);  // Tạo slug mới từ tên sản phẩm
+// nếu được làm get from trash
+
+export const updateProductService = async (slug, name, desc, categoryId, brandId, variants, images) => {
+    const updatedSlug = createSlug(name);
 
     try {
-        // Cập nhật sản phẩm trong database
         const updatedProduct = await prisma.product.update({
-            where: { slug },  // Điều kiện tìm sản phẩm theo slug
+            where: { slug },
             data: {
-                slug: updatedSlug,  // Cập nhật slug
-                name,               // Cập nhật tên sản phẩm
-                desc,               // Cập nhật mô tả sản phẩm
+                slug: updatedSlug,
+                name,
+                desc,
                 category: categoryId ? { connect: { id: categoryId } } : undefined,  // Nếu có categoryId, connect với category
                 brand: brandId ? { connect: { id: brandId } } : undefined,  // Nếu có brandId, connect với brand
                 variants: variants && variants.length ? {
@@ -51,7 +47,7 @@ export const updateProduct = async (slug, name, desc, categoryId, brandId, varia
                             stockQuantity: variant.stockQuantity
                         }
                     }))
-                } : undefined,  // Cập nhật variants nếu có
+                } : undefined,
                 images: images && images.length ? {
                     update: images.map(image => ({
                         where: { id: image.id },
@@ -61,24 +57,38 @@ export const updateProduct = async (slug, name, desc, categoryId, brandId, varia
                             altText: image.altText
                         }
                     }))
-                } : undefined, // Cập nhật images nếu có
+                } : undefined,
             }
         });
 
-        return updatedProduct;  // Trả về sản phẩm đã được cập nhật
+        return updatedProduct;
     } catch (error) {
-        // Nếu có lỗi, ném lỗi ra ngoài
         throw new Error(error.message);
     }
 };
 
 // Xóa sản phẩm
-export const deleteProduct = async (slug) => {
+export const deleteProductService = async (slug) => {
     try {
         const deletedProduct = await prisma.product.update({
             where: { slug },
             data: {
                 isDeleted: true,
+            }
+        });
+
+        return deletedProduct;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+export const restoreProductService = async (slug) => {
+    try {
+        const deletedProduct = await prisma.product.update({
+            where: { slug },
+            data: {
+                isDeleted: false,
             }
         });
 

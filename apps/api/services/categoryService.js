@@ -29,18 +29,10 @@ export const getCategoriesService = async () => {
 }
 
 export const getCategoryServiceFromTrash = async (req, res) => {
-    try {
-        const categories = await prisma.category.findMany({
-            where: { isDeleted: true },
-            // select: { id: true, name: true, isDeleted: true }
-        });
-        res.json(categories); // Trả về danh sách các category đã bị xóa
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching categories from trash' });
-    }
-};
+    const categories = await prisma.category.findMany({ where: { isDeleted: true } });
+    return categories;
 
-// à rồi địt, do không có controller nên nó auto load
+};
 
 
 export const getCategoryBySlugService = async (slug) => {

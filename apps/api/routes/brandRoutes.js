@@ -2,19 +2,18 @@ import express from 'express';
 
 import authMiddleware from '../middleware/authMiddleware.js';
 import checkAdmin from '../middleware/adminMiddleware.js';
-import { createBrand, deleteBrand, getBrandBySlug, getBrands, updateBrand } from '../controllers/brandController.js';
-import { getBrandServiceFromTrash, restoreBrandService } from '../services/brandService.js';
+import { createBrand, deleteBrand, getBrandBySlug, getBrands, getBrandsFromTrash, restoreBrand, updateBrand } from '../controllers/brandController.js';
 const brandRouter = express.Router();
 
 
 brandRouter.post('/', authMiddleware, checkAdmin, createBrand);
 brandRouter.get('/', getBrands);
-// brandRouter.get('/trash', authMiddleware, checkAdmin, getBrandServiceFromTrash);
+brandRouter.get('/trash', authMiddleware, checkAdmin, getBrandsFromTrash);
 
 brandRouter.get('/:slug', getBrandBySlug);
 brandRouter.put('/:slug', authMiddleware, checkAdmin, updateBrand);
 brandRouter.delete('/:slug', authMiddleware, checkAdmin, deleteBrand);
-// brandRouter.patch('/:slug/restore', authMiddleware, checkAdmin, restoreBrandService);
+brandRouter.patch('/:slug/restore', authMiddleware, checkAdmin, restoreBrand);
 
 
 export default brandRouter;
