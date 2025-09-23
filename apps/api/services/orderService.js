@@ -6,7 +6,7 @@ import { updateLoyaltyPoints } from './userService.js';
 export const checkoutService = async (userId, shippingInfo, discountCode) => {
     try {
         // Lấy giỏ hàng của người dùng
-        const cart = await prisma.cart.findUnique({
+        const cart = await prisma.cart.findFirst({
             where: { userId: userId, status: 'ACTIVE' },
             include: {
                 cartItems: {

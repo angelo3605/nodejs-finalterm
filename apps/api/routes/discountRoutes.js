@@ -1,8 +1,10 @@
-import express from 'express';
-import { applyDiscount } from "../controllers/discountCodeController.js";
+import express from "express";
+import { applyDiscount, getAllDiscountCode, getDetailDiscountCode } from "../controllers/discountCodeController.js";
 
-const orderRoutes = express.Router();
+const discountRoutes = express.Router();
 
-orderRoutes.post('/apply-discount', applyDiscount);
+discountRoutes.post("/apply-discount", applyDiscount);
+discountRoutes.get("/get-all", getAllDiscountCode);
+discountRoutes.get("/get-detail", getDetailDiscountCode);
 
-export default orderRoutes;
+export default discountRoutes;

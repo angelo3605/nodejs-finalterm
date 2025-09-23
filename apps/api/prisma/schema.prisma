@@ -46,9 +46,9 @@ type ShippingInfo {
 
 model User {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  fullName      String
-  email         String    @unique
-  password      String
+  fullName      String?
+  email         String?    @unique
+  password      String?
   role          Role      @default(CUSTOMER)
   loyaltyPoints Int       @default(0)
 

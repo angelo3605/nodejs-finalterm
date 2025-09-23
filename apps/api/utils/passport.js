@@ -1,126 +1,159 @@
 import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import FacebookStrategy from 'passport-facebook';
+import jwt from 'jsonwebtoken';
 import prisma from '../prisma/prismaClient.js';
+import bcrypt from 'bcryptjs';
+import { Strategy as LocalStrategy } from 'passport-local';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as FacebookStrategy } from 'passport-facebook';
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: '/auth/google/callback'
-},
-    async function (accessToken, refreshToken, profile, done) {
-        const { id: providerId, displayName, emails } = profile;
-        const email = emails[0].value;
+function issueTokens(res, sub) {
+  const refreshToken = jwt.sign({ sub }, process.env.JWT_REFRESH_SECRET, {
+    expiresIn: '7d',
+  });
+  const accessToken = jwt.sign({ sub }, process.env.JWT_SECRET, {
+    expiresIn: '15m',
+  });
 
-        try {
-            let oauthAccount = await prisma.oAuthAccount.findUnique({
-                where: {
-                    provider_providerId: {
-                        provider: 'google',
-                        providerId
-                    }
-                },
-                include: { user: true }
-            });
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/auth/refresh',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
 
-            if (oauthAccount) {
-                return done(null, oauthAccount.user);
-            }
+  return res.json({ accessToken });
+}
 
-            let user = await prisma.user.findUnique({ where: { email } });
-
-            if (!user) {
-                user = await prisma.user.create({
-                    data: {
-                        fullName: displayName,
-                        email,
-                        password: '', // vì là social login nên không cần password
-                        role: 'CUSTOMER',
-                        oauths: {
-                            create: {
-                                provider: 'google',
-                                providerId
-                            }
-                        }
-                    }
-                });
-            } else {
-                await prisma.oAuthAccount.create({
-                    data: {
-                        provider: 'google',
-                        providerId,
-                        userId: user.id
-                    }
-                });
-            }
-
-            return done(null, user);
-        } catch (error) {
-            return done(error);
-        }
-    }
-));
-
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-    const user = await prisma.user.findUnique({ where: { id } });
-    done(null, user);
-});
-
-passport.use(new FacebookStrategy({
-    clientID: process.env.FACEBOOK_APP_ID,
-    clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "/auth/facebook/callback",
-    profileFields: ['id', 'emails', 'name']
-}, async (accessToken, refreshToken, profile, done) => {
-    try {
-        const email = profile.emails?.[0]?.value;
-        let user = await prisma.user.findUnique({ where: { email } });
-
+passport.use(
+  new JwtStrategy(
+    {
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.JWT_SECRET,
+    },
+    async ({ sub }, done) => {
+      try {
+        const user = await prisma.user.findUnique({ where: { id: sub } });
         if (!user) {
-            user = await prisma.user.create({
-                data: {
-                    email,
-                    fullName: `${profile.name.givenName} ${profile.name.familyName}`,
-                    role: "CUSTOMER",
-                    password: "" // hoặc null nếu không dùng
-                }
-            });
+          return done(null, false, { message: 'No token provided' });
+        }
+        return done(null, user);
+      } catch (err) {
+        return done(err);
+      }
+    }
+  )
+);
+
+passport.use(
+  new LocalStrategy(
+    { usernameField: 'email', passwordField: 'password' },
+    async (email, password, done) => {
+      try {
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (
+          !user ||
+          !user.password ||
+          !(await bcrypt.compare(password, user.password))
+        ) {
+          return done(null, false, { message: 'Incorrect email or password' });
+        }
+        return done(null, user);
+      } catch (err) {
+        return done(err);
+      }
+    }
+  )
+);
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: '/auth/google/callback',
+    },
+    async (
+      accessToken,
+      refreshToken,
+      { id: providerId, displayName: fullName, emails },
+      done
+    ) => {
+      const email = emails?.[0]?.value.toLowerCase() ?? '';
+
+      try {
+        let user = await prisma.user.findUnique({ where: { email } });
+        if (!user) {
+          user = await prisma.user.create({
+            data: { email, fullName, role: 'CUSTOMER' },
+          });
         }
 
         await prisma.oAuthAccount.upsert({
-            where: {
-                provider_providerId: {
-                    provider: 'facebook',
-                    providerId: profile.id
-                }
-            },
-            update: {},
-            create: {
-                provider: 'facebook',
-                providerId: profile.id,
-                userId: user.id
-            }
+          where: { provider_providerId: { provider: 'google', providerId } },
+          update: {},
+          create: { provider: 'google', providerId, userId: user.id },
         });
 
         done(null, user);
-    } catch (err) {
-        done(err, null);
+      } catch (error) {
+        return done(error);
+      }
     }
-}));
+  )
+);
 
-// Cập nhật callback cho Google và Facebook
-export const handleOAuthCallback = (req, res) => {
-    const jwt = require('jsonwebtoken');
-    const token = jwt.sign(
-        { userId: req.user.id, email: req.user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: '1d' }
-    );
-    res.redirect(`${process.env.FRONTEND_URL}/oauth-success?token=${token}`);
-};
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: process.env.FACEBOOK_APP_ID,
+      clientSecret: process.env.FACEBOOK_APP_SECRET,
+      callbackURL: '/auth/facebook/callback',
+      profileFields: ['id', 'emails', 'name'],
+    },
+    async (
+      accessToken,
+      refreshToken,
+      { id: providerId, name: { givenName, familyName }, emails },
+      done
+    ) => {
+      const email = emails?.[0]?.value.toLowerCase() ?? '';
+      const fullName = [givenName, familyName].join(' ');
 
-export default passport;
+      try {
+        let user = await prisma.user.findUnique({ where: { email } });
+        if (!user) {
+          user = await prisma.user.create({
+            data: { email, fullName, role: 'CUSTOMER' },
+          });
+        }
+
+        await prisma.oAuthAccount.upsert({
+          where: { provider_providerId: { provider: 'facebook', providerId } },
+          update: {},
+          create: { provider: 'facebook', providerId, userId: user.id },
+        });
+
+        done(null, user);
+      } catch (err) {
+        done(err);
+      }
+    }
+  )
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id } });
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});
+
+export { passport, issueTokens };

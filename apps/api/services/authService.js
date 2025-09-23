@@ -1,82 +1,27 @@
+import bcrypt from 'bcryptjs';
 import prisma from '../prisma/prismaClient.js';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-
-
-
-export const loginService = async (email, password) => {
-    const user = await prisma.user.findUnique({
-        where: { email }
-    });
-
-    if (!user) {
-        throw new Error('Invalid email or password');
-    }
-
-    if (user.role === 'BLOCKED') {
-        throw new Error('Your account has been blocked');
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-        throw new Error('Invalid email or password');
-    }
-
-    const token = jwt.sign(
-        { userId: user.id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: '1d' }
-    );
-
-    return {
-        message: 'Login successful',
-        token,
-        customer: {
-            fullname: user.fullName,
-            email: user.email,
-            loyaltyPoints: user.loyaltyPoints,
-            role: user.role  // optional
-        }
-    };
-};
-
 
 export const registerService = async (email, password, fullName) => {
-    const existngUser = await prisma.user.findUnique({
-        where: { email }
-    });
+  if (await prisma.user.findUnique({ where: { email } })) {
+    throw new Error('Email already exists');
+  }
+  const hashedPassword = await bcrypt.hash(password, 10);
+  return await prisma.user.create({
+    data: { email, password: hashedPassword, fullName },
+  });
+};
 
-    if (existngUser) {
-        throw new Error('Email already exists');
-    }
+export const refreshService = async (refreshToken) => {
+  if (!refreshToken) {
+    throw new Error('No token provided');
+  }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+  const { sub } = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+  const user = await prisma.user.findUnique({ where: { id: sub } });
+  if (!user) {
+    throw new Error('Invalid token');
+  }
 
-    const newUser = await prisma.user.create({
-        data: {
-            email,
-            password: hashedPassword,
-            fullName,
-            role: "CUSTOMER",
-            loyaltyPoints: 0,
-        }
-    });
-
-    //  thực hiện đăng nhập ngay khi đăng ký
-    const token = jwt.sign(
-        { userId: newUser.id, email: newUser.email },
-        process.env.JWT_SECRET,
-        { expiresIn: '1d' }
-    );
-
-    return {
-        message: 'Registration successful',
-        token,
-        user: {
-            fullName: newUser.fullName,
-            email: newUser.email,
-            loyaltyPoints: newUser.loyaltyPoints,
-            role: newUser.role,
-        }
-    };
-}
+  return user;
+};
