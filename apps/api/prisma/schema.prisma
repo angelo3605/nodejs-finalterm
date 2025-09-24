@@ -88,6 +88,7 @@ model PasswordResetToken {
 
 model ShippingAddress {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName    String
   address     String
   phoneNumber String
   isDefault   Boolean  @default(false)

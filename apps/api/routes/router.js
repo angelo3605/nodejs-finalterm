@@ -10,6 +10,7 @@ import brandRouter from './brandRoutes.js';
 import categoryRouter from './categoryRoutes.js';
 import { passport } from '../utils/passport.js';
 import checkAdmin from '../middleware/adminMiddleware.js';
+import shippingInfoRouter from './shippingInfoRoutes.js';
 
 // router -> controller -> service
 
@@ -25,5 +26,6 @@ router.use('/user', userRouter);
 router.use('/cart', cartRoutes);
 router.use('/order', orderRoutes);
 router.use('/discount', discountRoutes);
+router.use('/shipping', shippingInfoRouter);
 
 export default router;

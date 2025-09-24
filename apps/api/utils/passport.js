@@ -14,6 +14,7 @@ function issueTokens(res, sub) {
   const accessToken = jwt.sign({ sub }, process.env.JWT_SECRET, {
     expiresIn: '15m',
   });
+  console.log("SUB: ", sub)
 
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
