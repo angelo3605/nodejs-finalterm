@@ -1,35 +1,29 @@
-import { addToCartService } from "../services/cartService.js";
-import { checkoutService, createEmailFromOrderId, createGuestUser } from "../services/orderService.js";
-import { createShippingAddressService } from "../services/shippingInfoService.js";
+import { checkoutGuestService, checkoutService, postOrderUpdates } from "../services/orderService.js";
+import prisma from "../prisma/prismaClient.js";
+
 
 export const checkout = async (req, res) => {
   try {
-    let userId = req.user?.id;
+    const userId = req.user?.id;
 
     if (userId) {
       const { shippingAddressId, discountCode, loyaltyPointsToUse = 0, cartItemIds = [] } = req.body;
-      const order = await checkoutService(userId, shippingAddressId, discountCode, loyaltyPointsToUse, cartItemIds);
+
+      const order = await checkoutService(null, userId, shippingAddressId, discountCode, loyaltyPointsToUse, cartItemIds);
+
+      const discountRecord = order.discountCodeId ? { id: order.discountCodeId } : null;
+
+      await postOrderUpdates(prisma, userId, loyaltyPointsToUse, order.sumAmount, discountRecord, cartItemIds);
+
       return res.status(201).json(order);
     } else {
       const { shippingInfo, discountCode, loyaltyPointsToUse = 0, cartItems = [] } = req.body;
 
-      const guestData = await createGuestUser();
-      console.log("guestData.id: ", guestData.id);
+      const { order, userId: guestUserId, cartItemIds, discountCodeId, totalAmount } = await checkoutGuestService(shippingInfo, discountCode, loyaltyPointsToUse, cartItems);
 
-      const shippingAddress = await createShippingAddressService(guestData.id, shippingInfo.fullName, shippingInfo.address, shippingInfo.phoneNumber);
-      console.log("shippingAddress.id: ", shippingAddress.id);
+      const discountRecord = discountCodeId ? { id: discountCodeId } : null;
 
-      const cartItemIds = [];
-      for (const item of cartItems) {
-        const cartItem = await addToCartService(guestData.id, item.variantId, item.quantity);
-        if (cartItem && cartItem.id) {
-          cartItemIds.push(cartItem.id);
-        }
-      }
-
-      const order = await checkoutService(guestData.id, shippingAddress.id, discountCode, loyaltyPointsToUse, cartItemIds);
-
-      await createEmailFromOrderId(guestData.id, order.id);
+      await postOrderUpdates(prisma, guestUserId, loyaltyPointsToUse, totalAmount, discountRecord, cartItemIds);
 
       return res.status(201).json(order);
     }
