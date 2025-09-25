@@ -20,19 +20,17 @@ export const addToCartService = async (userId, variantId, quantity) => {
     });
 
     if (existingCartItem) {
-      // Cập nhật số lượng
-      await prisma.cartItem.update({
+      const updatedCartItem = await prisma.cartItem.update({
         where: { id: existingCartItem.id },
         data: { quantity: existingCartItem.quantity + quantity },
       });
+      return updatedCartItem;
     } else {
-      // Tạo mới cartItem
-      await prisma.cartItem.create({
+      const newCartItem = await prisma.cartItem.create({
         data: { cartId: cart.id, variantId, quantity },
       });
+      return newCartItem;
     }
-
-    return await existingCartItem;
   } catch (error) {
     throw new Error(error.message);
   }
