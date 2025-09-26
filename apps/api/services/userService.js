@@ -177,3 +177,5 @@ export const updateLoyaltyPoints = async (userId, totalAmount) => {
     throw new Error("Error updating loyalty points: " + error.message);
   }
 };
+
+

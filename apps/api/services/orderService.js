@@ -186,38 +186,62 @@ export const checkoutService = async (txOrNull, userId, shippingAddressId, disco
       orderItems: true,
     },
   });
-
-  // LƯU Ý: Bỏ phần cập nhật điểm, discount, xóa cartItem ra ngoài
-
   return order;
 };
 
-export const updateOrderStatus = async (orderId, status) => {
+// Lấy danh sách đơn hàng
+
+export const getAllOrdersService = async (userId) => {
   try {
-    const updatedOrder = await prisma.order.update({
-      where: { id: orderId },
-      data: {
-        status: status,
+    const listOrders = await prisma.order.findMany({
+      where: { userId: userId },
+      select: {
+        id: true,
+        status: true,
+        totalAmount: true,
+      },
+      include: {
+        orderItems: true,
+        // payments: true, hiện tại chưa có payment nên không hiển thị
       },
     });
-
-    return updatedOrder;
+    return listOrders;
   } catch (error) {
     throw new Error(error.message);
   }
 };
 
-// Lấy danh sách đơn hàng
-export const getAllOrders = async () => {
+export const orderDetailService = async (orderId) => {
   try {
-    const orders = await prisma.order.findMany({
-      include: {
-        orderItems: true,
-        payments: true,
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: {
+        id: true,
+        createdAt: true,
+        sumAmount: true,
+        totalAmount: true,
+        status: true,
+        discountCodeId: true,
+        shippingAddress: true, 
+        user: {
+          select: {
+            fullName: true,
+            email: true,
+          },
+        },
+        orderItems: {
+          select: {
+            quantity: true,
+            unitPrice: true,
+            sumAmount: true,
+            productName: true,
+            variantName: true,
+          },
+        },
       },
     });
 
-    return orders;
+    return order;
   } catch (error) {
     throw new Error(error.message);
   }

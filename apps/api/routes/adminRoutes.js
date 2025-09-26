@@ -1,8 +1,8 @@
 import express from "express";
-import { addImage, addVariant, deleteImage, deleteVariant, getDashboard, getDashboardHigh, restoreProduct, restoreVariant, updateImage, updateVariant } from "../controllers/adminController.js";
+import { addImage, addVariant, changeRoleUser, deleteImage, deleteVariant, getDashboard, getDashboardHigh, getDetailOrder, restoreProduct, restoreVariant, updateImage, updateVariant } from "../controllers/adminController.js";
 import { createProduct, modifyProduct, removeProduct } from "../controllers/adminController.js";
 import { modifyOrderStatus, listOrders } from "../controllers/adminController.js";
-import { listUsers, disableUser, editUser } from "../controllers/adminController.js";
+import { listUsers, editUser } from "../controllers/adminController.js";
 import { createDiscountCode } from "../controllers/discountCodeController.js";
 import { validate } from "../middleware/zodMiddleware.js";
 import { discountCodeSchema } from "../schemas/discountCodeSchema.js";
@@ -29,9 +29,10 @@ router.delete("/image/:imageId", deleteImage); // Xóa sản phẩm
 router.post("/discount", validate(discountCodeSchema), createDiscountCode); // Thêm sản phẩm
 
 router.get("/users", listUsers); // Lấy danh sách người dùng
-router.put("/user/disable/:userId", disableUser); // Cấm người dùng
+router.put("/user/changerole/:userId", changeRoleUser); // Cấm người dùng
 router.put("/user/:userId", editUser);
 router.get("/orders", listOrders); // Lấy danh sách đơn hàng
+router.get("/order/:orderId", getDetailOrder);
 router.put("/order/:orderId", modifyOrderStatus);
 
 export default router;

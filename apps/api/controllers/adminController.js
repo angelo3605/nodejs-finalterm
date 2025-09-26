@@ -1,8 +1,10 @@
 import { getDashboardStats, getAdvancedDashboardStats } from "../services/dashboardService.js";
 import { restoreProductService, deleteProductService, updateProductService, addProductService } from "../services/productService.js";
-import { updateOrderStatus, getAllOrders } from "../services/orderService.js";
+
 import { addVariantService, deleteVariantService, restoreVariantService, updateVariantService } from "../services/variantService.js";
 import { addImageService, deleteImageService, updateImageService } from "../services/imageService.js";
+import { blockedOrUnblockedService, changeStatusOrder, getAllOrders, getAllUsers, updateUser } from "../services/adminService.js";
+import { orderDetailService } from "../services/orderService.js";
 
 export const getDashboard = async (req, res) => {
     try {
@@ -176,10 +178,11 @@ export const listUsers = async (req, res) => {
 };
 
 // Cấm người dùng
-export const disableUser = async (req, res) => {
+export const changeRoleUser = async (req, res) => {
     const { userId } = req.params;
+    const {role} = req.body;
     try {
-        const user = await blockUser(userId);
+        const user = await blockedOrUnblockedService(userId, role);
         return res.json(user);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -204,7 +207,7 @@ export const modifyOrderStatus = async (req, res) => {
     const { status } = req.body;
 
     try {
-        const updatedOrder = await updateOrderStatus(orderId, status);
+        const updatedOrder = await changeStatusOrder(orderId, status);
         return res.json(updatedOrder);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -220,3 +223,15 @@ export const listOrders = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+export const getDetailOrder = async (req,res) => {
+    try {
+        const {orderId} = req.params;
+        const order = await orderDetailService(orderId);        
+
+        return res.json(order);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+        
+    }
+}
