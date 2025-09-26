@@ -1,175 +1,98 @@
 import prisma from "../prisma/prismaClient.js";
 import bcrypt from "bcryptjs";
-import sendEmail from '../utils/sendEmail.js'
-
+import { sendEmail } from "../utils/sendEmailOTP.js";
+import { generateRandomString } from "../utils/randomStr.js";
 
 export const changePasswordService = async (userId, currentPassword, newPassword) => {
   try {
-    // Tìm user theo id
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      throw new Error("User not found");
     }
 
     const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ message: 'Current password is incorrect' });
+      throw new Error("Current password is incorrect");
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
     await prisma.user.update({
       where: { id: userId },
-      data: { password: hashedNewPassword }
+      data: { password: hashedNewPassword },
     });
 
-    return res.json({ message: 'Password changed successfully' });
+    return { message: "Password changed successfully" };
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    throw new Error(error.message);
   }
 };
 
-
-export const sendPasswordResetOTPService = async (email) => {
+export const sendNewPasswordService = async (userId) => {
   try {
-
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      return res.status(404).json({ message: 'User with this email does not exist' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    const newPassword = generateRandomString(30);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    console.log("pass: ", newPassword)
+    console.log("pass hash: ", hashedPassword)
+    const subject = "Your New Password for Mint Boutique ";
+    const text = `
+        Hi [User's Name],
 
-    await prisma.passwordResetToken.deleteMany({ where: { userId: user.id } });
+        As requested, your password has been reset.
 
-    await prisma.passwordResetToken.create({
-      data: {
-        token: otp,
-        userId: user.id,
-        expiresAt
-      }
-    });
+        Here are your new login details:
 
+        Email: ${user.email}
+        Temporary Password: ${newPassword}
+
+        For your security, please log in and change this temporary password as soon as possible.
+
+        👉 Login Now
+
+        If you did not request this password reset, please contact our support team immediately.
+
+        Thank you,
+        — The Mint Boutique Team
+    `;
     // Gửi email
-    await sendEmail({
-      to: email,
-      subject: 'Your Password Reset OTP',
-      text: `Your OTP code is ${otp}. It will expire in 15 minutes.`
-    });
-
-    return res.json({ message: 'OTP sent to email' });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-}
-
-export const resetPasswordWithOTPService = async (email, otp, newPassword) => {
-  try {
-
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const tokenRecord = await prisma.passwordResetToken.findFirst({
-      where: {
-        userId: user.id,
-        token: otp,
-        expiresAt: {
-          gt: new Date()
-        }
-      }
-    });
-
-    if (!tokenRecord) {
-      return res.status(400).json({ message: 'Invalid or expired OTP' });
-    }
-
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    await sendEmail(user.email, subject, text);
 
     await prisma.user.update({
-      where: { id: user.id },
-      data: { password: hashedNewPassword }
+      where: { id: userId },
+      data: { password: hashedPassword },
     });
 
-    await prisma.passwordResetToken.delete({
-      where: { id: tokenRecord.id }
-    });
-
-    return res.json({ message: 'Password reset successfully' });
+    return { success: true, message: "New password sent to email." };
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    throw new Error(error.message);
   }
 };
-
 
 export const updateUserFullNameService = async (userId, fullName) => {
   if (!fullName) throw new Error("fullName is required");
 
   await prisma.user.update({
     where: { id: userId },
-    data: { fullName }
+    data: { fullName },
   });
 
   return { message: "User fullName updated successfully" };
 };
 
 
-export const upsertShippingAddressService = async (userId, { address, phoneNumber, isDefault }) => {
-  if (!address || !phoneNumber) throw new Error("Address and phoneNumber are required");
-
-  // Kiểm tra địa chỉ có tồn tại cho user chưa
-  const existingAddress = await prisma.shippingAddress.findFirst({
-    where: {
-      userId,
-      address,
-      phoneNumber
-    }
-  });
-
-  if (existingAddress) {
-    // Update isDefault nếu cần
-    await prisma.shippingAddress.update({
-      where: { id: existingAddress.id },
-      data: {
-        isDefault: isDefault ?? existingAddress.isDefault
-      }
-    });
-  } else {
-    // Tạo mới địa chỉ
-    await prisma.shippingAddress.create({
-      data: {
-        userId,
-        address,
-        phoneNumber,
-        isDefault: isDefault ?? false
-      }
-    });
-  }
-
-  // Nếu isDefault = true thì bỏ isDefault của các địa chỉ khác đi
-  if (isDefault) {
-    await prisma.shippingAddress.updateMany({
-      where: {
-        userId,
-        NOT: { address, phoneNumber }
-      },
-      data: { isDefault: false }
-    });
-  }
-
-  return { message: "Shipping address upserted successfully" };
-};
-
 
 export const updateLoyaltyPoints = async (userId, totalAmount) => {
   try {
-    const pointsEarned = Math.floor(totalAmount * 0.1);  // 10% của tổng giá trị đơn hàng
+    const pointsEarned = Math.floor(totalAmount * 0.1); // 10% của tổng giá trị đơn hàng
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: { loyaltyPoints: { increment: pointsEarned } },  // Tăng điểm người dùng
+      data: { loyaltyPoints: { increment: pointsEarned } }, // Tăng điểm người dùng
     });
 
     return updatedUser;
@@ -177,5 +100,3 @@ export const updateLoyaltyPoints = async (userId, totalAmount) => {
     throw new Error("Error updating loyalty points: " + error.message);
   }
 };
-
-

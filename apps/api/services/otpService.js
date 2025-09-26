@@ -1,7 +1,7 @@
 import prisma from '../prisma/prismaClient.js';
 import nodemailer from 'nodemailer';
 
-function generateOTP(length = 6) {
+export const generateOTP = (length = 6) => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
