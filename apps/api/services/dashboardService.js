@@ -1,116 +1,76 @@
 import prisma from "../prisma/prismaClient.js";
 
 export const getDashboardStats = async () => {
-    try {
-        const totalUsers = await prisma.user.count();
-        const totalOrders = await prisma.order.count();
-        const totalRevenue = await prisma.order.aggregate({
-            _sum: {
-                totalAmount: true,
-            }
-        });
+  const [pendingOrders, usersCount, productsCount, lowStockVariants] = await Promise.all([
+    prisma.order.count({ where: { status: "PENDING" } }),
+    prisma.user.count(),
+    prisma.product.count({ where: { isDeleted: false } }),
+    prisma.productVariant.count({ where: { stockQuantity: { lt: 5 }, isDeleted: false } }),
+  ]);
 
-        const bestSellingProducts = await prisma.orderItem.groupBy({
-            by: ['variantId'],
-            _sum: {
-                quantity: true,
-            },
-            orderBy: {
-                _sum: {
-                    quantity: 'desc',
-                }
-            },
-            take: 5,
-            include: {
-                variant: {
-                    select: {
-                        product: {
-                            select: {
-                                name: true,
-                            }
-                        },
-                        name: true,
-                    }
-                }
-            }
-        });
-
-        return {
-            totalUsers,
-            totalOrders,
-            totalRevenue: totalRevenue._sum.totalAmount || 0,
-            bestSellingProducts,
-        };
-    } catch (error) {
-        throw new Error(error.message);
-    }
+  return {
+    pendingOrders,
+    usersCount,
+    productsCount,
+    lowStockVariants,
+  };
 };
 
-export const getAdvancedDashboardStats = async (startDate, endDate) => {
-    try {
-        // Tổng số đơn hàng trong khoảng thời gian
-        const totalOrders = await prisma.order.count({
-            where: {
-                createdAt: {
-                    gte: new Date(startDate),
-                    lte: new Date(endDate)
-                }
-            }
-        });
+export const getHighDashboardStats = async (startDate, endDate) => {
+  const [totalRevenue, ordersByMonth, topProducts, userGrowth] = await Promise.all([
+    // Tổng doanh thu trong khoảng
+    prisma.order.aggregate({
+      _sum: { totalAmount: true },
+      where: {
+        status: "DELIVERED",
+        createdAt: { gte: startDate, lte: endDate },
+      },
+    }),
 
-        // Tổng doanh thu trong khoảng thời gian
-        const totalRevenue = await prisma.order.aggregate({
-            where: {
-                createdAt: {
-                    gte: new Date(startDate),
-                    lte: new Date(endDate)
-                }
-            },
-            _sum: {
-                totalAmount: true,
-            }
-        });
+    // Đơn hàng theo tháng (chỉ cần createdAt, frontend tự nhóm nếu muốn)
+    prisma.order.findMany({
+      where: {
+        status: "DELIVERED",
+        createdAt: { gte: startDate, lte: endDate },
+      },
+      select: {
+        createdAt: true,
+        totalAmount: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    }),
 
-        // Các sản phẩm bán chạy nhất trong khoảng thời gian
-        const bestSellingProducts = await prisma.orderItem.groupBy({
-            by: ['variantId'],
-            _sum: {
-                quantity: true,
-            },
-            where: {
-                order: {
-                    createdAt: {
-                        gte: new Date(startDate),
-                        lte: new Date(endDate)
-                    }
-                }
-            },
-            orderBy: {
-                _sum: {
-                    quantity: 'desc',
-                }
-            },
-            take: 5,
-            include: {
-                variant: {
-                    select: {
-                        product: {
-                            select: {
-                                name: true,
-                            }
-                        },
-                        name: true,
-                    }
-                }
-            }
-        });
+    // Top 5 sản phẩm bán chạy nhất
+    prisma.orderItem.groupBy({
+      by: ["productName"],
+      _sum: { quantity: true },
+      orderBy: { _sum: { quantity: "desc" } },
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+      },
+      take: 5,
+    }),
 
-        return {
-            totalOrders,
-            totalRevenue: totalRevenue._sum.totalAmount || 0,
-            bestSellingProducts,
-        };
-    } catch (error) {
-        throw new Error(error.message);
-    }
+    // New user
+    prisma.user.findMany({
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+      },
+      select: {
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    }),
+  ]);
+
+  return {
+    totalRevenue: totalRevenue._sum.totalAmount || 0,
+    ordersByMonth, // frontend sẽ group theo tháng nếu cần
+    topProducts,
+    userGrowth: userGrowth.length,
+  };
 };

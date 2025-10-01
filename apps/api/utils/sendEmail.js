@@ -14,7 +14,8 @@ export const sendEmail = async (email, subject, text) => {
       from: process.env.EMAIL,
       to: email,
       subject: subject,
-      text: text,
+      // text: text,
+      html: text,
     };
 
     // Gửi email

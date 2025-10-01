@@ -1,5 +1,6 @@
 import prisma from "../prisma/prismaClient.js";
 import { generateRandomString } from "../utils/randomStr.js";
+import { sendEmail } from "../utils/sendEmail.js";
 import { updateLoyaltyPoints } from "./userService.js";
 
 // Hàm cập nhật các thứ sau khi tạo order (tách riêng)
@@ -31,14 +32,52 @@ export const postOrderUpdates = async (db, userId, loyaltyPointsToUse, totalAmou
   });
 };
 
-export const checkoutGuestService = async (shippingInfo, discountCode, loyaltyPointsToUse = 0, cartItems = []) => {
+export const sendInfoNewUser = async (email, password, orderId) => {
+  let subject = "Chào mừng bạn đến với Mint Boutique - Thông tin tài khoản & đơn hàng của bạn";
+
+  let text = `
+    <html>
+      <body>
+        <p>Xin chào, tài khoản này được tạo cho bạn từ đơn hàng đầu tiên</p>
+
+        <p>Cảm ơn bạn đã mua sắm tại <strong>Mint Boutique</strong>! Tài khoản của bạn đã được tự động tạo để bạn có thể dễ dàng quản lý đơn hàng và lịch sử mua sắm.</p>
+
+        <h3>Thông tin tài khoản:</h3>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Mật khẩu tạm thời:</strong> ${password}</p>
+        <p>Vui lòng <a href="https://mintboutique.com/login">đăng nhập</a> và đổi mật khẩu ngay sau lần đăng nhập đầu tiên để bảo mật tài khoản.</p>
+
+        <h3>Thông tin đơn hàng:</h3>
+        <p><strong>Mã đơn hàng:</strong> #${orderId}</p>
+        <p>Bạn có thể theo dõi tình trạng đơn hàng tại mục <a href="https://mintboutique.com/orders/${orderId}">Đơn hàng của tôi</a>.</p>
+
+        <p>Nếu bạn cần hỗ trợ, đừng ngần ngại liên hệ chúng tôi qua email: <a href="mailto:support@mintboutique.com">support@mintboutique.com</a>.</p>
+
+        <p>Chúc bạn một ngày tuyệt vời!<br>
+        <strong>Đội ngũ Mint Boutique</strong></p>
+      </body>
+    </html>
+  `;
+
+  await sendEmail(email, subject, text);
+};
+
+export const checkoutGuestService = async (email, shippingInfo, discountCode, loyaltyPointsToUse = 0, cartItems = []) => {
   const order = await prisma.$transaction(async (tx) => {
+    const existingUser = await tx.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      throw new Error("Email đã tồn tại.");
+    }
+
     // 1. Tạo guest user
     const guestUser = await tx.user.create({
       data: {
         fullName: `Guest ${Date.now()}`,
-        email: `guest_${Date.now()}_${generateRandomString(6)}@example.com`,
-        password: generateRandomString(10),
+        email,
+        password: generateRandomString(32),
       },
     });
 
@@ -77,15 +116,7 @@ export const checkoutGuestService = async (shippingInfo, discountCode, loyaltyPo
     // 5. Gọi checkoutService có tx (nên thêm tham số tx vào hàm checkoutService)
     const order = await checkoutService(tx, guestUser.id, shippingAddress.id, discountCode, loyaltyPointsToUse, cartItemIds);
 
-    // 6. Cập nhật email cho dễ nhớ
-    await tx.user.update({
-      where: { id: guestUser.id },
-      data: {
-        email: `guest_${order.id}@example.com`,
-      },
-    });
-
-    return { order, userId: guestUser.id, cartItemIds, discountCodeId: order.discountCodeId, totalAmount: order.sumAmount };
+    return { order, userId: guestUser.id, password: guestUser.password, cartItemIds, discountCodeId: order.discountCodeId, totalAmount: order.sumAmount };
   });
 
   return order;
@@ -96,7 +127,7 @@ export const checkoutGuestService = async (shippingInfo, discountCode, loyaltyPo
 // Không tx: dùng cho logged-in user
 export const checkoutService = async (txOrNull, userId, shippingAddressId, discountCode, loyaltyPointsToUse = 0, cartItemIds = []) => {
   const db = txOrNull || prisma;
-
+  console.log("1");
   const shippingAddressRecord = await db.shippingAddress.findUnique({
     where: { id: shippingAddressId },
   });
@@ -110,6 +141,7 @@ export const checkoutService = async (txOrNull, userId, shippingAddressId, disco
     phoneNumber: shippingAddressRecord.phoneNumber,
     street: shippingAddressRecord.address,
   };
+  console.log("2");
 
   const cartItems = await db.cartItem.findMany({
     where: {
@@ -133,6 +165,7 @@ export const checkoutService = async (txOrNull, userId, shippingAddressId, disco
   const orderItems = cartItems.map((item) => {
     const itemTotal = item.variant.price * item.quantity;
     totalAmount += itemTotal;
+    console.log("3");
 
     return {
       variantId: item.variantId,
@@ -159,8 +192,14 @@ export const checkoutService = async (txOrNull, userId, shippingAddressId, disco
 
     discountAmount = discountRecord.type === "PERCENTAGE" ? totalAmount * (discountRecord.value / 100) : discountRecord.value;
   }
+  console.log("4");
 
   const user = await db.user.findUnique({ where: { id: userId } });
+  console.log("user:", user);
+  if (!user) {
+    throw new Error("Không tìm thấy người dùng.");
+  }
+
   const availablePoints = user?.loyaltyPoints || 0;
 
   if (loyaltyPointsToUse > availablePoints) {
@@ -186,6 +225,48 @@ export const checkoutService = async (txOrNull, userId, shippingAddressId, disco
       orderItems: true,
     },
   });
+
+  let subject = `Your New Order for Mint Boutique`;
+  let text = `
+    <html>
+      <body>
+        <p>Hi ${user.fullName},</p>
+        <p>Thank you for shopping with Mint Boutique! We're excited to confirm your order has been received. Here's a summary of your order:</p>
+        
+        <h3>Shipping Information:</h3>
+        <p><strong>Name:</strong> ${shippingInfo.fullName}</p>
+        <p><strong>Phone:</strong> ${shippingInfo.phoneNumber}</p>
+        <p><strong>Address:</strong> ${shippingInfo.street}</p>
+        
+        <h3>Order Summary:</h3>
+        <ul>
+          ${orderItems
+            .map(
+              (item) => `
+            <li>
+              <strong>${item.productName}</strong> (Size: ${item.variantName}) x ${item.quantity} - ${item.sumAmount.toFixed(2)} VND
+            </li>
+          `,
+            )
+            .join("")}
+        </ul>
+        
+        <h3>Total Amount:</h3>
+        <p><strong>Subtotal:</strong> ${totalAmount.toFixed(2)} VND</p>
+        <p><strong>Discount:</strong> ${discountAmount.toFixed(2)} VND</p>
+        <p><strong>Loyalty Points Applied:</strong> ${loyaltyPointsToUse} points</p>
+        <p><strong>Total Payable:</strong> ${finalAmount.toFixed(2)} VND</p>
+        
+        <p>If you have any questions or need assistance, feel free to contact us at support@mintboutique.com.</p>
+        
+        <p>Best regards,<br>
+        The Mint Boutique Team</p>
+      </body>
+    </html>
+    `;
+
+  await sendEmail(user.email, subject, text);
+
   return order;
 };
 
@@ -211,10 +292,10 @@ export const getAllOrdersService = async (userId) => {
   }
 };
 
-export const orderDetailService = async (orderId) => {
+export const orderDetailService = async (userId, orderId) => {
   try {
-    const order = await prisma.order.findUnique({
-      where: { id: orderId },
+    const order = await prisma.order.findFirst({
+      where: { id: orderId, userId: userId },
       select: {
         id: true,
         createdAt: true,
@@ -222,7 +303,7 @@ export const orderDetailService = async (orderId) => {
         totalAmount: true,
         status: true,
         discountCodeId: true,
-        shippingAddress: true, 
+        shippingAddress: true,
         user: {
           select: {
             fullName: true,

@@ -1,40 +1,38 @@
-import { getDashboardStats, getAdvancedDashboardStats } from "../services/dashboardService.js";
+import { getDashboardStats, getHighDashboardStats } from "../services/dashboardService.js";
 import { restoreProductService, deleteProductService, updateProductService, addProductService } from "../services/productService.js";
 
 import { addVariantService, deleteVariantService, restoreVariantService, updateVariantService } from "../services/variantService.js";
 import { addImageService, deleteImageService, updateImageService } from "../services/imageService.js";
 import { blockedOrUnblockedService, changeStatusOrder, getAllOrders, getAllUsers, updateUser } from "../services/adminService.js";
-import { orderDetailService } from "../services/orderService.js";
+import { orderDetailService, getAllOrdersService } from "../services/adminService.js";
 
 export const getDashboard = async (req, res) => {
-    try {
-        const stats = await getDashboardStats();
-        return res.json(stats);
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
+  try {
+    const stats = await getDashboardStats();
+    return res.json(stats);
+  } catch (error) {
+    console.error("Dashboard Error:", error);
+    return res.status(500).json({ message: error.message });
+  }
 };
 
-export const getDashboardHigh = async (req, res) => { // nâng cao
-    try {
-        // Lấy thông tin khoảng thời gian từ request
-        const { startDate, endDate } = req.query;
+export const getDashboardHigh = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
 
-        if (!startDate || !endDate) {
-            return res.status(400).json({ message: "Start date and end date are required" });
-        }
+    const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // mặc định 30 ngày trước
+    const end = endDate ? new Date(endDate) : new Date();
 
-        // Gọi service để lấy dữ liệu thống kê
-        const dashboardStats = await getAdvancedDashboardStats(startDate, endDate);
-
-        return res.json({
-            message: "Dashboard data fetched successfully",
-            data: dashboardStats,
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: error.message || "Internal Server Error" });
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ message: "Invalid startDate or endDate" });
     }
+
+    const stats = await getHighDashboardStats(start, end);
+    return res.json(stats);
+  } catch (error) {
+    console.error("High Dashboard Error:", error);
+    return res.status(500).json({ message: error.message });
+  }
 };
 
 export const createProduct = async (req, res) => {
@@ -228,6 +226,17 @@ export const getDetailOrder = async (req,res) => {
     try {
         const {orderId} = req.params;
         const order = await orderDetailService(orderId);        
+
+        return res.json(order);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+        
+    }
+}
+
+export const getAllOrder = async (req,res) => {
+    try {
+        const order = await orderDetailService();        
 
         return res.json(order);
     } catch (error) {

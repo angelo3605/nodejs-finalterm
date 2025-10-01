@@ -1,9 +1,10 @@
 import express from "express";
 import { addToCart, updateCart, removeFromCart, getCartSummary } from "../controllers/cartController.js";
 import { passport } from "../utils/passport.js";
+import { requireAuth } from "../middleware/authMiddleware.js";
 
 const cartRoutes = express.Router();
-cartRoutes.use(passport.authenticate("jwt", { session: false }));
+cartRoutes.use(requireAuth);
 
 cartRoutes.post("/", addToCart);
 cartRoutes.put("/", updateCart);

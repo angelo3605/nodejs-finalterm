@@ -67,6 +67,62 @@ export const getAllOrders = async () => {
   }
 };
 
+export const getAllOrdersService = async () => {
+  try {
+    const listOrders = await prisma.order.findMany({
+      select: {
+        id: true,
+        status: true,
+        totalAmount: true,
+      },
+      include: {
+        orderItems: true,
+        // payments: true, hiện tại chưa có payment nên không hiển thị
+      },
+    });
+    return listOrders;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const orderDetailService = async (orderId) => {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: {
+        id: true,
+        createdAt: true,
+        sumAmount: true,
+        totalAmount: true,
+        status: true,
+        discountCodeId: true,
+        shippingAddress: true,
+        user: {
+          select: {
+            fullName: true,
+            email: true,
+          },
+        },
+        orderItems: {
+          select: {
+            quantity: true,
+            unitPrice: true,
+            sumAmount: true,
+            productName: true,
+            variantName: true,
+          },
+        },
+      },
+    });
+
+    return order;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+
 export const changeStatusOrder = async (orderId, status) => {
   try {
     const order = await prisma.order.update({

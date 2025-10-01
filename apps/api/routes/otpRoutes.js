@@ -1,7 +1,7 @@
-import express from 'express';
+import express from "express";
 const otpRoutes = express.Router();
-import { generateOTP } from '../controllers/otpController.js';
+import { generateOTP } from "../controllers/otpController.js";
 
-otpRoutes.post('/getOtp', generateOTP)
+otpRoutes.post("/getOtp", generateOTP);
 
 export default otpRoutes;

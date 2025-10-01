@@ -1,11 +1,11 @@
 import express from "express";
-import { changeIsDefault, createShippingAddress, deleteShippingInfo, getAllShippingInfo } from "../controllers/shippingInfoController.js";
-import { passport } from "../utils/passport.js";
 import { validate } from "../middleware/zodMiddleware.js";
+import { requireAuth } from "../middleware/authMiddleware.js";
 import { ShippingInfoSchema } from "../schemas/shippingInfoSchema.js";
+import { changeIsDefault, createShippingAddress, deleteShippingInfo, getAllShippingInfo } from "../controllers/shippingInfoController.js";
 
 const shippingInfoRouter = express.Router();
-shippingInfoRouter.use(passport.authenticate("jwt", { session: false }));
+shippingInfoRouter.use(requireAuth);
 
 shippingInfoRouter.get("/", getAllShippingInfo);
 shippingInfoRouter.post("/", validate(ShippingInfoSchema), createShippingAddress);

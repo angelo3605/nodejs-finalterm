@@ -1,6 +1,6 @@
 import prisma from "../prisma/prismaClient.js";
 import bcrypt from "bcryptjs";
-import { sendEmail } from "../utils/sendEmailOTP.js";
+import { sendEmail } from "../utils/sendEmail.js";
 import { generateRandomString } from "../utils/randomStr.js";
 
 export const changePasswordService = async (userId, currentPassword, newPassword) => {

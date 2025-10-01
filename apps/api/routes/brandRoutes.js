@@ -2,17 +2,20 @@ import express from "express";
 import { passport } from "../utils/passport.js";
 
 import checkAdmin from "../middleware/adminMiddleware.js";
+import { requireAuth } from "../middleware/authMiddleware.js";
 import { createBrand, deleteBrand, getBrandBySlug, getBrands, getBrandsFromTrash, restoreBrand, updateBrand } from "../controllers/brandController.js";
+import { checkRole } from "../middleware/roleMiddleware.js";
 const brandRouter = express.Router();
 
 brandRouter.get("/", getBrands);
-
-brandRouter.post("/", passport.authenticate("jwt", { session: false }), checkAdmin, createBrand);
-brandRouter.get("/trash", passport.authenticate("jwt", { session: false }), checkAdmin, getBrandsFromTrash);
-
 brandRouter.get("/:slug", getBrandBySlug);
-brandRouter.put("/:slug", passport.authenticate("jwt", { session: false }), checkAdmin, updateBrand);
-brandRouter.delete("/:slug", passport.authenticate("jwt", { session: false }), checkAdmin, deleteBrand);
-brandRouter.patch("/:slug/restore", passport.authenticate("jwt", { session: false }), checkAdmin, restoreBrand);
+
+brandRouter.use(requireAuth, checkRole("ADMIN"));
+
+brandRouter.post("/", createBrand);
+brandRouter.get("/trash", getBrandsFromTrash);
+brandRouter.put("/:slug", updateBrand);
+brandRouter.delete("/:slug", deleteBrand);
+brandRouter.patch("/:slug/restore", restoreBrand);
 
 export default brandRouter;
