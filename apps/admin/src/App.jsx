@@ -14,6 +14,9 @@ import { authProvider } from "./providers/auth-provider";
 import { LoginPage } from "./pages/auth/login";
 import { Toaster } from "./components/refine-ui/notification/toaster";
 
+import "@fontsource/poppins";
+import "@fontsource/dancing-script/700.css";
+
 const resources = [
   {
     name: "dashboard",

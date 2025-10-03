@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@config "../tailwind.config.js";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -68,7 +70,7 @@
 }
 
 :root {
-  --radius: 0.5rem;
+  --radius: 0.75rem;
   --background: hsl(120 20% 99.01960784313727%);
   --foreground: hsl(108 8.196721311475414% 11.96078431372549%);
   --card: hsl(120 16.666666666666625% 97.6470588235294%);
@@ -184,7 +186,7 @@
   --accent-11: hsl(27.88732394366198 49.65034965034964% 71.96078431372548%);
   --accent-12: hsl(34.50000000000001 60.60606060606059% 87.05882352941177%);
   --destructive-foreground: hsl(10 85.71428571428571% 89.01960784313725%);
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 }
 
 @layer base {
