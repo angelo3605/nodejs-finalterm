@@ -1,27 +1,50 @@
 import { api, setAccessToken } from "@mint-boutique/axios-client";
 
-let isLoggedIn = false;
+let loggedIn = false;
 
 export const authProvider = {
   login: async ({ email, password }) => {
     try {
       const res = await api.post("/auth/login", { email, password });
+
+      if (res.data.user.role !== "ADMIN") {
+        return {
+          success: false,
+          error: {
+            message: "Login Error",
+            name: "Access denied",
+          },
+        };
+      }
+
       setAccessToken(res.data.accessToken);
-      isLoggedIn = true;
-      return { success: true };
+      loggedIn = true;
+
+      return { success: true, redirectTo: "/" };
     } catch (err) {
       return {
         success: false,
-        error: new Error("Incorrect email or password"),
+        error: {
+          message: "Login Error",
+          name: "Incorrect email or password",
+        },
       };
     }
   },
 
-  logout: async () => (isLoggedIn = false),
+  logout: async () => {
+    loggedIn = false;
+    return { success: true };
+  },
 
-  check: async () => isLoggedIn,
+  check: async () => {
+    return { authenticated: loggedIn };
+  },
 
   getIdentity: async () => {
-    return null;
+    try {
+      const res = await api.get("/auth/me");
+      return res.data;
+    } catch {}
   },
 };

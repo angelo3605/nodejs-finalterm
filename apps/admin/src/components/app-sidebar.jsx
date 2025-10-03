@@ -1,5 +1,6 @@
 import { Sidebar, SidebarContent, SidebarFooter } from "./ui/sidebar";
 import { NavMain } from "./nav-main";
+import { NavUser } from "./nav-user";
 
 export function AppSidebar() {
   return (
@@ -7,7 +8,9 @@ export function AppSidebar() {
       <SidebarContent className="pt-[3.5rem]">
         <NavMain />
       </SidebarContent>
-      <SidebarFooter></SidebarFooter>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
     </Sidebar>
   );
 }
