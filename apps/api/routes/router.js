@@ -13,6 +13,8 @@ import checkAdmin from "../middleware/adminMiddleware.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
 import shippingInfoRouter from "./shippingInfoRoutes.js";
 import productRouter from "./productRoutes.js";
+import commentRoutes from "./commentRoutes.js";
+import ratingRoutes from "./ratingRoutes.js";
 
 // router -> controller -> service
 
@@ -30,5 +32,7 @@ router.use("/order", orderRoutes);
 router.use("/discount", discountRoutes);
 router.use("/shipping", shippingInfoRouter);
 router.use("/product", productRouter);
+router.use("/comments", commentRoutes);
+router.use("/ratings", ratingRoutes);
 
 export default router;

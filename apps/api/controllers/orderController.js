@@ -7,13 +7,13 @@ export const checkout = async (req, res) => {
     let userId = null;
 
     const authHeader = req.headers.authorization;
-    console.log("Auth Header:", authHeader); // 👈 Thêm dòng này
+    console.log("Auth Header:", authHeader);
 
     if (authHeader?.startsWith("Bearer ")) {
       const token = authHeader.split(" ")[1];
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("Decoded:", decoded); // 👈 Log luôn
+        console.log("Decoded:", decoded);
         userId = decoded.sub;
       } catch (err) {
         console.error("JWT verify failed:", err.message);

@@ -35,3 +35,29 @@ export const getRatingsByProductService = async (productId) => {
     throw new Error(error.message);
   }
 };
+
+export const upsertRatingService = async (userId, productId, stars) => {
+  try {
+    const rating = await prisma.rating.upsert({
+      where: {
+        userId_productId: {
+          userId,
+          productId,
+        },
+      },
+      update: {
+        stars,
+        updatedAt: new Date(),
+      },
+      create: {
+        userId,
+        productId,
+        stars,
+      },
+    });
+
+    return rating;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
