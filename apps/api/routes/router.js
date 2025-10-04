@@ -12,6 +12,7 @@ import { passport } from "../utils/passport.js";
 import checkAdmin from "../middleware/adminMiddleware.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
 import shippingInfoRouter from "./shippingInfoRoutes.js";
+import productRouter from "./productRoutes.js";
 
 // router -> controller -> service
 
@@ -28,5 +29,6 @@ router.use("/cart", cartRoutes);
 router.use("/order", orderRoutes);
 router.use("/discount", discountRoutes);
 router.use("/shipping", shippingInfoRouter);
+router.use("/product", productRouter);
 
 export default router;

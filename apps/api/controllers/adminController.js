@@ -236,7 +236,7 @@ export const getDetailOrder = async (req,res) => {
 
 export const getAllOrder = async (req,res) => {
     try {
-        const order = await orderDetailService();        
+        const order = await getAllOrdersService();        
 
         return res.json(order);
     } catch (error) {

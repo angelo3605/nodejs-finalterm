@@ -1,9 +1,11 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { passport } from './utils/passport.js';
-import router from './routes/router.js';
-import cookieParser from 'cookie-parser';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { passport } from "./utils/passport.js";
+import router from "./routes/router.js";
+import cookieParser from "cookie-parser";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 dotenv.config();
 
@@ -13,7 +15,31 @@ app.use(cookieParser());
 app.use(cors());
 
 app.use(passport.initialize());
-app.use('/', router);
+app.use("/", router);
+
+const httpServer = createServer(app);
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("newComment", (productId) => {
+    socket.broadcast.emit("commentUpdated", { productId });
+  });
+
+  socket.on("newRating", (productId) => {
+    socket.broadcast.emit("ratingUpdated", { productId });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

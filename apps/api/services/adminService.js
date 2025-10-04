@@ -1,4 +1,3 @@
-import { tr } from "zod/v4/locales";
 import prisma from "../prisma/prismaClient.js";
 
 // Lấy tất cả người dùng
