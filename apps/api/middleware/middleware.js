@@ -11,10 +11,10 @@ export const extractUserId = (req, res, next) => {
       req.userId = decoded.sub;
     } catch (err) {
       console.warn("Invalid token in extractUserId middleware:", err.message);
-      req.userId = null; // Gán null nếu token sai
+      req.userId = null; 
     }
   } else {
-    req.userId = null; // Không có token
+    req.userId = null; 
   }
 
   next();

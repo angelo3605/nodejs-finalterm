@@ -12,7 +12,7 @@ export const createCommentController = async (req, res) => {
       anonymousUserId: req.user ? null : req.anonymousUserId,
     });
 
-    console.log("userId: req.user?.id: ", req.userId)
+    // console.log("userId: req.user?.id: ", req.userId)
     req.io.emit("newComment", productId);
     return res.status(201).json(comment);
   } catch (error) {

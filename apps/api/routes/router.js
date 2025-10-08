@@ -15,6 +15,8 @@ import shippingInfoRouter from "./shippingInfoRoutes.js";
 import productRouter from "./productRoutes.js";
 import commentRoutes from "./commentRoutes.js";
 import ratingRoutes from "./ratingRoutes.js";
+import paymentRoutes from "./paymentRoutes.js";
+
 
 // router -> controller -> service
 
@@ -34,5 +36,6 @@ router.use("/shipping", shippingInfoRouter);
 router.use("/product", productRouter);
 router.use("/comments", commentRoutes);
 router.use("/ratings", ratingRoutes);
+router.use("/payment", paymentRoutes );
 
 export default router;

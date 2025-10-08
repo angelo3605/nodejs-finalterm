@@ -119,6 +119,7 @@ export const checkoutGuestService = async (email, shippingInfo, discountCode, lo
     return { order, userId: guestUser.id, password: guestUser.password, cartItemIds, discountCodeId: order.discountCodeId, totalAmount: order.sumAmount };
   });
 
+
   return order;
 };
 
@@ -127,7 +128,6 @@ export const checkoutGuestService = async (email, shippingInfo, discountCode, lo
 // Không tx: dùng cho logged-in user
 export const checkoutService = async (txOrNull, userId, shippingAddressId, discountCode, loyaltyPointsToUse = 0, cartItemIds = []) => {
   const db = txOrNull || prisma;
-  console.log("1");
   const shippingAddressRecord = await db.shippingAddress.findUnique({
     where: { id: shippingAddressId },
   });
@@ -141,7 +141,6 @@ export const checkoutService = async (txOrNull, userId, shippingAddressId, disco
     phoneNumber: shippingAddressRecord.phoneNumber,
     street: shippingAddressRecord.address,
   };
-  console.log("2");
 
   const cartItems = await db.cartItem.findMany({
     where: {
@@ -165,7 +164,6 @@ export const checkoutService = async (txOrNull, userId, shippingAddressId, disco
   const orderItems = cartItems.map((item) => {
     const itemTotal = item.variant.price * item.quantity;
     totalAmount += itemTotal;
-    console.log("3");
 
     return {
       variantId: item.variantId,
@@ -192,10 +190,8 @@ export const checkoutService = async (txOrNull, userId, shippingAddressId, disco
 
     discountAmount = discountRecord.type === "PERCENTAGE" ? totalAmount * (discountRecord.value / 100) : discountRecord.value;
   }
-  console.log("4");
 
   const user = await db.user.findUnique({ where: { id: userId } });
-  console.log("user:", user);
   if (!user) {
     throw new Error("Không tìm thấy người dùng.");
   }
