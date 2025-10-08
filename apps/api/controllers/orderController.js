@@ -5,10 +5,7 @@ export const checkout = async (req, res) => {
   const userId = req.userId; 
   try {
     
-    // console.log("userId: ", userId);
-
     if (userId) {
-      // console.log("user");
       const { shippingAddressId, discountCode, loyaltyPointsToUse = 0, cartItemIds = [] } = req.body;
 
       const order = await checkoutService(null, userId, shippingAddressId, discountCode, loyaltyPointsToUse, cartItemIds);
@@ -19,7 +16,6 @@ export const checkout = async (req, res) => {
 
       return res.status(201).json(order);
     } else {
-      // console.log("guest");
       const { email, shippingInfo, discountCode, loyaltyPointsToUse = 0, cartItems = [] } = req.body;
 
       const { order, userId: guestUserId, password, cartItemIds, discountCodeId, totalAmount } = await checkoutGuestService(email, shippingInfo, discountCode, loyaltyPointsToUse, cartItems);

@@ -124,13 +124,26 @@ export const orderDetailService = async (orderId) => {
 
 export const changeStatusOrder = async (orderId, status) => {
   try {
-    const order = await prisma.order.update({
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      throw new Error("Đơn hàng không tồn tại");
+    }
+
+    if (order.status === "PENDING") {
+      throw new Error("Không thể cập nhật đơn hàng có trạng thái PENDING");
+    }
+
+    const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: {
         status,
       },
     });
-    return order;
+
+    return updatedOrder;
   } catch (error) {
     throw new Error(error.message);
   }

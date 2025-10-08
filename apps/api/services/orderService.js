@@ -123,9 +123,6 @@ export const checkoutGuestService = async (email, shippingInfo, discountCode, lo
   return order;
 };
 
-// Thanh toán giỏ hàng của người dùng
-// Với tx: dùng cho guest (trong transaction)
-// Không tx: dùng cho logged-in user
 export const checkoutService = async (txOrNull, userId, shippingAddressId, discountCode, loyaltyPointsToUse = 0, cartItemIds = []) => {
   const db = txOrNull || prisma;
   const shippingAddressRecord = await db.shippingAddress.findUnique({
@@ -266,8 +263,8 @@ export const checkoutService = async (txOrNull, userId, shippingAddressId, disco
   return order;
 };
 
-// Lấy danh sách đơn hàng
 
+// Lấy danh sách đơn hàng
 export const getAllOrdersService = async (userId) => {
   try {
     const listOrders = await prisma.order.findMany({
@@ -279,7 +276,7 @@ export const getAllOrdersService = async (userId) => {
       },
       include: {
         orderItems: true,
-        // payments: true, hiện tại chưa có payment nên không hiển thị
+        payments: true,
       },
     });
     return listOrders;

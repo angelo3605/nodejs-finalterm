@@ -4,8 +4,8 @@ import { VNPay, ProductCode, dateFormat, ignoreLogger } from "vnpay";
 const vnpay = new VNPay({
   tmnCode: process.env.VNPAY_TMN_CODE,
   secureSecret: process.env.VNPAY_SECRET,
-  vnpayHost: process.env.VNPAY_HOST, 
-  testMode: true, // nếu đang test sandbox
+  vnpayHost: process.env.VNPAY_HOST,
+  testMode: true,
   hashAlgorithm: "SHA512",
   loggerFn: ignoreLogger,
 });
@@ -25,6 +25,20 @@ export const createQr = async (req, res) => {
       return res.status(404).json({ success: false, message: "Đơn hàng không tồn tại" });
     }
 
+    if (order.status !== "PENDING") {
+      return res.status(400).json({ success: false, message: "Đơn hàng không ở trạng thái PENDING" });
+    }
+
+    const lastPayment = await prisma.payment.findFirst({
+      where: { orderId: order.id },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (lastPayment && new Date() - lastPayment.createdAt < 5 * 60 * 1000) {
+      return res.status(400).json({ success: false, message: "Thanh toán đã được thực hiện trong 5 phút qua. Vui lòng thử lại sau." });
+    }
+
+    const expireDate = new Date(Date.now() + 10 * 60 * 1000);
     const payment = await prisma.payment.create({
       data: {
         transactionId: "",
@@ -32,6 +46,7 @@ export const createQr = async (req, res) => {
         currency: "VND",
         amount: order.totalAmount,
         status: "PENDING",
+        expireDate: expireDate,
         order: { connect: { id: order.id } },
       },
     });
@@ -41,13 +56,10 @@ export const createQr = async (req, res) => {
       data: { transactionId: payment.id },
     });
 
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
     const vnp_Params = {
       vnp_Version: "2.1.0",
       vnp_TmnCode: process.env.VNPAY_TMN_CODE,
-      vnp_Amount: (order.totalAmount) * 1000 , 
+      vnp_Amount: order.totalAmount * 1000,
       vnp_Command: "pay",
       vnp_TxnRef: updatedPayment.transactionId,
       vnp_OrderInfo: `Thanh toan don hang ${order.id}`,
@@ -56,9 +68,9 @@ export const createQr = async (req, res) => {
       vnp_Locale: "vn",
       vnp_IpAddr: req.ip || "127.0.0.1",
       vnp_CreateDate: dateFormat(new Date()),
-      vnp_ExpireDate: dateFormat(tomorrow),
+      vnp_ExpireDate: dateFormat(expireDate),
     };
-    console.log("vnp_Amount", vnp_Params.vnp_Amount)
+
     const paymentUrl = await vnpay.buildPaymentUrl(vnp_Params);
 
     return res.status(200).json({
@@ -81,11 +93,11 @@ export const checkPayment = async (req, res) => {
     const verify = await vnpay.verifyReturnUrl(query);
 
     if (!verify.isVerified) {
-      return res.status(400).send("<h2>❌ Chữ ký không hợp lệ!</h2>");
+      return res.status(400).send("<h2> Chữ ký không hợp lệ!</h2>");
     }
 
     const vnp_ResponseCode = query.vnp_ResponseCode;
-    const txnRef = query.vnp_TxnRef; 
+    const txnRef = query.vnp_TxnRef;
     const amountFromVnp = Number(query.vnp_Amount || 0) / 100;
 
     const payment = await prisma.payment.findFirst({
@@ -93,6 +105,19 @@ export const checkPayment = async (req, res) => {
     });
     if (!payment) {
       return res.status(404).send("<h2>Payment record not found</h2>");
+    }
+
+    const currentTime = new Date();
+    if (payment.expireDate < currentTime) {
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: { status: "EXPIRED" },
+      });
+      // await prisma.order.update({
+      //   where: { id: payment.orderId },
+      //   data: { status: "CANCELLED" },
+      // });
+      return res.status(400).send("<h2>Thanh toán đã hết hạn và bị hủy!</h2>");
     }
 
     const order = await prisma.order.findUnique({
@@ -107,14 +132,13 @@ export const checkPayment = async (req, res) => {
     }
 
     if (vnp_ResponseCode === "00") {
-      // Thanh toán thành công
       await prisma.payment.update({
         where: { id: payment.id },
         data: { status: "SUCCESS" },
       });
       await prisma.order.update({
         where: { id: order.id },
-        data: { status: "PROCESSING" }, 
+        data: { status: "PROCESSING" },
       });
 
       return res.send(`
@@ -123,15 +147,14 @@ export const checkPayment = async (req, res) => {
         <p>Đơn hàng: ${order.id}</p>
       `);
     } else {
-      // Thanh toán thất bại
       await prisma.payment.update({
         where: { id: payment.id },
         data: { status: "FAILED" },
       });
-      await prisma.order.update({
-        where: { id: order.id },
-        data: { status: "CANCELLED" },
-      });
+      // await prisma.order.update({
+      //   where: { id: order.id },
+      //   data: { status: "CANCELLED" },
+      // });
 
       return res.send(`
         <h2 style="color: red;">Thanh toán thất bại hoặc bị hủy!</h2>
@@ -140,7 +163,6 @@ export const checkPayment = async (req, res) => {
     }
   } catch (error) {
     console.error("checkPayment error:", error);
-    return res.status(500).send("<h2>🚫 Lỗi xác minh thanh toán!</h2>");
+    return res.status(500).send("<h2> Lỗi xác minh thanh toán!</h2>");
   }
 };
-

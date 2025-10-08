@@ -44,7 +44,7 @@ adminRouter.post("/image", addImage); // Thêm sản phẩm
 adminRouter.put("/image/:imageId", updateImage); // Cập nhật sản phẩm
 adminRouter.delete("/image/:imageId", deleteImage); // Xóa sản phẩm
 
-adminRouter.post("/discount", validate(discountCodeSchema), createDiscountCode); // Thêm sản phẩm
+adminRouter.post("/discount", validate(discountCodeSchema), createDiscountCode);
 
 adminRouter.get("/users", listUsers); // Lấy danh sách người dùng
 adminRouter.put("/user/changerole/:userId", changeRoleUser); // Cấm người dùng

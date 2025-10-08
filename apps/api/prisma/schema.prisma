@@ -301,6 +301,7 @@ model Payment {
   currency      String
   amount        Float
   status        PaymentStatus @default(PENDING)
+  expireDate    DateTime 
   
   orderId       String        @db.ObjectId
   order         Order         @relation(fields: [orderId], references: [id])

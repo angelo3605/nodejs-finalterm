@@ -105,73 +105,6 @@ export const restoreProductService = async (slug) => {
 };
 
 
-
-// export const getFilteredProductsService = async (filters, page, pageSize) => {
-//   const { search, brandIds, categoryIds, minPrice, maxPrice, startDate, endDate } = filters;
-
-//   const where = {
-//     isDeleted: false,
-//   };
-
-//   // 🔎 Tìm theo tên hoặc mô tả
-//   if (search) {
-//     where.OR = [
-//       { name: { contains: search, mode: "insensitive" } },
-//       { desc: { contains: search, mode: "insensitive" } }, // ✅ dùng desc
-//     ];
-//   }
-
-//   // 🎯 Lọc theo brand
-//   if (brandIds?.length > 0) {
-//     where.brandId = { in: brandIds };
-//   }
-
-//   // 🎯 Lọc theo category
-//   if (categoryIds?.length > 0) {
-//     where.categoryId = { in: categoryIds };
-//   }
-
-//   // 💰 Lọc theo price trong ProductVariant
-//   const variantFilter = {};
-//   if (minPrice !== undefined) variantFilter.gte = minPrice;
-//   if (maxPrice !== undefined) variantFilter.lte = maxPrice;
-//   if (Object.keys(variantFilter).length > 0) {
-//     where.variants = {
-//       some: {
-//         price: variantFilter,
-//       },
-//     };
-//   }
-
-//   // ⏰ Lọc theo ngày
-//   if (startDate || endDate) {
-//     where.createdAt = {};
-//     if (startDate) where.createdAt.gte = startDate;
-//     if (endDate) where.createdAt.lte = endDate;
-//   }
-
-//   // 📊 Đếm tổng sản phẩm
-//   const totalCount = await prisma.product.count({ where });
-//   const totalPages = Math.ceil(totalCount / pageSize);
-//   const skip = (page - 1) * pageSize;
-
-//   // 📦 Lấy danh sách sản phẩm
-//   const products = await prisma.product.findMany({
-//     where,
-//     skip,
-//     take: pageSize,
-//     orderBy: { createdAt: "desc" },
-//     include: {
-//       brand: true,
-//       category: true,
-//       variants: true, // ✅ lấy cả variant để có giá
-//     },
-//   });
-
-//   return { products, totalCount, totalPages };
-// };
-
-
 export const getFilteredProductsService = async (filters, page, pageSize) => {
   const { search, brandIds, categoryIds, minPrice, maxPrice, startDate, endDate } = filters;
 
@@ -179,7 +112,7 @@ export const getFilteredProductsService = async (filters, page, pageSize) => {
     isDeleted: false,
   };
 
-  // 🔎 Tìm theo tên hoặc mô tả
+  // Tìm theo tên hoặc mô tả
   if (search) {
     where.OR = [
       { name: { contains: search, mode: "insensitive" } },
@@ -187,29 +120,24 @@ export const getFilteredProductsService = async (filters, page, pageSize) => {
     ];
   }
 
-  // 🎯 Lọc theo brand
   if (brandIds?.length > 0) {
     where.brandId = { in: brandIds };
   }
 
-  // 🎯 Lọc theo category
   if (categoryIds?.length > 0) {
     where.categoryId = { in: categoryIds };
   }
 
-  // ⏰ Lọc theo ngày
   if (startDate || endDate) {
     where.createdAt = {};
     if (startDate) where.createdAt.gte = startDate;
     if (endDate) where.createdAt.lte = endDate;
   }
-
-  // 📊 Đếm tổng sản phẩm
+  
   const totalCount = await prisma.product.count({ where });
   const totalPages = Math.ceil(totalCount / pageSize);
   const skip = (page - 1) * pageSize;
 
-  // 📦 Lấy danh sách sản phẩm
   const products = await prisma.product.findMany({
     where,
     skip,
@@ -232,9 +160,7 @@ export const getFilteredProductsService = async (filters, page, pageSize) => {
     },
   });
 
-  // 💰 Lọc variant theo giá trong JS (sau khi lấy sản phẩm)
   const filteredProducts = products.map((product) => {
-    // Lọc các variant trong phạm vi giá
     const filteredVariants = product.variants.filter((variant) => {
       return (
         (minPrice === undefined || variant.price >= minPrice) &&
@@ -244,7 +170,7 @@ export const getFilteredProductsService = async (filters, page, pageSize) => {
 
     return {
       ...product,
-      variants: filteredVariants, // Chỉ trả về các variant phù hợp với giá
+      variants: filteredVariants, 
     };
   });
 
@@ -256,10 +182,8 @@ export const getFilteredProductsService = async (filters, page, pageSize) => {
 export const getTopProductService = async (number = 5) => {
   const currentDate = new Date();
 
-  // Ngày đầu tháng trước
   const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
 
-  // Ngày cuối tháng trước
   const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0); 
 
   const topProducts = await prisma.orderItem.groupBy({
