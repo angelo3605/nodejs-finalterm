@@ -2,11 +2,11 @@ import { getFilteredProductsService, getTopProductService } from "../services/pr
 
 export const getAllProduct = async (req, res) => {
   try {
-    const { search, brandIds, categoryIds, minPrice, maxPrice, startDate, endDate, page = 1, pageSize = 10 } = req.body; // ✅ dùng body
+    const { search, brandIds, categoryIds, minPrice, maxPrice, startDate, endDate, page = 1, pageSize = 10 } = req.body ?? {}; // ✅ dùng body
 
     const filters = {
       search,
-      brandIds: brandIds || [], 
+      brandIds: brandIds || [],
       categoryIds: categoryIds || [],
       minPrice: minPrice ? parseFloat(minPrice) : undefined,
       maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,

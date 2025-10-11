@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { passport } from "./utils/passport.js";
+import passport from "./utils/passport.js";
 import router from "./routes/router.js";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
@@ -34,7 +34,6 @@ app.use((req, res, next) => {
 
 app.use("/", router);
 
-
 io.on("connection", (socket) => {
   console.log("A user connected");
 
@@ -50,7 +49,6 @@ io.on("connection", (socket) => {
     console.log("User disconnected");
   });
 });
-
 
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {

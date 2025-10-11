@@ -1,6 +1,5 @@
 import express from "express";
 import { changePassword, sendPasswordReset, updateFullName } from "../controllers/userController.js";
-import { passport } from "../utils/passport.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
 import { getDetailOrder } from "../controllers/adminController.js";
 

@@ -1,10 +1,13 @@
 import { checkoutGuestService, checkoutService, orderDetailService, postOrderUpdates, sendInfoNewUser } from "../services/orderService.js";
 import prisma from "../prisma/prismaClient.js";
+import extractToken from "../utils/extractToken.js";
+import jwt from "jsonwebtoken";
 
 export const checkout = async (req, res) => {
-  const userId = req.userId; 
+  const token = extractToken(req);
   try {
-    
+    const userId = jwt.verify(token, process.env.JWT_SECRET).id;
+
     if (userId) {
       const { shippingAddressId, discountCode, loyaltyPointsToUse = 0, cartItemIds = [] } = req.body;
 

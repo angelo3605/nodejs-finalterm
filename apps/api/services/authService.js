@@ -2,41 +2,40 @@ import bcrypt from "bcryptjs";
 import prisma from "../prisma/prismaClient.js";
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
+import redis from "../utils/redis.js";
 
-export const signTokensService = ({ id, role }) => {
-  return {
-    refreshToken: jwt.sign({ jti: nanoid(), sub: id }, process.env.JWT_REFRESH_SECRET, { expiresIn: "15m" }),
-    accessToken: jwt.sign({ sub: id, role }, process.env.JWT_SECRET, { expiresIn: "7d" }),
-  };
-};
+export const signToken = (user, expiresIn) =>
+  jwt.sign(
+    {
+      jti: nanoid(),
+      id: user.id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn },
+  );
 
-export const registerService = async (email, password, fullName) => {
-  if (await prisma.user.findUnique({ where: { email } })) {
+export const registerUser = async (email, password, fullName) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+  if (user) {
     throw new Error("Email already exists");
   }
+
   const hashedPassword = await bcrypt.hash(password, 10);
   return await prisma.user.create({
-    data: { email, password: hashedPassword, fullName },
+    data: {
+      email,
+      fullName,
+      password: hashedPassword,
+    },
   });
 };
 
-export const refreshService = async (oldRefreshToken) => {
-  if (!oldRefreshToken) {
-    throw new Error("No token provided");
-  }
+export const revokeToken = async (jti, exp) => {
+  const now = Math.floor(Date.now() / 1000);
+  const ttl = exp > now ? exp - now : 60;
 
-  console.log(oldRefreshToken);
-
-  const { sub } = jwt.verify(oldRefreshToken, process.env.JWT_REFRESH_SECRET);
-  const user = await prisma.user.findUnique({ where: { id: sub } });
-  if (!user) {
-    throw new Error("Invalid token");
-  }
-
-  return signTokensService(user);
-};
-
-export const logoutService = async (refreshToken) => {
-  const { jti } = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-  await prisma.revokedToken.create({ data: { jti } });
+  await redis.set(`revoked:${jti}`, "1", { EX: ttl });
 };

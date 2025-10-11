@@ -1,72 +1,53 @@
-import { passport } from "../utils/passport.js";
-import { logoutService, refreshService, registerService, signTokensService } from "../services/authService.js";
+import { registerUser, signToken, revokeToken } from "../services/authService.js";
+import jwt from "jsonwebtoken";
 
-export const issueTokens = async (req, res) => {
-  const { accessToken, refreshToken } = res.locals;
-  if (!accessToken || !refreshToken) {
-    return res.status(500).json({ message: "Tokens not prepared" });
-  }
+export const issueToken = (req, res) => {
+  const { rememberMe } = req.body ?? {};
 
-  res.cookie("refreshToken", refreshToken, {
+  const expiresIn = rememberMe ? "7d" : "1h";
+  const token = signToken(req.user, expiresIn);
+
+  res.cookie("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge: 60 * 60 * 1000 * (rememberMe ? 24 * 7 : 1),
   });
-
-  return res.json({ accessToken });
+  return res.json({
+    message: "Login successfully",
+  });
 };
 
 export const register = async (req, res, next) => {
   try {
     const { email, password, fullName } = req.body;
-    const user = await registerService(email, password, fullName);
-    Object.assign(res.locals, { user, ...signTokensService(user) });
-    next();
-  } catch (error) {
-    return res.status(400).json({ message: error.message || "Registration failed" });
-  }
-};
+    await registerUser(email, password, fullName);
 
-export const localLogin = (req, res, next) => {
-  return passport.authenticate("local", { session: false }, (err, user, info) => {
-    if (err || !user) {
-      return res.status(400).json(info || { message: "Login failed" });
-    }
-    Object.assign(res.locals, { user, ...signTokensService(user) });
-    next();
-  })(req, res, next);
-};
-
-export const oauthLogin = async (req, res, next) => {
-  Object.assign(res.locals, { user: req.user, ...signTokensService(req.user) });
-  next();
-};
-
-export const refresh = async (req, res, next) => {
-  try {
-    const oldRefreshToken = req.cookies?.refreshToken;
-    Object.assign(res.locals, { ...(await refreshService(oldRefreshToken)) });
     next();
   } catch (err) {
-    console.error(err);
-    return res.status(401).json({ message: "Not logged in" });
+    return res.status(400).json({
+      message: err.message || "Register failed",
+    });
   }
 };
 
 export const logout = async (req, res) => {
   try {
-    const refreshToken = req.cookies?.refreshToken;
-    await logoutService(refreshToken);
-    res.clearCookie("refreshToken", {
+    const token = req.cookies?.token;
+    if (token) {
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
+      await revokeToken(payload.jti, payload.exp);
+    }
+
+    res.clearCookie("token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
     });
-    return res.json({ message: "Logout successfully" });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: err.message || "Logout failed" });
+    return res.status(500).json({
+      message: err.message || "Something went wrong",
+    });
   }
 };

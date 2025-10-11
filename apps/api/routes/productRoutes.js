@@ -3,7 +3,7 @@ import { getAllProduct, getTopProduct } from "../controllers/productController.j
 
 const productRouter = express.Router();
 
-productRouter.post("/", getAllProduct);
+productRouter.get("/", getAllProduct);
 productRouter.get("/top", getTopProduct);
 
 export default productRouter;
