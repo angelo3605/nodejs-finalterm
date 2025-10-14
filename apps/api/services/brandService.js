@@ -45,12 +45,12 @@ export const updateBrandService = async (slug, data) => {
   ) {
     throw new Error("Brand not found");
   }
-
-  const newSlug = data.name ? slugify(data.name, { lower: true }) : undefined;
-
   const brand = prisma.brand.update({
     where: { slug },
-    data: { ...data, slug: newSlug },
+    data: {
+      ...data,
+      slug: data.name ? slugify(data.name, { lower: true }) : undefined,
+    },
   });
   return brand;
 };

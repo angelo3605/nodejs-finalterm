@@ -45,12 +45,12 @@ export const updateCategoryService = async (slug, data) => {
   ) {
     throw new Error("Category not found");
   }
-
-  const newSlug = data.name ? slugify(data.name, { lower: true }) : undefined;
-
   const category = prisma.category.update({
     where: { slug },
-    data: { ...data, slug: newSlug },
+    data: {
+      ...data,
+      slug: data.name ? slugify(data.name, { lower: true }) : undefined,
+    },
   });
   return category;
 };
