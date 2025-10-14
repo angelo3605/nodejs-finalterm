@@ -1,11 +1,11 @@
-import { registerUser, signToken, revokeToken } from "../services/authService.js";
+import { registerService, signTokenService, logoutService } from "../services/authService.js";
 import jwt from "jsonwebtoken";
 
 export const issueToken = (req, res) => {
   const { rememberMe } = req.body ?? {};
 
   const expiresIn = rememberMe ? "7d" : "1h";
-  const token = signToken(req.user, expiresIn);
+  const token = signTokenService(req.user, expiresIn);
 
   res.cookie("token", token, {
     httpOnly: true,
@@ -19,35 +19,27 @@ export const issueToken = (req, res) => {
 };
 
 export const register = async (req, res, next) => {
-  try {
-    const { email, password, fullName } = req.body;
-    await registerUser(email, password, fullName);
+  const { email, password, fullName } = req.body;
+  await registerService(email, password, fullName);
 
-    next();
-  } catch (err) {
-    return res.status(400).json({
-      message: err.message || "Register failed",
-    });
-  }
+  next();
 };
 
 export const logout = async (req, res) => {
-  try {
-    const token = req.cookies?.token;
-    if (token) {
-      const payload = jwt.verify(token, process.env.JWT_SECRET);
-      await revokeToken(payload.jti, payload.exp);
-    }
-
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-    });
-  } catch (err) {
-    return res.status(500).json({
-      message: err.message || "Something went wrong",
-    });
+  const token = req.cookies?.token;
+  if (token) {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    await logoutService(payload.jti, payload.exp);
   }
+
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+  });
+
+  return res.json({
+    message: "Logout successfully",
+  });
 };

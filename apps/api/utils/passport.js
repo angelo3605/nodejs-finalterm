@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import passport from "passport";
-import prisma from "../prisma/prismaClient.js";
+import prisma from "../prisma/client.js";
 import extractToken from "./extractToken.js";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";

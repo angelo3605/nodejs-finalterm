@@ -1,78 +1,86 @@
-import prisma from "../prisma/prismaClient.js";
+import fs from "fs";
+import path from "path";
+import prisma from "../prisma/client.js";
 
-export const addImageService = async (imageData) => {
-    try {
-        const { url, filePath, altText, productId } = imageData;  // Nhận các tham số ảnh và ID sản phẩm
+export const addImageService = async (file) => {
+  if (!file) {
+    throw new Error("No file uploaded");
+  }
 
-        const newImage = await prisma.image.create({
-            data: {
-                url,        // Đường dẫn ảnh
-                filePath,   // Đường dẫn file trên server
-                altText,    // Mô tả ảnh
-                product: {  // Liên kết ảnh với sản phẩm
-                    connect: { id: productId }
-                },
-            }
-        });
+  const uploadDir = path.resolve("public/uploads");
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+  }
 
-        return newImage;  // Trả về ảnh đã tạo
-    } catch (error) {
-        throw new Error(error.message);
-    }
+  const newImage = await prisma.image.create({
+    data: {
+      url: "",
+      altText: null,
+    },
+  });
+
+  const filename = `${newImage.id}${path.extname(file.originalname)}`;
+  const targetPath = path.join(uploadDir, filename);
+
+  fs.renameSync(file.path, targetPath);
+
+  const imageUrl = `/uploads/${filename}`;
+
+  const updated = await prisma.image.update({
+    where: { id: newImage.id },
+    data: { url: imageUrl },
+  });
+
+  return updated;
 };
 
-// {   dữ liệu mẫu để test create trường hợp bị sai
-//   "url": "https://example.com/image1.jpg",
-//   "filePath": "/images/product1/image1.jpg",
-//   "altText": "Image 1 for Product 1",
-//   "productId": "68d0de2803b7b37ad03cfd6e"
-// }
-// { 
-//   "url": "https://example.com/images/tshirt1.jpg",
-//   "filePath": "/images/tshirt1.jpg",
-//   "altText": "Áo thun màu đỏ",
-//   "productId": "68d0de2803b7b37ad03cfd6e"
-// }
-
-
-export const updateImageService = async (imageId, url, filePath, altText) => {
-    try {
-        const updatedImage = await prisma.image.update({
-            where: { id: imageId },
-            data: {
-                url,
-                filePath,
-                altText,
-            },
-        });
-
-        return updatedImage;
-    } catch (error) {
-        throw new Error(error.message);
-    }
+export const updateImageAltTextService = async (id, altText) => {
+  const updatedImage = await prisma.image.update({
+    where: { id },
+    data: { altText },
+  });
+  if (!updatedImage) {
+    throw new Error("Cannot find image");
+  }
+  return updatedImage;
 };
 
-export const deleteImageService = async (imageId) => {
-    try {
-        const deletedImage = await prisma.image.delete({
-            where: { id: imageId },
-        });
+export const deleteImageService = async (id) => {
+  const image = await prisma.image.findUnique({
+    where: { id },
+  });
+  if (!image) {
+    throw new Error("Cannot find image");
+  }
 
-        return deletedImage;
-    } catch (error) {
-        throw new Error(error.message);
-    }
+  const uploadDir = path.resolve("public/uploads");
+  const filepath = path.join(uploadDir, `${id}${path.extname(image.url)}`);
+
+  if (fs.existsSync(filepath)) {
+    fs.unlinkSync(filepath);
+  }
+
+  await prisma.image.delete({ where: { id } });
+
+  return image;
 };
 
+export const getAllImagesService = async (page = 1, pageSize = 10) => {
+  const count = await prisma.image.count();
+  const images = await prisma.image.findMany({
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+  });
 
-export const getImagesByProductService = async (productId) => {
-    try {
-        const images = await prisma.image.findMany({
-            where: { productId },
-        });
+  return { images, count };
+};
 
-        return images;
-    } catch (error) {
-        throw new Error(error.message);
-    }
+export const getImageByIdService = async (id) => {
+  const image = await prisma.image.findUnique({
+    where: { id },
+  });
+  if (!image) {
+    throw new Error("Cannot find image");
+  }
+  return image;
 };

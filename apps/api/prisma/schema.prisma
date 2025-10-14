@@ -140,10 +140,9 @@ model Product {
   category   Category? @relation(fields: [categoryId], references: [id])
 
   variants  ProductVariant[]
-  imageUrls String[]
   comments  Comment[]
   ratings   Rating[]
-  images    Image[]          @relation("ProductImages")
+  imageUrls String[] @default([])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -173,11 +172,7 @@ model ProductVariant {
 model Image {
   id       String  @id @default(auto()) @map("_id") @db.ObjectId
   url      String
-  filePath String
   altText  String?
-
-  productId String  @db.ObjectId
-  product   Product @relation("ProductImages", fields: [productId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

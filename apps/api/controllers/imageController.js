@@ -1,12 +1,26 @@
-import { addImageService, updateImageService, deleteImageService, restoreImageService, getImagesByProductService } from ('../services/imageService.js');
+import { addImageService, deleteImageService, getAllImagesService, getImageByIdService, updateImageAltTextService } from "../services/imageService.js";
 
-// Lấy tất cả images của một sản phẩm
-export const getImagesByProduct = async (req, res) => {
-    try {
-        const { productId } = req.params;
-        const images = await getImagesByProductService(productId);
-        return res.status(200).json({ images });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
+export const uploadImage = async (req, res) => {
+  const image = await addImageService(req.file);
+  return res.json({ image });
+};
+
+export const updateImage = async (req, res) => {
+  const image = await updateImageAltTextService(req.params.id, req.body.altText);
+  return res.json({ image });
+};
+
+export const deleteImage = async (req, res) => {
+  const image = await deleteImageService(req.params.id);
+  return res.json({ image });
+};
+
+export const getAllImages = async (req, res) => {
+  const { images, count } = await getAllImagesService();
+  return res.json({ images, count });
+};
+
+export const getImageById = async (req, res) => {
+  const image = await getImageByIdService(req.params.id);
+  return res.json({ image });
 };

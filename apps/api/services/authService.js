@@ -1,10 +1,10 @@
 import bcrypt from "bcryptjs";
-import prisma from "../prisma/prismaClient.js";
+import prisma from "../prisma/client.js";
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
 import redis from "../utils/redis.js";
 
-export const signToken = (user, expiresIn) =>
+export const signTokenService = (user, expiresIn) =>
   jwt.sign(
     {
       jti: nanoid(),
@@ -15,7 +15,7 @@ export const signToken = (user, expiresIn) =>
     { expiresIn },
   );
 
-export const registerUser = async (email, password, fullName) => {
+export const registerService = async (email, password, fullName) => {
   const user = await prisma.user.findUnique({
     where: { email },
   });
@@ -33,7 +33,7 @@ export const registerUser = async (email, password, fullName) => {
   });
 };
 
-export const revokeToken = async (jti, exp) => {
+export const logoutService = async (jti, exp) => {
   const now = Math.floor(Date.now() / 1000);
   const ttl = exp > now ? exp - now : 60;
 
