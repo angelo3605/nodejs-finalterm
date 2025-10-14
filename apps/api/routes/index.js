@@ -5,11 +5,13 @@ import { checkRole } from "../middlewares/roleMiddleware.js";
 import { handleError } from "../middlewares/errorMiddleware.js";
 import authRouter from "./authRoutes.js";
 import imageRouter from "./imageRoutes.js";
+import brandRouter from "./brandRoutes.js";
 
 const router = Router();
 
 router.use("/auth", authRouter);
 router.use("/images", imageRouter);
+router.use("/brands", brandRouter);
 
 router.get("/", requireAuth, checkRole("ADMIN"), (req, res) => {
   res.send("Hello, World!");

@@ -9,14 +9,11 @@ import { deleteImage, getAllImages, getImageById, updateImage, uploadImage } fro
 
 const imageRouter = Router();
 
-imageRouter.use(requireAuth, checkRole("ADMIN"));
-
-imageRouter.post("/upload", upload.single("file"), uploadImage);
-
 imageRouter.get("/", getAllImages);
-
 imageRouter.get("/:id", getImageById);
-imageRouter.patch("/:id", validate(imageSchema), updateImage);
-imageRouter.delete("/:id", deleteImage);
+
+imageRouter.post("/upload", requireAuth, checkRole("ADMIN"), upload.single("file"), uploadImage);
+imageRouter.patch("/:id", requireAuth, checkRole("ADMIN"), validate(imageSchema), updateImage);
+imageRouter.delete("/:id", requireAuth, checkRole("ADMIN"), deleteImage);
 
 export default imageRouter;

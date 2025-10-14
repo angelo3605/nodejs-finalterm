@@ -9,7 +9,6 @@ const authRouter = Router();
 
 authRouter.post("/register", validate(registerSchema), register, passport.authenticate("local", { session: false }), issueToken);
 authRouter.post("/login", passport.authenticate("local", { session: false }), issueToken);
-
 authRouter.post("/logout", logout);
 
 authRouter.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
