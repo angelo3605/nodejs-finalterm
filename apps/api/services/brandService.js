@@ -1,8 +1,8 @@
 import slugify from "slugify";
 import prisma from "../prisma/client.js";
 
-export const createBrandService = async (name) => {
-  const slug = slugify(name, { lower: true });
+export const createBrandService = async (data) => {
+  const slug = slugify(data.name, { lower: true });
   if (
     await prisma.brand.findUnique({
       where: { slug },
@@ -11,7 +11,7 @@ export const createBrandService = async (name) => {
     throw new Error("Brand already exists");
   }
   return await prisma.brand.create({
-    data: { slug, name },
+    data: { slug, ...data },
   });
 };
 

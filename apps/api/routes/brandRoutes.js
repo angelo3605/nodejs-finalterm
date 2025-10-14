@@ -12,7 +12,7 @@ brandRouter.get("/", getAllBrands);
 brandRouter.get("/:slug", getBrandBySlug);
 
 brandRouter.post("/", requireAuth, checkRole("ADMIN"), validate(brandSchema), createBrand);
-brandRouter.patch("/:slug", requireAuth, checkRole("ADMIN"), validate(brandSchema), updateBrand);
+brandRouter.patch("/:slug", requireAuth, checkRole("ADMIN"), validate(brandSchema.partial()), updateBrand);
 brandRouter.delete("/:slug", requireAuth, checkRole("ADMIN"), deleteBrand);
 brandRouter.post("/:slug/restore", requireAuth, checkRole("ADMIN"), restoreBrand);
 

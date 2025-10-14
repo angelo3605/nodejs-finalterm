@@ -6,12 +6,14 @@ import { handleError } from "../middlewares/errorMiddleware.js";
 import authRouter from "./authRoutes.js";
 import imageRouter from "./imageRoutes.js";
 import brandRouter from "./brandRoutes.js";
+import categoryRouter from "./categoryRoutes.js";
 
 const router = Router();
 
 router.use("/auth", authRouter);
 router.use("/images", imageRouter);
 router.use("/brands", brandRouter);
+router.use("/categories", categoryRouter);
 
 router.get("/", requireAuth, checkRole("ADMIN"), (req, res) => {
   res.send("Hello, World!");

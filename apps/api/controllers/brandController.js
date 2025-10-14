@@ -11,7 +11,7 @@ export const getBrandBySlug = async (req, res) => {
 };
 
 export const createBrand = async (req, res) => {
-  const brand = await createBrandService(req.body.name);
+  const brand = await createBrandService(req.body);
   return res.json({ brand });
 };
 
