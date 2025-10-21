@@ -1,4 +1,4 @@
-const API_URL = "https://api.fake-rest.refine.dev";
+import { api } from "@mint-boutique/axios-client";
 
 export const dataProvider = {
   getMany: async ({ resource, ids, meta }) => {
@@ -8,40 +8,17 @@ export const dataProvider = {
       ids.forEach((id) => params.append("id", id));
     }
 
-    const response = await fetch(`${API_URL}/${resource}?${params.toString()}`);
-
-    if (response.status < 200 || response.status > 299) throw response;
-
-    const data = await response.json();
-
-    return { data };
+    const { data } = await api.get(`/${resource}?${params.toString()}`);
+    return { data: data[resource] };
   },
 
   getOne: async ({ resource, id, meta }) => {
-    const response = await fetch(`${API_URL}/${resource}/${id}`);
-
-    if (response.status < 200 || response.status > 299) {
-      throw response;
-    }
-
-    const data = await response.json();
-    return { data };
+    const { data } = await api.get(`/${resource}/${id}`);
+    return { data: Object.values(data)[0] };
   },
 
   update: async ({ resource, id, variables }) => {
-    const response = await fetch(`${API_URL}/${resource}/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify(variables),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.status < 200 || response.status > 299) {
-      throw response;
-    }
-
-    const data = await response.json();
+    const { data } = await api.patch(`${API_URL}/${resource}/${id}`, variables);
     return { data };
   },
 
@@ -67,46 +44,19 @@ export const dataProvider = {
       });
     }
 
-    const response = await fetch(`${API_URL}/${resource}?${params.toString()}`);
-
-    if (response.status < 200 || response.status > 299) {
-      throw response;
-    }
-
-    const data = await response.json();
-    const total = Number(response.headers.get("x-total-count"));
-    return { data, total };
+    const { data } = await api.get(`/${resource}?${params.toString()}`);
+    return { data: data[resource], total: data.count };
   },
 
   create: async ({ resource, variables }) => {
-    const response = await fetch(`${API_URL}/${resource}`, {
-      method: "POST",
-      body: JSON.stringify(variables),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.status < 200 || response.status > 299) {
-      throw response;
-    }
-
-    const data = await response.json();
-    return { data };
+    const { data } = await api.post(`/${resource}`, variables);
+    return { data: Object.values(data)[0] };
   },
 
   deleteOne: async ({ resource, id }) => {
-    const response = await fetch(`${API_URL}/${resource}/${id}`, {
-      method: "DELETE",
-    });
-
-    if (response.status < 200 || response.status > 299) {
-      throw response;
-    }
-
-    const data = await response.json();
-    return { data };
+    const { data } = await api.delete(`/${resource}/${id}`);
+    return { data: Object.values(data)[0] };
   },
 
-  getApiUrl: () => API_URL,
+  getApiUrl: () => api.defaults.baseURL,
 };

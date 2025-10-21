@@ -31,6 +31,7 @@ app.use(
         cb(new Error("Blocked by CORS"), false);
       }
     },
+    credentials: true,
   }),
 );
 // app.use(setAnonymousId);

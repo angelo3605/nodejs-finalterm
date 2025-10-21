@@ -1,50 +1,39 @@
-import { api, setAccessToken } from "@mint-boutique/axios-client";
-
-let loggedIn = false;
+import { api } from "@mint-boutique/axios-client";
 
 export const authProvider = {
   login: async ({ email, password }) => {
     try {
-      const res = await api.post("/auth/login", { email, password });
-
-      if (res.data.user.role !== "ADMIN") {
-        return {
-          success: false,
-          error: {
-            message: "Login Error",
-            name: "Access denied",
-          },
-        };
-      }
-
-      setAccessToken(res.data.accessToken);
-      loggedIn = true;
-
-      return { success: true, redirectTo: "/" };
+      await api.post("/auth/login", { email, password });
+      return {
+        success: true,
+        redirectTo: "/",
+      };
     } catch (err) {
+      console.error(err);
+      const { message } = err.response?.data;
       return {
         success: false,
         error: {
           message: "Login Error",
-          name: "Incorrect email or password",
+          name: message ?? "Something went wrong",
         },
       };
     }
   },
 
-  logout: async () => {
-    loggedIn = false;
-    return { success: true };
-  },
+  logout: async () => {},
 
   check: async () => {
-    return { authenticated: loggedIn };
+    try {
+      const { data } = await api.get("/profile");
+      return { authenticated: data.user.role === "ADMIN" };
+    } catch (err) {
+      console.error(err);
+      return { authenticated: false };
+    }
   },
 
   getIdentity: async () => {
-    try {
-      const res = await api.get("/auth/me");
-      return res.data;
-    } catch {}
+    return (await api.get("/profile")).data.user;
   },
 };

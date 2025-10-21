@@ -16,6 +16,7 @@ import { Toaster } from "./components/refine-ui/notification/toaster";
 
 import "@fontsource/poppins";
 import "@fontsource/dancing-script/700.css";
+import { EditProduct } from "./pages/products/edit";
 
 const resources = [
   {
@@ -50,6 +51,7 @@ const resources = [
     list: "/products",
     create: "/products/create",
     show: "/products/:id/show",
+    edit: "/products/:id/edit",
     meta: {
       section: "Catalogue",
       label: "Products",
@@ -97,6 +99,7 @@ export function App() {
               <Route index element={<ListProducts />} />
               <Route path=":id">
                 <Route path="show" element={<ShowProduct />} />
+                <Route path="edit" element={<EditProduct />} />
               </Route>
             </Route>
           </Route>
