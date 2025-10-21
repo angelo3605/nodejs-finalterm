@@ -1,6 +1,6 @@
 import path from "path";
 import { createServer } from "http";
-import { fileURLToPath, } from "url";
+import { fileURLToPath } from "url";
 
 import "dotenv/config";
 import express from "express";
@@ -16,11 +16,23 @@ import router from "./routes/index.js";
 const __filename__ = fileURLToPath(import.meta.url);
 const __dirname__ = path.dirname(__filename__);
 
+const allowedClients = process.env.ALLOWED_CLIENTS?.split(",").map((clientUrl) => clientUrl.trim()) ?? [];
+
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (!origin || allowedClients.includes(origin)) {
+        cb(null, true);
+      } else {
+        cb(new Error("Blocked by CORS"), false);
+      }
+    },
+  }),
+);
 // app.use(setAnonymousId);
 app.use(passport.initialize());
 
