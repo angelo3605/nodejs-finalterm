@@ -17,6 +17,7 @@ import { Toaster } from "./components/refine-ui/notification/toaster";
 import "@fontsource/poppins";
 import "@fontsource/dancing-script/700.css";
 import { EditProduct } from "./pages/products/edit";
+import { CreateProduct } from "./pages/products/create";
 
 const resources = [
   {
@@ -97,6 +98,7 @@ export function App() {
             <Route index element={<Dashboard />} />
             <Route path="products">
               <Route index element={<ListProducts />} />
+              <Route path="create" element={<CreateProduct />} />
               <Route path=":id">
                 <Route path="show" element={<ShowProduct />} />
                 <Route path="edit" element={<EditProduct />} />

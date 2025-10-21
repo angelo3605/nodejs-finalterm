@@ -1,8 +1,8 @@
 import { addImageService, deleteImageService, getAllImagesService, getImageByIdService, updateImageAltTextService } from "../services/imageService.js";
 
 export const uploadImage = async (req, res) => {
-  const image = await addImageService(req.file);
-  return res.json({ image });
+  const images = await addImageService(req.files);
+  return res.json({ images });
 };
 
 export const updateImage = async (req, res) => {

@@ -12,7 +12,7 @@ const imageRouter = Router();
 imageRouter.get("/", getAllImages);
 imageRouter.get("/:id", getImageById);
 
-imageRouter.post("/upload", requireAuth, checkRole("ADMIN"), upload.single("file"), uploadImage);
+imageRouter.post("/", requireAuth, checkRole("ADMIN"), upload.array("images", 10), uploadImage);
 imageRouter.patch("/:id", requireAuth, checkRole("ADMIN"), validate(imageSchema), updateImage);
 imageRouter.delete("/:id", requireAuth, checkRole("ADMIN"), deleteImage);
 

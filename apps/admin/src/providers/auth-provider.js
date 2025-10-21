@@ -9,13 +9,12 @@ export const authProvider = {
         redirectTo: "/",
       };
     } catch (err) {
-      console.error(err);
       const { message } = err.response?.data;
       return {
         success: false,
         error: {
           message: "Login Error",
-          name: message ?? "Something went wrong",
+          name: message ?? err.message ?? "Something went wrong",
         },
       };
     }
@@ -28,12 +27,12 @@ export const authProvider = {
       const { data } = await api.get("/profile");
       return { authenticated: data.user.role === "ADMIN" };
     } catch (err) {
-      console.error(err);
       return { authenticated: false };
     }
   },
 
   getIdentity: async () => {
-    return (await api.get("/profile")).data.user;
+    const { data } = await api.get("/profile");
+    return data.user;
   },
 };

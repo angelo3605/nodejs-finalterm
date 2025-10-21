@@ -27,8 +27,7 @@
     "@mint-boutique/zod-schemas": "*"
   },
   "scripts": {
-    "dev": "node server.js",
-    "start": "node server.js"
+    "dev": "nodemon"
   },
   "version": "1.0.0",
   "description": "",

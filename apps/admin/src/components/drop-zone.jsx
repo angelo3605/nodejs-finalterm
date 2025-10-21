@@ -2,7 +2,7 @@ import { useDropzone } from "react-dropzone";
 import { FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import { Trash } from "lucide-react";
+import { Trash, Upload } from "lucide-react";
 
 const constructKey = (file) => file.name + file.lastModified;
 
@@ -71,8 +71,16 @@ export function DropZone({ control, name, label, maxSize, accepts, maxFiles }) {
         return (
           <FormItem>
             {label && <FormLabel>{label}</FormLabel>}
-            <div {...getRootProps()} className="h-[5rem] border-2 border-dashed rounded-md">
+            <div {...getRootProps()} className="flex flex-col items-center gap-4 p-4 border-2 border-dashed rounded-md cursor-pointer">
               <input {...getInputProps()} />
+              <Upload />
+              <p className="text-center">
+                Upload {maxFiles} files
+                <br />
+                <span className="text-sm">
+                  Drag and drop or <span className="underline">select files</span> to upload
+                </span>
+              </p>
             </div>
             <FilePreviews files={value || []} onRemove={onRemove} />
             {/* <FormMessage /> */}
