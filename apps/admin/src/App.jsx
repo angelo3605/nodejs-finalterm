@@ -8,7 +8,14 @@ import { RootLayout } from "./layouts/root-layout";
 
 import { ListProducts } from "./pages/products/list";
 import { Dashboard } from "./pages/dashboard";
-import { Blocks, CircleUserRound, LayoutDashboard, Package, ShoppingBag, TicketPercent } from "lucide-react";
+import {
+  Blocks,
+  CircleUserRound,
+  LayoutDashboard,
+  Package,
+  ShoppingBag,
+  TicketPercent,
+} from "lucide-react";
 import { ShowProduct } from "./pages/products/show";
 import { authProvider } from "./providers/auth-provider";
 import { LoginPage } from "./pages/auth/login";
@@ -60,6 +67,16 @@ const resources = [
     },
   },
   {
+    name: "variants",
+    list: "/variants",
+    create: "/variants/create",
+    show: "/variants/:id/show",
+    edit: "/variants/:id/edit",
+    meta: {
+      label: "Variants",
+    },
+  },
+  {
     name: "categories",
     list: "/categories",
     create: "/categories/create",
@@ -84,7 +101,13 @@ const resources = [
 export function App() {
   return (
     <BrowserRouter>
-      <Refine resources={resources} routerProvider={routerProvider} authProvider={authProvider} dataProvider={dataProvider} notificationProvider={useNotificationProvider}>
+      <Refine
+        resources={resources}
+        routerProvider={routerProvider}
+        authProvider={authProvider}
+        dataProvider={dataProvider}
+        notificationProvider={useNotificationProvider}
+      >
         <Routes>
           <Route
             element={

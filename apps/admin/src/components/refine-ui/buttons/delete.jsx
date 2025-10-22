@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import React from "react";
 import { useDeleteButton } from "@refinedev/core";
 import { Loader2, Trash } from "lucide-react";
@@ -41,7 +41,12 @@ export const DeleteButton = React.forwardRef(
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <span>
-            <Button variant="destructive" {...rest} ref={ref} disabled={isDisabled}>
+            <Button
+              variant="destructive"
+              {...rest}
+              ref={ref}
+              disabled={isDisabled}
+            >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {children ?? (
                 <div className="flex items-center gap-2 font-semibold">
@@ -56,7 +61,11 @@ export const DeleteButton = React.forwardRef(
           <div className="flex flex-col gap-2">
             <p className="text-sm">{confirmTitle}</p>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setOpen(false)}
+              >
                 {confirmCancelText}
               </Button>
               <Button
@@ -68,7 +77,8 @@ export const DeleteButton = React.forwardRef(
                     onConfirm();
                   }
                   setOpen(false);
-                }}>
+                }}
+              >
                 {confirmOkText}
               </Button>
             </div>
@@ -76,7 +86,7 @@ export const DeleteButton = React.forwardRef(
         </PopoverContent>
       </Popover>
     );
-  }
+  },
 );
 
 DeleteButton.displayName = "DeleteButton";

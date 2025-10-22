@@ -41,8 +41,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --radius: var(----radius);
-  --color-destructive-foreground: var(----destructive-foreground);
+  --radius: var(--radius);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-12: var(--accent-12);
   --color-accent-11: var(--accent-11);
   --color-accent-10: var(--accent-10);
@@ -80,9 +80,13 @@
   --primary: hsl(130.96774193548387 42.85714285714285% 42.549019607843135%);
   --primary-foreground: hsl(0 0% 100%);
   --secondary: hsl(120 16.666666666666625% 97.6470588235294%);
-  --secondary-foreground: hsl(110.00000000000003 3.0612244897959147% 38.431372549019606%);
+  --secondary-foreground: hsl(
+    110.00000000000003 3.0612244897959147% 38.431372549019606%
+  );
   --muted: hsl(120 16.666666666666625% 97.6470588235294%);
-  --muted-foreground: hsl(110.00000000000003 3.0612244897959147% 38.431372549019606%);
+  --muted-foreground: hsl(
+    110.00000000000003 3.0612244897959147% 38.431372549019606%
+  );
   --accent: hsl(26.493506493506487 31.68724279835391% 47.647058823529406%);
   --accent-foreground: hsl(0 0% 100%);
   --destructive: hsl(10.10869565217391 73.01587301587303% 50.588235294117645%);
@@ -126,7 +130,9 @@
   --accent-10: hsl(26.493506493506487 31.68724279835391% 47.647058823529406%);
   --accent-11: hsl(24.406779661016955 29.648241206030146% 39.01960784313726%);
   --accent-12: hsl(18.750000000000014 14.814814814814813% 21.176470588235293%);
-  --destructive-foreground: hsl(7.868852459016397 49.59349593495935% 24.11764705882353%);
+  --destructive-foreground: hsl(
+    7.868852459016397 49.59349593495935% 24.11764705882353%
+  );
 }
 
 .dark {
@@ -139,9 +145,13 @@
   --primary: hsl(131.25 38.709677419354826% 51.37254901960784%);
   --primary-foreground: hsl(0 0% 100%);
   --secondary: hsl(90 4.166666666666666% 9.411764705882353%);
-  --secondary-foreground: hsl(105.00000000000006 5.1282051282051295% 69.41176470588235%);
+  --secondary-foreground: hsl(
+    105.00000000000006 5.1282051282051295% 69.41176470588235%
+  );
   --muted: hsl(90 4.166666666666666% 9.411764705882353%);
-  --muted-foreground: hsl(105.00000000000006 5.1282051282051295% 69.41176470588235%);
+  --muted-foreground: hsl(
+    105.00000000000006 5.1282051282051295% 69.41176470588235%
+  );
   --accent: hsl(27.407407407407415 36.32286995515695% 56.27450980392157%);
   --accent-foreground: hsl(0 0% 100%);
   --destructive: hsl(10.94117647058823 81.73076923076924% 59.21568627450981%);
@@ -211,7 +221,12 @@
     background:
       var(--_g),
       var(--_g) calc(var(--s) / 2) calc(var(--s) / 2),
-      conic-gradient(var(--c2) 25%, var(--c3) 0 50%, var(--c4) 0 75%, var(--c5) 0);
+      conic-gradient(
+        var(--c2) 25%,
+        var(--c3) 0 50%,
+        var(--c4) 0 75%,
+        var(--c5) 0
+      );
     background-size: var(--s) var(--s);
   }
 }

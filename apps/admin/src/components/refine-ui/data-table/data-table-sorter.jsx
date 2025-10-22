@@ -1,15 +1,9 @@
-"use client";;
+"use client";
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export function DataTableSorter(
-  {
-    column,
-    className,
-    ...props
-  }
-) {
+export function DataTableSorter({ column, className, ...props }) {
   const title =
     column.getIsSorted() === "desc"
       ? `Sort by ${column.id} as descending`
@@ -25,13 +19,16 @@ export function DataTableSorter(
       title={title}
       aria-label={title}
       {...props}
-      className={cn("data-[state=open]:bg-accent", "w-5 h-5", className)}>
+      className={cn("data-[state=open]:bg-accent", "w-5 h-5", className)}
+    >
       {column.getIsSorted() === "desc" ? (
         <ArrowDown className={cn("text-primary", "!w-3", "!h-3")} />
       ) : column.getIsSorted() === "asc" ? (
         <ArrowUp className={cn("text-primary", "!w-3", "!h-3")} />
       ) : (
-        <ChevronsUpDown className={cn("text-muted-foreground", "!w-3", "!h-3")} />
+        <ChevronsUpDown
+          className={cn("text-muted-foreground", "!w-3", "!h-3")}
+        />
       )}
     </Button>
   );

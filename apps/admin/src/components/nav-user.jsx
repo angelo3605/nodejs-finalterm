@@ -1,5 +1,14 @@
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChevronsUpDown, Store, LogOut, CircleUserRound } from "lucide-react";
 import { useGetIdentity } from "@refinedev/core";
@@ -15,7 +24,9 @@ export function NavUser() {
             <SidebarMenuButton size="lg">
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src="" alt={user?.fullName} />
-                <AvatarFallback className="rounded-lg">{user?.fullName.slice(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarFallback className="rounded-lg">
+                  {user?.fullName.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user?.fullName}</span>
@@ -24,7 +35,10 @@ export function NavUser() {
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-          <DropdownMenuContent side="top" className="w-(--radix-popper-anchor-width)">
+          <DropdownMenuContent
+            side="top"
+            className="w-(--radix-popper-anchor-width)"
+          >
             <DropdownMenuItem>
               <CircleUserRound className="text-inherit" />
               <span>Account</span>

@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { useState, useEffect, useMemo } from "react";
 import { useTranslate } from "@refinedev/core";
 import { Check, ChevronsUpDown, ListFilter, X } from "lucide-react";
@@ -23,14 +23,12 @@ import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
-export function DataTableFilterDropdown(
-  {
-    column,
-    triggerClassName,
-    contentClassName,
-    children
-  }
-) {
+export function DataTableFilterDropdown({
+  column,
+  triggerClassName,
+  contentClassName,
+  children,
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   const isFiltered = column.getIsFiltered();
@@ -42,14 +40,23 @@ export function DataTableFilterDropdown(
           onClick={() => setIsOpen(true)}
           variant="ghost"
           size="icon"
-          className={cn("data-[state=open]:bg-accent", "w-5 h-5", {
-            "text-primary": isFiltered,
-            "text-muted-foreground": !isFiltered,
-          }, triggerClassName)}>
+          className={cn(
+            "data-[state=open]:bg-accent",
+            "w-5 h-5",
+            {
+              "text-primary": isFiltered,
+              "text-muted-foreground": !isFiltered,
+            },
+            triggerClassName,
+          )}
+        >
           <ListFilter className={cn("!h-3", "!w-3")} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className={cn("w-full", "shadow-sm", contentClassName)}>
+      <PopoverContent
+        align="start"
+        className={cn("w-full", "shadow-sm", contentClassName)}
+      >
         {children({ isOpen, setIsOpen })}
       </PopoverContent>
     </Popover>
@@ -61,21 +68,35 @@ export function DataTableFilterDropdownActions({
   isClearDisabled,
   isApplyDisabled,
   onClear,
-  onApply
+  onApply,
 }) {
   const t = useTranslate();
 
   return (
     <div
-      className={cn("flex", "items-center", "justify-between", "w-full", "gap-2", className)}>
+      className={cn(
+        "flex",
+        "items-center",
+        "justify-between",
+        "w-full",
+        "gap-2",
+        className,
+      )}
+    >
       <Button
         size="sm"
         variant="ghost"
         disabled={isClearDisabled}
-        className={cn("rounded-sm", "text-xs", "font-semibold", "text-muted-foreground")}
+        className={cn(
+          "rounded-sm",
+          "text-xs",
+          "font-semibold",
+          "text-muted-foreground",
+        )}
         onClick={() => {
           onClear();
-        }}>
+        }}
+      >
         <X className={cn("w-3.5", "h-3.5", "text-muted-foreground")} />
         {t("buttons.clear", "Clear")}
       </Button>
@@ -85,43 +106,42 @@ export function DataTableFilterDropdownActions({
         className={cn("rounded-sm", "text-xs", "font-semibold")}
         onClick={() => {
           onApply();
-        }}>
+        }}
+      >
         {t("buttons.apply", "Apply")}
       </Button>
     </div>
   );
 }
 
-export function DataTableFilterDropdownText(
-  {
-    column,
-    table,
+export function DataTableFilterDropdownText({
+  column,
+  table,
 
-    operators = [
-      "eq",
-      "ne",
-      "contains",
-      "ncontains",
-      "containss",
-      "ncontainss",
-      "startswith",
-      "nstartswith",
-      "startswiths",
-      "nstartswiths",
-      "endswith",
-      "nendswith",
-      "endswiths",
-      "nendswiths",
-      "in",
-      "nin",
-      "ina",
-      "nina",
-    ],
+  operators = [
+    "eq",
+    "ne",
+    "contains",
+    "ncontains",
+    "containss",
+    "ncontainss",
+    "startswith",
+    "nstartswith",
+    "startswiths",
+    "nstartswiths",
+    "endswith",
+    "nendswith",
+    "endswiths",
+    "nendswiths",
+    "in",
+    "nin",
+    "ina",
+    "nina",
+  ],
 
-    defaultOperator = "eq",
-    placeholder
-  }
-) {
+  defaultOperator = "eq",
+  placeholder,
+}) {
   const t = useTranslate();
 
   return (
@@ -139,20 +159,20 @@ export function DataTableFilterDropdownText(
           value={value}
           onChange={(event) => {
             onChange(event.target.value);
-          }} />
-      )} />
+          }}
+        />
+      )}
+    />
   );
 }
 
-export function DataTableFilterDropdownNumeric(
-  {
-    column,
-    table,
-    operators = ["eq", "ne", "gt", "lt", "gte", "lte"],
-    defaultOperator = "eq",
-    placeholder
-  }
-) {
+export function DataTableFilterDropdownNumeric({
+  column,
+  table,
+  operators = ["eq", "ne", "gt", "lt", "gte", "lte"],
+  defaultOperator = "eq",
+  placeholder,
+}) {
   const t = useTranslate();
 
   return (
@@ -170,23 +190,23 @@ export function DataTableFilterDropdownNumeric(
           value={value}
           onChange={(event) => {
             onChange(event.target.value);
-          }} />
-      )} />
+          }}
+        />
+      )}
+    />
   );
 }
 
-export function DataTableFilterCombobox(
-  {
-    column,
-    table,
-    options,
-    defaultOperator = "eq",
-    operators = ["eq", "ne", "in", "nin"],
-    placeholder,
-    noResultsText,
-    multiple = false
-  }
-) {
+export function DataTableFilterCombobox({
+  column,
+  table,
+  options,
+  defaultOperator = "eq",
+  operators = ["eq", "ne", "in", "nin"],
+  placeholder,
+  noResultsText,
+  multiple = false,
+}) {
   const t = useTranslate();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -228,14 +248,18 @@ export function DataTableFilterCombobox(
 
         const getDisplayText = () => {
           if (currentValues.length === 0) {
-            return (placeholder ?? t("table.filter.combobox.placeholder", "Select..."));
+            return (
+              placeholder ?? t("table.filter.combobox.placeholder", "Select...")
+            );
           }
 
           if (multiple) {
             return `${currentValues.length} selected`;
           }
 
-          const selectedOption = options.find((option) => option.value === currentValues[0]);
+          const selectedOption = options.find(
+            (option) => option.value === currentValues[0],
+          );
           return selectedOption ? selectedOption.label : currentValues[0];
         };
 
@@ -253,7 +277,15 @@ export function DataTableFilterCombobox(
                 variant="outline"
                 role="combobox"
                 aria-expanded={isOpen}
-                className={cn("w-full", "min-w-48", "max-w-80", "justify-start", "h-auto", "min-h-9")}>
+                className={cn(
+                  "w-full",
+                  "min-w-48",
+                  "max-w-80",
+                  "justify-start",
+                  "h-auto",
+                  "min-h-9",
+                )}
+              >
                 <div className={cn("flex", "gap-2", "w-full")}>
                   {multiple && currentValues.length > 0 ? (
                     <div className={cn("flex", "flex-wrap", "gap-1", "flex-1")}>
@@ -263,7 +295,15 @@ export function DataTableFilterCombobox(
                           <Badge
                             key={val}
                             variant="outline"
-                            className={cn("inline-flex", "items-center", "gap-0", "h-4", "pr-0.5", "rounded-sm")}>
+                            className={cn(
+                              "inline-flex",
+                              "items-center",
+                              "gap-0",
+                              "h-4",
+                              "pr-0.5",
+                              "rounded-sm",
+                            )}
+                          >
                             <span className={cn("text-[10px]", "leading-4")}>
                               {label}
                             </span>
@@ -279,19 +319,26 @@ export function DataTableFilterCombobox(
                                 "hover:text-destructive",
                                 "rounded-sm",
                                 "cursor-pointer",
-                                "transition-colors"
+                                "transition-colors",
                               )}
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 handleRemove(val);
-                              }}>
+                              }}
+                            >
                               <X className={cn("!h-2", "!w-2")} />
                             </span>
                           </Badge>
                         ))}
                       {currentValues.length > 3 && (
-                        <span className={cn("text-xs", "text-muted-foreground", "px-1")}>
+                        <span
+                          className={cn(
+                            "text-xs",
+                            "text-muted-foreground",
+                            "px-1",
+                          )}
+                        >
                           +{currentValues.length - 3} more
                         </span>
                       )}
@@ -303,23 +350,31 @@ export function DataTableFilterCombobox(
                         "flex-1",
                         "text-start",
                         "text-xs",
-                        currentValues.length === 0 && "text-muted-foreground"
-                      )}>
+                        currentValues.length === 0 && "text-muted-foreground",
+                      )}
+                    >
                       {getDisplayText()}
                     </span>
                   )}
 
-                  <ChevronsUpDown className={cn("h-4", "w-4", "shrink-0", "opacity-50")} />
+                  <ChevronsUpDown
+                    className={cn("h-4", "w-4", "shrink-0", "opacity-50")}
+                  />
                 </div>
               </Button>
             </PopoverTrigger>
             <PopoverContent className={cn("w-[200px]", "p-0")} align="start">
               <Command>
-                <CommandInput placeholder={t("table.filter.combobox.search", "Search...")} />
+                <CommandInput
+                  placeholder={t("table.filter.combobox.search", "Search...")}
+                />
                 <CommandList>
                   <CommandEmpty>
                     {noResultsText ??
-                      t("table.filter.combobox.noResults", "Results not found.")}
+                      t(
+                        "table.filter.combobox.noResults",
+                        "Results not found.",
+                      )}
                   </CommandEmpty>
                   <CommandGroup>
                     {options.map((option) => (
@@ -327,12 +382,19 @@ export function DataTableFilterCombobox(
                         key={option.value}
                         value={option.value}
                         onSelect={() => handleSelect(option.value)}
-                        keywords={option.label?.split(" ") ?? []}>
+                        keywords={option.label?.split(" ") ?? []}
+                      >
                         {option.label}
                         <Check
-                          className={cn("ml-auto", "h-4", "w-4", currentValues.includes(option.value)
-                            ? "opacity-100"
-                            : "opacity-0")} />
+                          className={cn(
+                            "ml-auto",
+                            "h-4",
+                            "w-4",
+                            currentValues.includes(option.value)
+                              ? "opacity-100"
+                              : "opacity-0",
+                          )}
+                        />
                       </CommandItem>
                     ))}
                   </CommandGroup>
@@ -341,20 +403,19 @@ export function DataTableFilterCombobox(
             </PopoverContent>
           </Popover>
         );
-      }} />
+      }}
+    />
   );
 }
 
-export function DataTableFilterDropdownDateSinglePicker(
-  {
-    column,
-    defaultOperator = "eq",
-    formatDate
-  }
-) {
+export function DataTableFilterDropdownDateSinglePicker({
+  column,
+  defaultOperator = "eq",
+  formatDate,
+}) {
   const columnFilterValue = column.getFilterValue();
 
-  const parseDate = value => {
+  const parseDate = (value) => {
     if (!value) return undefined;
 
     const date = new Date(value);
@@ -364,7 +425,8 @@ export function DataTableFilterDropdownDateSinglePicker(
   };
 
   const [filterValue, setFilterValue] = useState(() =>
-    parseDate(columnFilterValue));
+    parseDate(columnFilterValue),
+  );
 
   useEffect(() => {
     column.columnDef.meta = {
@@ -387,7 +449,10 @@ export function DataTableFilterDropdownDateSinglePicker(
   };
 
   return (
-    <DataTableFilterDropdown column={column} contentClassName={cn("w-fit", "p-0")}>
+    <DataTableFilterDropdown
+      column={column}
+      contentClassName={cn("w-fit", "p-0")}
+    >
       {({ setIsOpen }) => {
         return (
           <div
@@ -398,13 +463,15 @@ export function DataTableFilterDropdownDateSinglePicker(
                 handleApply();
                 setIsOpen(false);
               }
-            }}>
+            }}
+          >
             <Calendar
               mode="single"
               selected={filterValue}
               onSelect={(date) => {
                 setFilterValue(date);
-              }} />
+              }}
+            />
             <div className={cn("w-full")}>
               <Separator />
             </div>
@@ -419,7 +486,8 @@ export function DataTableFilterDropdownDateSinglePicker(
               onApply={() => {
                 handleApply();
                 setIsOpen(false);
-              }} />
+              }}
+            />
           </div>
         );
       }}
@@ -427,16 +495,14 @@ export function DataTableFilterDropdownDateSinglePicker(
   );
 }
 
-export function DataTableFilterDropdownDateRangePicker(
-  {
-    column,
-    defaultOperator = "between",
-    formatDateRange
-  }
-) {
+export function DataTableFilterDropdownDateRangePicker({
+  column,
+  defaultOperator = "between",
+  formatDateRange,
+}) {
   const columnFilterValue = column.getFilterValue();
 
-  const parseDateRange = value => {
+  const parseDateRange = (value) => {
     if (!value || !Array.isArray(value) || value.length !== 2) return undefined;
 
     const from = value[0] ? new Date(value[0]) : undefined;
@@ -453,7 +519,8 @@ export function DataTableFilterDropdownDateRangePicker(
   };
 
   const [filterValue, setFilterValue] = useState(() =>
-    parseDateRange(columnFilterValue));
+    parseDateRange(columnFilterValue),
+  );
 
   useEffect(() => {
     column.columnDef.meta = {
@@ -480,7 +547,10 @@ export function DataTableFilterDropdownDateRangePicker(
   };
 
   return (
-    <DataTableFilterDropdown column={column} contentClassName={cn("w-fit", "p-0")}>
+    <DataTableFilterDropdown
+      column={column}
+      contentClassName={cn("w-fit", "p-0")}
+    >
       {({ setIsOpen }) => {
         return (
           <div
@@ -491,7 +561,8 @@ export function DataTableFilterDropdownDateRangePicker(
                 handleApply();
                 setIsOpen(false);
               }
-            }}>
+            }}
+          >
             <Calendar
               mode="range"
               numberOfMonths={2}
@@ -501,7 +572,8 @@ export function DataTableFilterDropdownDateRangePicker(
                   from: date?.from,
                   to: date?.to,
                 });
-              }} />
+              }}
+            />
             <div className={cn("w-full")}>
               <Separator />
             </div>
@@ -516,7 +588,8 @@ export function DataTableFilterDropdownDateRangePicker(
               onApply={() => {
                 handleApply();
                 setIsOpen(false);
-              }} />
+              }}
+            />
           </div>
         );
       }}
@@ -524,16 +597,16 @@ export function DataTableFilterDropdownDateRangePicker(
   );
 }
 
-export function DataTableFilterInput(
-  {
-    column: columnFromProps,
-    table: tableFromProps,
-    operators: operatorsFromProps,
-    defaultOperator: defaultOperatorFromProps,
-    renderInput
-  }
-) {
-  const [filterValue, setFilterValue] = useState((columnFromProps.getFilterValue()) || "");
+export function DataTableFilterInput({
+  column: columnFromProps,
+  table: tableFromProps,
+  operators: operatorsFromProps,
+  defaultOperator: defaultOperatorFromProps,
+  renderInput,
+}) {
+  const [filterValue, setFilterValue] = useState(
+    columnFromProps.getFilterValue() || "",
+  );
 
   const [operator, setOperator] = useState(() => {
     if (!tableFromProps) {
@@ -575,19 +648,29 @@ export function DataTableFilterInput(
       {({ setIsOpen }) => {
         return (
           <div
-            className={cn("flex", "flex-col", "items-center", "gap-4", "w-full")}
+            className={cn(
+              "flex",
+              "flex-col",
+              "items-center",
+              "gap-4",
+              "w-full",
+            )}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
                 handleApply();
                 setIsOpen(false);
               }
-            }}>
-            <div className={cn("grid", "grid-cols-1", "md:grid-cols-2", "gap-2")}>
+            }}
+          >
+            <div
+              className={cn("grid", "grid-cols-1", "md:grid-cols-2", "gap-2")}
+            >
               {operatorsFromProps && operatorsFromProps.length > 1 && (
                 <DataTableFilterOperatorSelect
                   value={operator}
                   operators={operatorsFromProps}
-                  onValueChange={handleOperatorChange} />
+                  onValueChange={handleOperatorChange}
+                />
               )}
               {renderInput({
                 value: filterValue,
@@ -605,7 +688,8 @@ export function DataTableFilterInput(
               onApply={() => {
                 handleApply();
                 setIsOpen(false);
-              }} />
+              }}
+            />
           </div>
         );
       }}
@@ -711,7 +795,7 @@ export function DataTableFilterOperatorSelect({
   operators: operatorsFromProps,
   placeholder,
   triggerClassName,
-  contentClassName
+  contentClassName,
 }) {
   const t = useTranslate();
 
@@ -719,14 +803,20 @@ export function DataTableFilterOperatorSelect({
 
   const operators = useMemo(() => {
     return Object.entries(CRUD_OPERATOR_LABELS).filter(([operator]) =>
-      operatorsFromProps?.includes(operator));
+      operatorsFromProps?.includes(operator),
+    );
   }, [operatorsFromProps]);
 
-  const selectedLabel = t(CRUD_OPERATOR_LABELS[value].i18nKey, CRUD_OPERATOR_LABELS[value]
-    .defaultLabel);
+  const selectedLabel = t(
+    CRUD_OPERATOR_LABELS[value].i18nKey,
+    CRUD_OPERATOR_LABELS[value].defaultLabel,
+  );
   const placeholderText =
     placeholder ?? t("table.filter.operator.placeholder", "Search operator...");
-  const noResultsText = t("table.filter.operator.noResults", "No operator found.");
+  const noResultsText = t(
+    "table.filter.operator.noResults",
+    "No operator found.",
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -735,11 +825,19 @@ export function DataTableFilterOperatorSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full", "justify-between", "truncate", triggerClassName)}>
+          className={cn(
+            "w-full",
+            "justify-between",
+            "truncate",
+            triggerClassName,
+          )}
+        >
           <div className={cn("truncate")}>
             {selectedLabel ?? placeholderText}
           </div>
-          <ChevronsUpDown className={cn("ml-2", "h-4", "w-4", "shrink-0", "opacity-50")} />
+          <ChevronsUpDown
+            className={cn("ml-2", "h-4", "w-4", "shrink-0", "opacity-50")}
+          />
         </Button>
       </PopoverTrigger>
       <PopoverContent className={cn("p-0", contentClassName)} forceMount>
@@ -755,9 +853,16 @@ export function DataTableFilterOperatorSelect({
                   onSelect={() => {
                     onValueChange(op);
                     setOpen(false);
-                  }}>
+                  }}
+                >
                   <Check
-                    className={cn("mr-2", "h-4", "w-4", value === op ? "opacity-100" : "opacity-0")} />
+                    className={cn(
+                      "mr-2",
+                      "h-4",
+                      "w-4",
+                      value === op ? "opacity-100" : "opacity-0",
+                    )}
+                  />
                   {t(i18nKey, defaultLabel)}
                 </CommandItem>
               ))}

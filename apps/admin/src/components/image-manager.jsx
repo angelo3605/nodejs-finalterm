@@ -6,37 +6,38 @@ import { useMemo, useState } from "react";
 import { DataTable } from "./refine-ui/data-table/data-table";
 import { useTable } from "@refinedev/react-table";
 import { api } from "@mint-boutique/axios-client";
-import { DeleteButton } from "./refine-ui/buttons/delete";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useUpdate } from "@refinedev/core";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from "./ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useDelete, useUpdate } from "@refinedev/core";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+} from "./ui/form";
 import { Input } from "./ui/input";
+import { cn } from "@/lib/utils";
 
-function AltTextPopup({ row, table }) {
+function AltTextPopover({ id, defaultValue, onSuccess }) {
   const [open, setOpen] = useState(false);
 
   const form = useForm({
-    defaultValues: { altText: row.original.altText },
+    defaultValues: { altText: defaultValue || "" },
   });
 
   const { mutate } = useUpdate({
-    resource: "images",
+    mutationOptions: {
+      onSuccess: async () => {
+        setOpen(false);
+        await onSuccess();
+      },
+    },
   });
-
-  const onSubmit = (values) => {
-    mutate(
-      {
-        values,
-        id: row.original.id,
-      },
-      {
-        onSuccess: async () => {
-          setOpen(false);
-          await table.refetch();
-        },
-      },
-    );
-  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -47,7 +48,12 @@ function AltTextPopup({ row, table }) {
       </PopoverTrigger>
       <PopoverContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+          <form
+            onSubmit={form.handleSubmit((values) =>
+              mutate({ values, id, resource: "images" }),
+            )}
+            className="space-y-2"
+          >
             <FormField
               control={form.control}
               name="altText"
@@ -57,7 +63,9 @@ function AltTextPopup({ row, table }) {
                   <FormControl>
                     <Input placeholder="Describe the image..." {...field} />
                   </FormControl>
-                  <FormDescription>Add an alternative text to make the image accessible.</FormDescription>
+                  <FormDescription>
+                    Add an alternative text to make the image accessible.
+                  </FormDescription>
                 </FormItem>
               )}
             />
@@ -69,37 +77,81 @@ function AltTextPopup({ row, table }) {
   );
 }
 
-export function ImageManager() {
+function DeletePopover({ id, onSuccess }) {
+  const [open, setOpen] = useState(false);
+
+  const { mutate } = useDelete({
+    mutationOptions: {
+      onSuccess: async () => {
+        setOpen(false);
+        await onSuccess();
+      },
+    },
+  });
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Trash />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="space-y-2">
+        <p className="text-sm">
+          Are you sure?
+          <br />
+          <span className="text-muted-foreground">
+            This action cannot be undone.
+          </span>
+        </p>
+        <Button onClick={() => mutate({ id, resource: "images" })}>
+          Delete
+        </Button>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+export function ImageManager({ onRefresh }) {
   const columns = useMemo(
     () => [
       {
         id: "altText",
-        header: "Description",
+        header: "Image",
         cell: ({ row }) => {
-          const altText = row.original.altText;
           return (
             <div className="flex items-center gap-2">
-              <img src={`${api.defaults.baseURL}${row.original.url}`} className="size-[40px] object-cover rounded-sm" />
-              {altText ?? <span className="opacity-75">No description provided</span>}
+              <img
+                src={`${api.defaults.baseURL}${row.original.url}`}
+                className="size-[40px] object-cover border rounded-xs"
+              />
+              <span
+                className={cn(row.original.altText || "text-muted-foreground")}
+              >
+                {row.original.altText ?? "No description"}
+              </span>
             </div>
           );
         },
       },
       {
+        id: "createdAt",
+        accessorKey: "createdAt",
+        header: "Upload date",
+      },
+      {
         id: "actions",
         header: "Actions",
-        size: 30,
-        cell: ({ row, table }) => {
-          const id = row.original.id;
-          return (
-            <>
-              <AltTextPopup row={row} table={table} />
-              <DeleteButton variant="ghost" size="icon" resource="images" recordItemId={id}>
-                <Trash />
-              </DeleteButton>
-            </>
-          );
-        },
+        cell: ({ row }) => (
+          <>
+            <AltTextPopover
+              id={row.original.id}
+              defaultValue={row.original.altText}
+              onSuccess={onRefresh}
+            />
+            <DeletePopover id={row.original.id} onSuccess={onRefresh} />
+          </>
+        ),
       },
     ],
     [],
@@ -112,7 +164,9 @@ export function ImageManager() {
     },
   });
   const {
-    refineCore: { tableQuery },
+    refineCore: {
+      tableQuery: { refetch },
+    },
   } = table;
 
   const uploadForm = useForm({
@@ -129,19 +183,27 @@ export function ImageManager() {
       });
 
       uploadForm.reset();
-      await tableQuery.refetch();
+
+      await refetch();
+      await onRefresh();
     }
   };
 
   return (
-    <div className="grid grid-cols-5 gap-4">
-      <div className="col-span-2 flex flex-col justify-between gap-2">
-        <DropZone control={uploadForm.control} name="images" maxFiles={5} maxSize={5_000_000} accepts={{ "images/*": [] }} />
+    <div className="grid @2xl:grid-cols-[40%_60%] gap-4">
+      <div className="flex flex-col justify-between gap-2">
+        <DropZone
+          control={uploadForm.control}
+          name="images"
+          maxFiles={5}
+          maxSize={5_000_000}
+          accepts={{ "images/*": [] }}
+        />
         <Button onClick={uploadForm.handleSubmit(onSubmit)} className="w-full">
           Submit
         </Button>
       </div>
-      <div className="col-span-3">
+      <div>
         <DataTable table={table} />
       </div>
     </div>

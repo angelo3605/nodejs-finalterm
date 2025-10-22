@@ -1,4 +1,7 @@
-import { CreateView, CreateViewHeader } from "@/components/refine-ui/views/create-view";
+import {
+  CreateView,
+  CreateViewHeader,
+} from "@/components/refine-ui/views/create-view";
 import { LoadingOverlay } from "@/components/refine-ui/layout/loading-overlay";
 import { ImagePicker } from "@/components/image-picker";
 import { useForm } from "react-hook-form";

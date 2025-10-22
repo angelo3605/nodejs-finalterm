@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { cn } from "@/lib/utils";
 import {
   useBack,
@@ -10,18 +10,17 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon } from "lucide-react";
 
-export function CreateView({
-  children,
-  className
-}) {
-  return (<div className={cn("flex flex-col", "gap-4", className)}>{children}</div>);
+export function CreateView({ children, className }) {
+  return (
+    <div className={cn("flex flex-col", "gap-4", className)}>{children}</div>
+  );
 }
 
 export const CreateViewHeader = ({
   resource: resourceFromProps,
   title: titleFromProps,
   wrapperClassName,
-  headerClassName
+  headerClassName,
 }) => {
   const back = useBack();
 
@@ -33,7 +32,10 @@ export const CreateViewHeader = ({
 
   const title =
     titleFromProps ??
-    getUserFriendlyName(resource?.meta?.label ?? identifier ?? resource?.name, "plural");
+    getUserFriendlyName(
+      resource?.meta?.label ?? identifier ?? resource?.name,
+      "plural",
+    );
 
   return (
     <div className={cn("flex flex-col", "gap-4", wrapperClassName)}>
@@ -44,7 +46,14 @@ export const CreateViewHeader = ({
         <Separator className={cn("absolute", "left-0", "right-0", "z-[1]")} />
       </div>
       <div
-        className={cn("flex", "gap-1", "items-center", "-ml-2.5", headerClassName)}>
+        className={cn(
+          "flex",
+          "gap-1",
+          "items-center",
+          "-ml-2.5",
+          headerClassName,
+        )}
+      >
         <Button variant="ghost" size="icon" onClick={back}>
           <ArrowLeftIcon className="h-4 w-4" />
         </Button>

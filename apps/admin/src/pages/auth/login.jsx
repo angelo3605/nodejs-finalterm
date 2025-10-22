@@ -2,12 +2,25 @@ import z from "zod";
 import { useLogin } from "@refinedev/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import GoogleLogo from "@/assets/oauth-icons/google.svg?react";
 import FacebookLogo from "@/assets/oauth-icons/facebook.svg?react";
 import { useForm } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router";
 import Logo from "@/assets/logo.svg?react";
@@ -41,7 +54,9 @@ export function LoginPage() {
         <CardHeader>
           <Logo className="size-[5rem] -mt-[4rem] mx-auto" />
           <CardTitle>Welcome back!</CardTitle>
-          <CardDescription>Please login with an account to continue</CardDescription>
+          <CardDescription>
+            Please login with an account to continue
+          </CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -67,15 +82,24 @@ export function LoginPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Your password" {...field} />
+                      <Input
+                        type="password"
+                        placeholder="Your password"
+                        {...field}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
               />
 
-              <Link className="inline-block text-sm hover:underline">Forgot password?</Link>
+              <Link className="inline-block text-sm hover:underline">
+                Forgot password?
+              </Link>
 
-              <Button type="submit" className="w-full bg-gradient-to-r from-primary to-accent hover:-translate-y-0.5 hover:shadow/20">
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-primary to-accent hover:-translate-y-0.5 hover:shadow/20"
+              >
                 Login
               </Button>
             </form>
@@ -91,7 +115,11 @@ export function LoginPage() {
 
           <div className="space-y-2">
             <OauthButton provider="google" name="Google" Icon={GoogleLogo} />
-            <OauthButton provider="facebook" name="Facebook" Icon={FacebookLogo} />
+            <OauthButton
+              provider="facebook"
+              name="Facebook"
+              Icon={FacebookLogo}
+            />
           </div>
         </CardFooter>
       </Card>

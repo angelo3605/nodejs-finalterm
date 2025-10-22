@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { flexRender } from "@tanstack/react-table";
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -14,11 +14,7 @@ import {
 import { DataTablePagination } from "@/components/refine-ui/data-table/data-table-pagination";
 import { cn } from "@/lib/utils";
 
-export function DataTable(
-  {
-    table
-  }
-) {
+export function DataTable({ table, renderSubComponent }) {
   const {
     reactTable: { getHeaderGroups, getRowModel, getAllColumns },
     refineCore: {
@@ -90,10 +86,14 @@ export function DataTable(
                           column: header.column,
                           isOverflowing: isOverflowing,
                         }),
-                      }}>
+                      }}
+                    >
                       {isPlaceholder ? null : (
                         <div className={cn("flex", "items-center", "gap-1")}>
-                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                         </div>
                       )}
                     </TableHead>
@@ -105,27 +105,34 @@ export function DataTable(
           <TableBody className="relative">
             {isLoading ? (
               <>
-                {Array.from({ length: pageSize < 1 ? 1 : pageSize }).map((_, rowIndex) => (
-                  <TableRow key={`skeleton-row-${rowIndex}`} aria-hidden="true">
-                    {leafColumns.map((column) => (
-                      <TableCell
-                        key={`skeleton-cell-${rowIndex}-${column.id}`}
-                        style={{
-                          ...getCommonStyles({
-                            column,
-                            isOverflowing: isOverflowing,
-                          }),
-                        }}
-                        className={cn("truncate")}>
-                        <div className="h-8" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
+                {Array.from({ length: pageSize < 1 ? 1 : pageSize }).map(
+                  (_, rowIndex) => (
+                    <TableRow
+                      key={`skeleton-row-${rowIndex}`}
+                      aria-hidden="true"
+                    >
+                      {leafColumns.map((column) => (
+                        <TableCell
+                          key={`skeleton-cell-${rowIndex}-${column.id}`}
+                          style={{
+                            ...getCommonStyles({
+                              column,
+                              isOverflowing: isOverflowing,
+                            }),
+                          }}
+                          className={cn("truncate")}
+                        >
+                          <div className="h-8" />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ),
+                )}
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className={cn("absolute", "inset-0", "pointer-events-none")}>
+                    className={cn("absolute", "inset-0", "pointer-events-none")}
+                  >
                     <Loader2
                       className={cn(
                         "absolute",
@@ -136,38 +143,57 @@ export function DataTable(
                         "h-8",
                         "w-8",
                         "-translate-x-1/2",
-                        "-translate-y-1/2"
-                      )} />
+                        "-translate-y-1/2",
+                      )}
+                    />
                   </TableCell>
                 </TableRow>
               </>
             ) : getRowModel().rows?.length ? (
               getRowModel().rows.map((row) => {
                 return (
-                  <TableRow
-                    key={row.original?.id ?? row.id}
-                    data-state={row.getIsSelected() && "selected"}>
-                    {row.getVisibleCells().map((cell) => {
-                      return (
-                        <TableCell
-                          key={cell.id}
-                          style={{
-                            ...getCommonStyles({
-                              column: cell.column,
-                              isOverflowing: isOverflowing,
-                            }),
-                          }}>
-                          <div className="truncate">
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </div>
+                  <>
+                    <TableRow
+                      key={row.original?.id ?? row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => {
+                        return (
+                          <TableCell
+                            key={cell.id}
+                            style={{
+                              ...getCommonStyles({
+                                column: cell.column,
+                                isOverflowing: isOverflowing,
+                              }),
+                            }}
+                          >
+                            <div className="truncate">
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </div>
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+
+                    {row.getIsExpanded() && (
+                      <TableRow>
+                        <TableCell colSpan={columns.length} className="p-0">
+                          {renderSubComponent?.({ row })}
                         </TableCell>
-                      );
-                    })}
-                  </TableRow>
+                      </TableRow>
+                    )}
+                  </>
                 );
               })
             ) : (
-              <DataTableNoData isOverflowing={isOverflowing} columnsLength={columns.length} />
+              <DataTableNoData
+                isOverflowing={isOverflowing}
+                columnsLength={columns.length}
+              />
             )}
           </TableBody>
         </Table>
@@ -179,22 +205,21 @@ export function DataTable(
           setCurrentPage={setCurrentPage}
           pageSize={pageSize}
           setPageSize={setPageSize}
-          total={tableQuery.data?.total} />
+          total={tableQuery.data?.total}
+        />
       )}
     </div>
   );
 }
 
-function DataTableNoData({
-  isOverflowing,
-  columnsLength
-}) {
+function DataTableNoData({ isOverflowing, columnsLength }) {
   return (
     <TableRow className="hover:bg-transparent">
       <TableCell
         colSpan={columnsLength}
         className={cn("relative", "text-center")}
-        style={{ height: "490px" }}>
+        style={{ height: "490px" }}
+      >
         <div
           className={cn(
             "absolute",
@@ -204,7 +229,7 @@ function DataTableNoData({
             "items-center",
             "justify-center",
             "gap-2",
-            "bg-background"
+            "bg-background",
           )}
           style={{
             position: isOverflowing.horizontal ? "sticky" : "absolute",
@@ -213,7 +238,8 @@ function DataTableNoData({
             zIndex: isOverflowing.horizontal ? 2 : 1,
             width: isOverflowing.horizontal ? "fit-content" : "100%",
             minWidth: "300px",
-          }}>
+          }}
+        >
           <div className={cn("text-lg", "font-semibold", "text-foreground")}>
             No data to display
           </div>
@@ -226,12 +252,7 @@ function DataTableNoData({
   );
 }
 
-export function getCommonStyles(
-  {
-    column,
-    isOverflowing
-  }
-) {
+export function getCommonStyles({ column, isOverflowing }) {
   const isPinned = column.getIsPinned();
   const isLastLeftPinnedColumn =
     isPinned === "left" && column.getIsLastColumn("left");
