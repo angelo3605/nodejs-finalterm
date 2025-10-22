@@ -18,7 +18,7 @@ export const dataProvider = {
   },
 
   update: async ({ resource, id, variables }) => {
-    const { data } = await api.patch(`${API_URL}/${resource}/${id}`, variables);
+    const { data } = await api.patch(`/${resource}/${id}`, variables);
     return { data };
   },
 
@@ -26,11 +26,11 @@ export const dataProvider = {
     const params = new URLSearchParams();
 
     if (pagination) {
-      params.append("_start", (pagination.currentPage - 1) * pagination.pageSize);
-      params.append("_end", pagination.currentPage * pagination.pageSize);
+      params.append("page", pagination.currentPage);
+      params.append("pageSize", pagination.pageSize);
     }
 
-    if (sorters && sorters.length > 0) {
+    /* if (sorters && sorters.length > 0) {
       params.append("_sort", sorters.map((sorter) => sorter.field).join(","));
       params.append("_order", sorters.map((sorter) => sorter.order).join(","));
     }
@@ -42,7 +42,7 @@ export const dataProvider = {
           params.append(filter.field, filter.value);
         }
       });
-    }
+    } */
 
     const { data } = await api.get(`/${resource}?${params.toString()}`);
     return { data: data[resource], total: data.count };

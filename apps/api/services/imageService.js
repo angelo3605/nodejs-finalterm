@@ -69,7 +69,7 @@ export const deleteImageService = async (id) => {
   return image;
 };
 
-export const getAllImagesService = async (page = 1, pageSize = 10) => {
+export const getAllImagesService = async (page, pageSize) => {
   const count = await prisma.image.count();
   const images = await prisma.image.findMany({
     skip: (page - 1) * pageSize,

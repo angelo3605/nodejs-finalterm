@@ -16,7 +16,8 @@ export const deleteImage = async (req, res) => {
 };
 
 export const getAllImages = async (req, res) => {
-  const { images, count } = await getAllImagesService();
+  const { page, pageSize } = req.query; 
+  const { images, count } = await getAllImagesService(Number(page ?? 1), Number(pageSize ?? 10));
   return res.json({ images, count });
 };
 

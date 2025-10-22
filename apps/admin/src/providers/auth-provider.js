@@ -25,9 +25,21 @@ export const authProvider = {
   check: async () => {
     try {
       const { data } = await api.get("/profile");
-      return { authenticated: data.user.role === "ADMIN" };
+      if (data.user.role !== "ADMIN") {
+        throw new Error("Unauthorized");
+      }
+      return {
+        authenticated: true,
+      };
     } catch (err) {
-      return { authenticated: false };
+      const { message } = err.response?.data;
+      return {
+        authenticated: false,
+        error: {
+          message: "Authentication Failed",
+          name: message ?? err.message ?? "Not logged in",
+        },
+      };
     }
   },
 
