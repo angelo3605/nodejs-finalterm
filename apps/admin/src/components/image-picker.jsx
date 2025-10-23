@@ -37,14 +37,19 @@ import {
 } from "lucide-react";
 import { ImageManager } from "./image-manager";
 
-function ImagePreviews({ imageUrls }) {
+function ImagePreviews({ imageUrls, onClick }) {
   return (
     <ScrollArea className="w-full rounded-md border">
       <>
         <div className="flex gap-2 p-2 h-50">
-          {imageUrls.length > 0 ? (
+          {imageUrls && imageUrls.length > 0 ? (
             imageUrls.map((url) => (
-              <img src={url} className="rounded-xs border" />
+              <img
+                key={url}
+                src={url}
+                className="rounded-xs border"
+                onClick={() => onClick(url)}
+              />
             ))
           ) : (
             <Empty>
@@ -124,7 +129,8 @@ export function ImagePicker({ control, name, maxFiles }) {
                   <CommandGroup>
                     {images.map((image) => {
                       const imageUrl = `${api.defaults.baseURL}${image.url}`;
-                      const checked = field.value.includes(imageUrl);
+                      const checked =
+                        field.value && field.value.includes(imageUrl);
 
                       const handleSelect = () => {
                         let newImageUrls;
@@ -149,7 +155,7 @@ export function ImagePicker({ control, name, maxFiles }) {
                           <img
                             src={imageUrl}
                             alttext={image.altText ?? image.id}
-                            className="size-[40px] object-cover rounded-xs border"
+                            className="shrink-0 size-[40px] object-cover rounded-xs border"
                           />
                           <p className="truncate">
                             {image.altText ?? (
@@ -177,7 +183,12 @@ export function ImagePicker({ control, name, maxFiles }) {
               </div>
             </PopoverContent>
           </Popover>
-          <ImagePreviews imageUrls={field.value} />
+          <ImagePreviews
+            imageUrls={field.value}
+            onClick={(imageUrl) =>
+              field.onChange(field.value.filter((url) => url !== imageUrl))
+            }
+          />
         </div>
       )}
     />

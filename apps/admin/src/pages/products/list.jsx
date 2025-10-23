@@ -13,12 +13,15 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { EditButton } from "@/components/refine-ui/buttons/edit";
 import { DeleteButton } from "@/components/refine-ui/buttons/delete";
+import { cn } from "@/lib/utils";
+import { CreateButton } from "@/components/refine-ui/buttons/create";
 
 export function ListProducts() {
   const error = null;
@@ -47,14 +50,17 @@ export function ListProducts() {
       cell: ({ row }) => (
         <div className="flex items-center gap-4">
           {row.original.imageUrls.length > 0 ? (
-            <img src={row.original.imageUrls[0]} />
+            <img
+              src={row.original.imageUrls[0]}
+              className="shrink-0 size-12 object-cover border rounded-xs"
+            />
           ) : (
             <div className="flex justify-center items-center shrink-0 size-12 bg-muted text-muted-foreground border rounded-xs">
               <Package className="opacity-33" />
             </div>
           )}
           <Link
-            to={showUrl(resource.name, row.original.slug)}
+            to={showUrl(resource.name, undefined, { slug: row.original.slug })}
             className="truncate hover:underline"
           >
             {row.original.name}
@@ -80,14 +86,16 @@ export function ListProducts() {
           <EditButton
             variant="ghost"
             size="icon"
-            recordItemId={row.original.id}
+            recordItemId={row.original.slug}
+            meta={{ slug: row.original.slug }}
           >
             <Pencil />
           </EditButton>
           <DeleteButton
             variant="ghost"
             size="icon"
-            recordItemId={row.original.id}
+            recordItemId={row.original.slug}
+            meta={{ slug: row.original.slug }}
           >
             <Trash />
           </DeleteButton>
@@ -103,9 +111,10 @@ export function ListProducts() {
 
   const renderSubComponent = ({ row }) => (
     <Table>
-      <TableHeader className="border-b">
+      <TableHeader
+        className={cn(row.original.variants?.length > 0 && "border-b")}
+      >
         <TableRow>
-          <TableHead></TableHead>
           <TableHead>Variant</TableHead>
           <TableHead>Price</TableHead>
           <TableHead>Stock</TableHead>
@@ -115,7 +124,6 @@ export function ListProducts() {
       <TableBody>
         {row.original.variants?.map((variant) => (
           <TableRow key={variant.id}>
-            <TableCell></TableCell>
             <TableCell>{variant.name}</TableCell>
             <TableCell>{variant.price}</TableCell>
             <TableCell>{variant.stockQuantity}</TableCell>
@@ -140,6 +148,13 @@ export function ListProducts() {
           </TableRow>
         ))}
       </TableBody>
+      <TableFooter>
+        <TableRow>
+          <TableCell rowSpan={4}>
+            <CreateButton resource="variants" />
+          </TableCell>
+        </TableRow>
+      </TableFooter>
     </Table>
   );
 

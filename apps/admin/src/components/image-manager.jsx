@@ -123,10 +123,13 @@ export function ImageManager({ onRefresh }) {
             <div className="flex items-center gap-2">
               <img
                 src={`${api.defaults.baseURL}${row.original.url}`}
-                className="size-[40px] object-cover border rounded-xs"
+                className="shrink-0 size-[40px] object-cover border rounded-xs"
               />
               <span
-                className={cn(row.original.altText || "text-muted-foreground")}
+                className={cn(
+                  "truncate",
+                  row.original.altText || "text-muted-foreground",
+                )}
               >
                 {row.original.altText ?? "No description"}
               </span>

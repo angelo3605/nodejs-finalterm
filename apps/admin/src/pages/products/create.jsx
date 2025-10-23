@@ -2,24 +2,31 @@ import {
   CreateView,
   CreateViewHeader,
 } from "@/components/refine-ui/views/create-view";
-import { LoadingOverlay } from "@/components/refine-ui/layout/loading-overlay";
-import { ImagePicker } from "@/components/image-picker";
-import { useForm } from "react-hook-form";
-import { Form } from "@/components/ui/form";
+import { ProductForm } from "@/forms/product-form";
+import { productSchema } from "@mint-boutique/zod-schemas";
+import { useForm } from "@refinedev/react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export function CreateProduct() {
-  const formLoading = false;
-
   const form = useForm({
-    defaultValues: { imageUrls: [] },
+    resolver: zodResolver(productSchema),
+    defaultValues: {
+      name: "",
+      desc: "",
+      imageUrls: [],
+      brand: "",
+      category: "",
+    },
+    refineCoreProps: {
+      resource: "products",
+      action: "create",
+    },
   });
 
   return (
     <CreateView>
       <CreateViewHeader />
-      <LoadingOverlay loading={formLoading}>
-        <ImagePicker control={form.control} name="imageUrls" />
-      </LoadingOverlay>
+      <ProductForm refineForm={form} />
     </CreateView>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 import { flexRender } from "@tanstack/react-table";
 import { Loader2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Fragment } from "react";
 
 import {
   Table,
@@ -152,11 +152,8 @@ export function DataTable({ table, renderSubComponent }) {
             ) : getRowModel().rows?.length ? (
               getRowModel().rows.map((row) => {
                 return (
-                  <>
-                    <TableRow
-                      key={row.original?.id ?? row.id}
-                      data-state={row.getIsSelected() && "selected"}
-                    >
+                  <Fragment key={row.original?.id ?? row.id}>
+                    <TableRow data-state={row.getIsSelected() && "selected"}>
                       {row.getVisibleCells().map((cell) => {
                         return (
                           <TableCell
@@ -186,7 +183,7 @@ export function DataTable({ table, renderSubComponent }) {
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </Fragment>
                 );
               })
             ) : (

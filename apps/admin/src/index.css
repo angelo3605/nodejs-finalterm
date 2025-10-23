@@ -229,4 +229,9 @@
       );
     background-size: var(--s) var(--s);
   }
+
+  /* Dirty hack for hiding <ShowViewHeader /> edit button */
+  .mint-show-header [data-slot="button"][href*="/show"] {
+    display: none;
+  }
 }

@@ -75,7 +75,7 @@ export const getProductBySlugService = async (slug) => {
   return product;
 };
 
-export const updateProductService = async (slug, { name, desc, imageUrls, brand, category }) => {
+export const updateProductService = async (slug, { name, desc, imageUrls, brand, category, isDeleted }) => {
   if (
     !(await prisma.product.count({
       where: { slug },
@@ -86,10 +86,11 @@ export const updateProductService = async (slug, { name, desc, imageUrls, brand,
   const product = prisma.product.update({
     where: { slug },
     data: {
-      slug: data.name ? slugify(name, { lower: true }) : undefined,
+      slug: name ? slugify(name, { lower: true }) : undefined,
       name,
       desc,
       imageUrls,
+      isDeleted,
       brand: brand ? { connect: { slug: brand } } : undefined,
       category: category ? { connect: { slug: category } } : undefined,
     },
