@@ -2,7 +2,10 @@ import { ThemeProvider } from "@/components/refine-ui/theme/theme-provider";
 import "@fontsource/dancing-script/700.css";
 import "@fontsource/poppins";
 import { Authenticated, Refine } from "@refinedev/core";
-import routerProvider, { CatchAllNavigate } from "@refinedev/react-router";
+import routerProvider, {
+  CatchAllNavigate,
+  NavigateToResource,
+} from "@refinedev/react-router";
 import {
   Blocks,
   CircleUserRound,
@@ -24,6 +27,7 @@ import { ShowProduct } from "./pages/products/show";
 import { CreateVariant } from "./pages/variants/create";
 import { authProvider } from "./providers/auth-provider";
 import { dataProvider } from "./providers/data-provider";
+import { EditVariant } from "./pages/variants/edit";
 
 const resources = [
   {
@@ -67,6 +71,7 @@ const resources = [
   },
   {
     name: "variants",
+    list: "/products",
     create: "/products/:slug/variants/create",
     show: "/products/:slug/variants/show/:id",
     edit: "/products/:slug/variants/edit/:id",
@@ -128,10 +133,14 @@ export function App() {
               <Route path="create" element={<CreateProduct />} />
               <Route path="show/:slug" element={<ShowProduct />} />
               <Route path="edit/:slug" element={<EditProduct />} />
-            </Route>
-            <Route path="variants">
-              <Route index element={<Navigate to="/products" replace />} />
-              <Route path="create" element={<CreateVariant />} />
+              <Route path=":slug/variants">
+                <Route
+                  index
+                  element={<NavigateToResource resource="products" />}
+                />
+                <Route path="create" element={<CreateVariant />} />
+                <Route path="edit/:id" element={<EditVariant />} />
+              </Route>
             </Route>
           </Route>
           <Route path="login" element={<LoginPage />} />

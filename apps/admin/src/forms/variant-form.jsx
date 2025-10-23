@@ -47,6 +47,7 @@ export function VariantForm({ refineForm }) {
             name="productSlug"
             options={products}
             label="Product"
+            disabled={true}
           />
           <FormField
             control={form.control}

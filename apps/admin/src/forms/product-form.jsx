@@ -56,8 +56,8 @@ export function ProductForm({ refineForm }) {
           maxFiles={10}
           label="Images"
         />
-        <div className="grid grid-cols-[1fr_2fr] gap-4">
-          <div className="flex flex-col gap-4">
+        <div className="grid md:grid-cols-[1fr_2fr] gap-4">
+          <div className="space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -84,7 +84,7 @@ export function ProductForm({ refineForm }) {
               label="Brand"
             />
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="space-y-4">
             <FormField
               control={form.control}
               name="desc"

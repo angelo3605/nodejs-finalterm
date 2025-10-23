@@ -22,6 +22,7 @@ import {
 } from "./ui/form";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
+import { DeleteButton } from "./refine-ui/buttons/delete";
 
 function AltTextPopover({ id, defaultValue, onSuccess }) {
   const [open, setOpen] = useState(false);
@@ -77,41 +78,6 @@ function AltTextPopover({ id, defaultValue, onSuccess }) {
   );
 }
 
-function DeletePopover({ id, onSuccess }) {
-  const [open, setOpen] = useState(false);
-
-  const { mutate } = useDelete({
-    mutationOptions: {
-      onSuccess: async () => {
-        setOpen(false);
-        await onSuccess();
-      },
-    },
-  });
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Trash />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="space-y-2">
-        <p className="text-sm">
-          Are you sure?
-          <br />
-          <span className="text-muted-foreground">
-            This action cannot be undone.
-          </span>
-        </p>
-        <Button onClick={() => mutate({ id, resource: "images" })}>
-          Delete
-        </Button>
-      </PopoverContent>
-    </Popover>
-  );
-}
-
 export function ImageManager({ onRefresh }) {
   const columns = useMemo(
     () => [
@@ -152,7 +118,15 @@ export function ImageManager({ onRefresh }) {
               defaultValue={row.original.altText}
               onSuccess={onRefresh}
             />
-            <DeletePopover id={row.original.id} onSuccess={onRefresh} />
+            <DeleteButton
+              variant="ghost"
+              size="icon"
+              resource="images"
+              recordItemId={row.original.id}
+              onSuccess={onRefresh}
+            >
+              <Trash />
+            </DeleteButton>
           </>
         ),
       },

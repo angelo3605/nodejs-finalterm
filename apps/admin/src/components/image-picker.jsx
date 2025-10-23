@@ -118,7 +118,7 @@ export function ImagePicker({ control, name, maxFiles, label }) {
             <div className="space-y-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline">
+                  <Button variant="outline" className="w-60">
                     <ImagePlus />
                     Add {maxFiles} images...
                     <ChevronsUpDown className="ml-auto" />

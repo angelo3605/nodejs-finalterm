@@ -120,6 +120,11 @@ export function ListProducts() {
     columns,
     getRowCanExpand: () => true,
   });
+  const {
+    refineCore: {
+      tableQuery: { refetch },
+    },
+  } = table;
 
   const formatter = useMemo(
     () =>
@@ -165,6 +170,7 @@ export function ListProducts() {
                 size="icon"
                 resource="variants"
                 recordItemId={variant.id}
+                meta={{ slug: product.slug }}
               >
                 <Pencil />
               </EditButton>
@@ -173,6 +179,8 @@ export function ListProducts() {
                 size="icon"
                 resource="variants"
                 recordItemId={variant.id}
+                meta={{ slug: product.slug }}
+                onSuccess={async () => await refetch()}
               >
                 <Trash />
               </DeleteButton>

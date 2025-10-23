@@ -10,7 +10,18 @@ import {
 } from "@/components/ui/popover";
 
 export const DeleteButton = React.forwardRef(
-  ({ resource, recordItemId, accessControl, meta, children, ...rest }, ref) => {
+  (
+    {
+      resource,
+      recordItemId,
+      accessControl,
+      meta,
+      children,
+      onSuccess,
+      ...rest
+    },
+    ref,
+  ) => {
     const {
       hidden,
       disabled,
@@ -25,6 +36,7 @@ export const DeleteButton = React.forwardRef(
       id: recordItemId,
       accessControl,
       meta,
+      onSuccess,
     });
     const [open, setOpen] = React.useState(false);
 

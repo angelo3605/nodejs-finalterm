@@ -1,34 +1,30 @@
 import {
-  CreateView,
-  CreateViewHeader,
-} from "@/components/refine-ui/views/create-view";
+  EditView,
+  EditViewHeader,
+} from "@/components/refine-ui/views/edit-view";
 import { VariantForm } from "@/forms/variant-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { variantSchema } from "@mint-boutique/zod-schemas";
 import { useForm } from "@refinedev/react-hook-form";
 import { useParams } from "react-router";
 
-export function CreateVariant() {
-  const { slug: productSlug } = useParams();
+export function EditVariant() {
+  const { slug: productSlug, id } = useParams();
 
   const form = useForm({
     resolver: zodResolver(variantSchema),
-    defaultValues: {
-      productSlug,
-      name: "",
-      price: "",
-      stockQuantity: "",
-    },
+    defaultValues: { productSlug },
     refineCoreProps: {
       resource: "variants",
-      action: "create",
+      action: "edit",
+      id,
     },
   });
 
   return (
-    <CreateView>
-      <CreateViewHeader />
+    <EditView>
+      <EditViewHeader />
       <VariantForm refineForm={form} />
-    </CreateView>
+    </EditView>
   );
 }
