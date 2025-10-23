@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChevronsUpDown, Store, LogOut, CircleUserRound } from "lucide-react";
-import { useGetIdentity } from "@refinedev/core";
+import { useGetIdentity, useLogout } from "@refinedev/core";
 
 export function NavUser() {
   const { data: user } = useGetIdentity();
+
+  const { mutate: logout } = useLogout();
 
   return (
     <SidebarMenu>
@@ -47,7 +49,7 @@ export function NavUser() {
               <Store className="text-inherit" />
               <span>Return to Store</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => logout()}>
               <LogOut className="text-inherit" />
               <span>Log out</span>
             </DropdownMenuItem>

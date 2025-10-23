@@ -1,13 +1,13 @@
+import { useMenu } from "@refinedev/core";
 import { useMemo } from "react";
 import { Link } from "react-router";
-import { useMenu } from "@refinedev/core";
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuItem,
 } from "./ui/sidebar";
 
 export function NavMain() {
@@ -42,7 +42,7 @@ export function NavMain() {
                 isActive={item.key === selectedKey}
                 className={
                   item.key === selectedKey &&
-                  "!bg-accent !text-accent-foreground"
+                  "bg-primary! text-primary-foreground!"
                 }
               >
                 <Link to={item.route}>

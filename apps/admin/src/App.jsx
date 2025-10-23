@@ -1,13 +1,8 @@
-import { BrowserRouter, Outlet, Route, Routes } from "react-router";
-import { Refine, Authenticated } from "@refinedev/core";
+import { ThemeProvider } from "@/components/refine-ui/theme/theme-provider";
+import "@fontsource/dancing-script/700.css";
+import "@fontsource/poppins";
+import { Authenticated, Refine } from "@refinedev/core";
 import routerProvider, { CatchAllNavigate } from "@refinedev/react-router";
-import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
-
-import { dataProvider } from "./providers/data-provider";
-import { RootLayout } from "./layouts/root-layout";
-
-import { ListProducts } from "./pages/products/list";
-import { Dashboard } from "./pages/dashboard";
 import {
   Blocks,
   CircleUserRound,
@@ -16,15 +11,19 @@ import {
   ShoppingBag,
   TicketPercent,
 } from "lucide-react";
-import { ShowProduct } from "./pages/products/show";
-import { authProvider } from "./providers/auth-provider";
-import { LoginPage } from "./pages/auth/login";
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import { Toaster } from "./components/refine-ui/notification/toaster";
-
-import "@fontsource/poppins";
-import "@fontsource/dancing-script/700.css";
-import { EditProduct } from "./pages/products/edit";
+import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
+import { RootLayout } from "./layouts/root-layout";
+import { LoginPage } from "./pages/auth/login";
+import { Dashboard } from "./pages/dashboard";
 import { CreateProduct } from "./pages/products/create";
+import { EditProduct } from "./pages/products/edit";
+import { ListProducts } from "./pages/products/list";
+import { ShowProduct } from "./pages/products/show";
+import { CreateVariant } from "./pages/variants/create";
+import { authProvider } from "./providers/auth-provider";
+import { dataProvider } from "./providers/data-provider";
 
 const resources = [
   {
@@ -58,8 +57,8 @@ const resources = [
     name: "products",
     list: "/products",
     create: "/products/create",
-    show: "/products/:slug/show",
-    edit: "/products/:slug/edit",
+    show: "/products/show/:slug",
+    edit: "/products/edit/:slug",
     meta: {
       section: "Catalogue",
       label: "Products",
@@ -68,10 +67,9 @@ const resources = [
   },
   {
     name: "variants",
-    list: "/variants",
-    create: "/variants/create",
-    show: "/variants/:id/show",
-    edit: "/variants/:id/edit",
+    create: "/products/:slug/variants/create",
+    show: "/products/:slug/variants/show/:id",
+    edit: "/products/:slug/variants/edit/:id",
     meta: {
       hide: true,
       label: "Variants",
@@ -81,7 +79,7 @@ const resources = [
     name: "categories",
     list: "/categories",
     create: "/categories/create",
-    show: "/categories/:id/show",
+    show: "/categories/show/:id",
     meta: {
       section: "Catalogue",
       label: "Categories",
@@ -113,9 +111,14 @@ export function App() {
           <Route
             element={
               <Authenticated fallback={<CatchAllNavigate to="/login" />}>
-                <RootLayout>
-                  <Outlet />
-                </RootLayout>
+                <ThemeProvider
+                  defaultTheme="system"
+                  storageKey="mint-boutique-theme"
+                >
+                  <RootLayout>
+                    <Outlet />
+                  </RootLayout>
+                </ThemeProvider>
               </Authenticated>
             }
           >
@@ -123,15 +126,15 @@ export function App() {
             <Route path="products">
               <Route index element={<ListProducts />} />
               <Route path="create" element={<CreateProduct />} />
-              <Route path=":slug">
-                <Route path="show" element={<ShowProduct />} />
-                <Route path="edit" element={<EditProduct />} />
-              </Route>
+              <Route path="show/:slug" element={<ShowProduct />} />
+              <Route path="edit/:slug" element={<EditProduct />} />
+            </Route>
+            <Route path="variants">
+              <Route index element={<Navigate to="/products" replace />} />
+              <Route path="create" element={<CreateVariant />} />
             </Route>
           </Route>
-          <Route element={<Authenticated fallback={<Outlet />} />}>
-            <Route path="login" element={<LoginPage />} />
-          </Route>
+          <Route path="login" element={<LoginPage />} />
         </Routes>
       </Refine>
       <Toaster />

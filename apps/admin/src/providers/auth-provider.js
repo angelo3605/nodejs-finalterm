@@ -9,18 +9,37 @@ export const authProvider = {
         redirectTo: "/",
       };
     } catch (err) {
-      const { message } = err.response?.data;
+      const { status, data } = err.response;
       return {
         success: false,
         error: {
-          message: "Login Error",
-          name: message ?? err.message ?? "Something went wrong",
+          name: "Login Error",
+          message:
+            status === 401
+              ? "Incorrect email or password"
+              : (data?.message ?? err.message ?? "Something went wrong"),
         },
       };
     }
   },
 
-  logout: async () => {},
+  logout: async () => {
+    try {
+      await api.post("/auth/logout");
+      return {
+        success: true,
+      };
+    } catch (err) {
+      const { data } = err.response;
+      return {
+        success: false,
+        error: {
+          name: "Logout Error",
+          message: data?.message ?? err.message ?? "Something went wrong",
+        },
+      };
+    }
+  },
 
   check: async () => {
     try {
@@ -32,12 +51,12 @@ export const authProvider = {
         authenticated: true,
       };
     } catch (err) {
-      const { message } = err.response?.data;
+      const { data } = err.response;
       return {
         authenticated: false,
         error: {
-          message: "Authentication Failed",
-          name: message ?? err.message ?? "Not logged in",
+          name: "Authentication Failed",
+          message: data?.message ?? "Not logged in",
         },
       };
     }

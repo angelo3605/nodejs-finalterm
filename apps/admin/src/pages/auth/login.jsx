@@ -1,6 +1,6 @@
-import z from "zod";
-import { useLogin } from "@refinedev/core";
-import { zodResolver } from "@hookform/resolvers/zod";
+import Logo from "@/assets/logo.svg?react";
+import FacebookLogo from "@/assets/oauth-icons/facebook.svg?react";
+import GoogleLogo from "@/assets/oauth-icons/google.svg?react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,10 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import GoogleLogo from "@/assets/oauth-icons/google.svg?react";
-import FacebookLogo from "@/assets/oauth-icons/facebook.svg?react";
-import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -22,8 +18,14 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Spinner } from "@/components/ui/spinner";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useLogin } from "@refinedev/core";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link } from "react-router";
-import Logo from "@/assets/logo.svg?react";
+import z from "zod";
 
 const loginSchema = z.object({
   email: z.email().min(1).trim(),
@@ -39,6 +41,8 @@ function OauthButton({ provider, name, Icon, onCallback }) {
 }
 
 export function LoginPage() {
+  const [loading, setLoading] = useState(false);
+
   const { mutate: login } = useLogin();
 
   const form = useForm({
@@ -46,13 +50,16 @@ export function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data) => login(data);
+  const onSubmit = (data) => {
+    setLoading(true);
+    login(data, { onSuccess: () => setLoading(false) });
+  };
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-leaves">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <Logo className="size-[5rem] -mt-[4rem] mx-auto" />
+          <Logo className="size-20 -mt-16 mx-auto" />
           <CardTitle>Welcome back!</CardTitle>
           <CardDescription>
             Please login with an account to continue
@@ -98,19 +105,21 @@ export function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-primary to-accent hover:-translate-y-0.5 hover:shadow/20"
+                disabled={loading}
+                className="w-full bg-linear-to-t from-primary to-white to-500% hover:-translate-y-0.5 hover:shadow/20"
               >
+                {loading && <Spinner />}
                 Login
               </Button>
             </form>
           </Form>
         </CardContent>
 
-        <CardFooter className="flex-col [&>*]:w-full gap-6">
+        <CardFooter className="flex-col *:w-full gap-6">
           <div className="flex items-center gap-2">
-            <Separator className="!shrink-1" />
+            <Separator className="shrink!" />
             <span className="text-sm shrink-0">or</span>
-            <Separator className="!shrink-1" />
+            <Separator className="shrink!" />
           </div>
 
           <div className="space-y-2">
