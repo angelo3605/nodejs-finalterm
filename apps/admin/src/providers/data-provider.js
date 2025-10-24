@@ -45,7 +45,7 @@ export const dataProvider = {
     } */
 
     const { data } = await api.get(`/${resource}?${params.toString()}`);
-    return { data: data[resource], total: data.count };
+    return { data: data[resource], total: data.count ?? data[resource].length };
   },
 
   create: async ({ resource, variables }) => {

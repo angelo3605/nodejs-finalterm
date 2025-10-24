@@ -24,13 +24,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLogin } from "@refinedev/core";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
-import z from "zod";
-
-const loginSchema = z.object({
-  email: z.email().min(1).trim(),
-  password: z.string().min(1),
-});
+import { loginSchema } from "@mint-boutique/zod-schemas";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 function OauthButton({ provider, name, Icon, onCallback }) {
   return (
@@ -46,7 +42,11 @@ export function LoginPage() {
   const { mutate: login } = useLogin();
 
   const form = useForm({
-    defaultValues: { email: "", password: "" },
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
     resolver: zodResolver(loginSchema),
   });
 
@@ -99,9 +99,20 @@ export function LoginPage() {
                 )}
               />
 
-              <Link className="inline-block text-sm hover:underline">
-                Forgot password?
-              </Link>
+              <FormField
+                control={form.control}
+                name="rememberMe"
+                render={({ field }) => (
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      id="rememberMe"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                    <Label htmlFor="rememberMe">Remember me</Label>
+                  </div>
+                )}
+              />
 
               <Button
                 type="submit"

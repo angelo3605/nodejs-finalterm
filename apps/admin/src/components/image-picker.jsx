@@ -2,7 +2,13 @@ import { useInfiniteList } from "@refinedev/core";
 import { api } from "@mint-boutique/axios-client";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
-import { FormControl, FormField, FormItem, FormLabel } from "./ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./ui/form";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
@@ -38,13 +44,15 @@ import {
 } from "lucide-react";
 import { ImageManager } from "./image-manager";
 
+// TODO: Array checking is rudimentary. Will improve later
+
 function ImagePreviews({ imageUrls, onClick }) {
   return (
     <ScrollArea className="w-full rounded-md border">
       <>
         <div className="flex gap-2 p-2 h-40">
-          {imageUrls && imageUrls.length > 0 ? (
-            imageUrls.map((url) => (
+          {imageUrls || (Array.isArray(imageUrls) && imageUrls.length > 0) ? (
+            (Array.isArray(imageUrls) ? imageUrls : [imageUrls]).map((url) => (
               <button
                 onClick={() => onClick(url)}
                 className="group cursor-pointer relative"
@@ -139,16 +147,18 @@ export function ImagePicker({ control, name, maxFiles, label }) {
                         {images.map((image) => {
                           const imageUrl = `${api.defaults.baseURL}${image.url}`;
                           const checked =
-                            field.value && field.value.includes(imageUrl);
+                            field.value &&
+                            (field.value === imageUrl ||
+                              field.value.includes(imageUrl));
 
                           const handleSelect = () => {
                             let newImageUrls;
-                            if (checked) {
-                              newImageUrls = field.value.filter(
-                                (url) => url !== imageUrl,
-                              );
+                            if (Array.isArray(field.value)) {
+                              newImageUrls = checked
+                                ? field.value.filter((url) => url !== imageUrl)
+                                : (newImageUrls = [...field.value, imageUrl]);
                             } else {
-                              newImageUrls = [...field.value, imageUrl];
+                              newImageUrls = checked ? "" : imageUrl;
                             }
                             field.onChange(newImageUrls);
                           };
@@ -197,11 +207,16 @@ export function ImagePicker({ control, name, maxFiles, label }) {
               <ImagePreviews
                 imageUrls={field.value}
                 onClick={(imageUrl) =>
-                  field.onChange(field.value.filter((url) => url !== imageUrl))
+                  field.onChange(
+                    Array.isArray(field.value)
+                      ? field.value.filter((url) => url !== imageUrl)
+                      : "",
+                  )
                 }
               />
             </div>
           </FormControl>
+          <FormMessage />
         </FormItem>
       )}
     />

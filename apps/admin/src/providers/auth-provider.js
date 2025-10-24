@@ -1,9 +1,9 @@
 import { api } from "@mint-boutique/axios-client";
 
 export const authProvider = {
-  login: async ({ email, password }) => {
+  login: async ({ email, password, rememberMe }) => {
     try {
-      await api.post("/auth/login", { email, password });
+      await api.post("/auth/login", { email, password, rememberMe });
       return {
         success: true,
         redirectTo: "/",

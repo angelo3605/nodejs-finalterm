@@ -12,9 +12,10 @@ import {
   LayoutDashboard,
   Package,
   ShoppingBag,
+  Sparkles,
   TicketPercent,
 } from "lucide-react";
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router";
 import { Toaster } from "./components/refine-ui/notification/toaster";
 import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
 import { RootLayout } from "./layouts/root-layout";
@@ -28,6 +29,9 @@ import { CreateVariant } from "./pages/variants/create";
 import { authProvider } from "./providers/auth-provider";
 import { dataProvider } from "./providers/data-provider";
 import { EditVariant } from "./pages/variants/edit";
+import { ListCategories } from "./pages/categories/list";
+import { CreateCategory } from "./pages/categories/create";
+import { EditCategory } from "./pages/categories/edit";
 
 const resources = [
   {
@@ -84,13 +88,25 @@ const resources = [
     name: "categories",
     list: "/categories",
     create: "/categories/create",
-    show: "/categories/show/:id",
+    edit: "/categories/edit/:slug",
     meta: {
       section: "Catalogue",
       label: "Categories",
       icon: <Blocks />,
     },
   },
+  {
+    name: "brands",
+    list: "/brands",
+    create: "/brands/create",
+    edit: "/brands/edit/:slug",
+    meta: {
+      section: "Catalogue",
+      label: "Brands",
+      icon: <Sparkles />,
+    },
+  },
+
   {
     name: "users",
     list: "/users",
@@ -141,6 +157,11 @@ export function App() {
                 <Route path="create" element={<CreateVariant />} />
                 <Route path="edit/:id" element={<EditVariant />} />
               </Route>
+            </Route>
+            <Route path="categories">
+              <Route index element={<ListCategories />} />
+              <Route path="create" element={<CreateCategory />} />
+              <Route path="edit/:slug" element={<EditCategory />} />
             </Route>
           </Route>
           <Route path="login" element={<LoginPage />} />
