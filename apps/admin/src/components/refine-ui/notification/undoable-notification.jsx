@@ -8,7 +8,7 @@ export function UndoableNotification({
   description,
   undoableTimeout = 5,
   cancelMutation,
-  onClose
+  onClose,
 }) {
   const t = useTranslate();
 
@@ -36,8 +36,9 @@ export function UndoableNotification({
         "border",
         "border-border",
         "min-w-[320px]",
-        "max-w-md"
-      )}>
+        "max-w-md",
+      )}
+    >
       <div className={cn("flex", "items-center", "justify-between")}>
         <div className={cn("flex-1", "mr-4")}>
           <div className={cn("font-medium", "text-foreground", "text-sm")}>
@@ -62,8 +63,9 @@ export function UndoableNotification({
             "py-2",
             "text-sm",
             "font-medium",
-            "rounded-md"
-          )}>
+            "rounded-md",
+          )}
+        >
           {t("buttons.undo", "Undo")}
         </Button>
       </div>

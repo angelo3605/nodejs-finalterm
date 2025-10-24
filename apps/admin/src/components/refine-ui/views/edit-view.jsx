@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { cn } from "@/lib/utils";
 import {
   useBack,
@@ -11,11 +11,10 @@ import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/refine-ui/buttons/refresh";
 import { ArrowLeftIcon } from "lucide-react";
 
-export function EditView({
-  children,
-  className
-}) {
-  return (<div className={cn("flex flex-col", "gap-4", className)}>{children}</div>);
+export function EditView({ children, className }) {
+  return (
+    <div className={cn("flex flex-col", "gap-4", className)}>{children}</div>
+  );
 }
 
 export const EditViewHeader = ({
@@ -23,7 +22,7 @@ export const EditViewHeader = ({
   title: titleFromProps,
   actionsSlot,
   wrapperClassName,
-  headerClassName
+  headerClassName,
 }) => {
   const back = useBack();
 
@@ -38,7 +37,10 @@ export const EditViewHeader = ({
 
   const title =
     titleFromProps ??
-    getUserFriendlyName(resource?.meta?.label ?? identifier ?? resource?.name, "plural");
+    getUserFriendlyName(
+      resource?.meta?.label ?? identifier ?? resource?.name,
+      "plural",
+    );
 
   return (
     <div className={cn("flex flex-col", "gap-4", wrapperClassName)}>
@@ -55,8 +57,9 @@ export const EditViewHeader = ({
           "items-center",
           "justify-between",
           "-ml-2.5",
-          headerClassName
-        )}>
+          headerClassName,
+        )}
+      >
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" onClick={back}>
             <ArrowLeftIcon className="h-4 w-4" />
@@ -66,7 +69,11 @@ export const EditViewHeader = ({
 
         <div className="flex items-center gap-2">
           {actionsSlot}
-          <RefreshButton variant="outline" recordItemId={recordItemId} resource={resourceName} />
+          <RefreshButton
+            variant="outline"
+            recordItemId={recordItemId}
+            resource={resourceName}
+          />
         </div>
       </div>
     </div>

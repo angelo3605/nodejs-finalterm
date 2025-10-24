@@ -1,8 +1,8 @@
-import { useDropzone } from "react-dropzone";
-import { FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { useEffect, useState } from "react";
+import { useDropzone } from "react-dropzone";
 import { Button } from "./ui/button";
-import { Trash } from "lucide-react";
+import { FormField, FormItem, FormLabel } from "./ui/form";
+import { Trash, Upload } from "lucide-react";
 
 const constructKey = (file) => file.name + file.lastModified;
 
@@ -36,8 +36,15 @@ export function FilePreviews({ files, onRemove }) {
         const url = urlMap.get(key);
 
         return (
-          <div key={key} className="grid grid-cols-[auto_1fr_auto] items-center gap-4 border rounded-md overflow-hidden pr-[0.375rem]">
-            {url ? <img src={url} alt={file.name} className="size-[3rem] object-cover" /> : <div></div>}
+          <div
+            key={key}
+            className="grid grid-cols-[auto_1fr_auto] items-center gap-4 border rounded-md overflow-hidden pr-1.5"
+          >
+            {url ? (
+              <img src={url} alt={file.name} className="size-12 object-cover" />
+            ) : (
+              <div></div>
+            )}
             <p className="text-sm truncate">{file.name}</p>
             <Button variant="ghost" size="icon" onClick={() => onRemove(file)}>
               <Trash />
@@ -57,22 +64,43 @@ export function DropZone({ control, name, label, maxSize, accepts, maxFiles }) {
       defaultValue={[]}
       render={({ field: { value, onChange } }) => {
         const onDrop = (acceptedFiles) => {
-          const newFiles = [...(value || []), ...acceptedFiles].slice(0, maxFiles);
+          const newFiles = [...(value || []), ...acceptedFiles].slice(
+            0,
+            maxFiles,
+          );
           onChange(newFiles);
         };
 
         const onRemove = (removedFile) => {
-          const updatedFiles = value?.filter((file) => file !== removedFile) || [];
+          const updatedFiles =
+            value?.filter((file) => file !== removedFile) || [];
           onChange(updatedFiles);
         };
 
-        const { getRootProps, getInputProps } = useDropzone({ onDrop, maxSize, accepts, maxFiles });
+        const { getRootProps, getInputProps } = useDropzone({
+          onDrop,
+          maxSize,
+          accepts,
+          maxFiles,
+        });
 
         return (
           <FormItem>
             {label && <FormLabel>{label}</FormLabel>}
-            <div {...getRootProps()} className="h-[5rem] border-2 border-dashed rounded-md">
+            <div
+              {...getRootProps()}
+              className="flex flex-col items-center gap-4 p-4 border-2 border-dashed rounded-md cursor-pointer"
+            >
               <input {...getInputProps()} />
+              <Upload />
+              <p className="text-center">
+                Upload {maxFiles} files
+                <br />
+                <span className="text-sm">
+                  Drag and drop or{" "}
+                  <span className="underline">select files</span> to upload
+                </span>
+              </p>
             </div>
             <FilePreviews files={value || []} onRemove={onRemove} />
             {/* <FormMessage /> */}

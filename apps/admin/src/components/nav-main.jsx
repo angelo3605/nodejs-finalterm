@@ -1,7 +1,14 @@
+import { useMenu } from "@refinedev/core";
 import { useMemo } from "react";
 import { Link } from "react-router";
-import { useMenu } from "@refinedev/core";
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "./ui/sidebar";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "./ui/sidebar";
 
 export function NavMain() {
   const { menuItems, selectedKey } = useMenu();
@@ -18,17 +25,26 @@ export function NavMain() {
 
         return acc;
       }, {}),
-    [menuItems]
+    [menuItems],
   );
 
   return Object.entries(sections).map(([section, items]) => (
     <SidebarGroup key={section}>
       <SidebarGroupContent>
-        {section !== "Other" && <SidebarGroupLabel>{section}</SidebarGroupLabel>}
+        {section !== "Other" && (
+          <SidebarGroupLabel>{section}</SidebarGroupLabel>
+        )}
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.key}>
-              <SidebarMenuButton asChild isActive={item.key === selectedKey} className={item.key === selectedKey && "!bg-accent !text-accent-foreground"}>
+              <SidebarMenuButton
+                asChild
+                isActive={item.key === selectedKey}
+                className={
+                  item.key === selectedKey &&
+                  "bg-primary! text-primary-foreground!"
+                }
+              >
                 <Link to={item.route}>
                   {item.meta?.icon}
                   <span>{item.label}</span>

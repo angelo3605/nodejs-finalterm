@@ -1,21 +1,37 @@
-import { BrowserRouter, Outlet, Route, Routes } from "react-router";
-import { Refine, Authenticated } from "@refinedev/core";
-import routerProvider, { CatchAllNavigate } from "@refinedev/react-router";
-import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
-
-import { dataProvider } from "./providers/data-provider";
-import { RootLayout } from "./layouts/root-layout";
-
-import { ListProducts } from "./pages/products/list";
-import { Dashboard } from "./pages/dashboard";
-import { Blocks, CircleUserRound, LayoutDashboard, Package, ShoppingBag, TicketPercent } from "lucide-react";
-import { ShowProduct } from "./pages/products/show";
-import { authProvider } from "./providers/auth-provider";
-import { LoginPage } from "./pages/auth/login";
-import { Toaster } from "./components/refine-ui/notification/toaster";
-
-import "@fontsource/poppins";
+import { ThemeProvider } from "@/components/refine-ui/theme/theme-provider";
 import "@fontsource/dancing-script/700.css";
+import "@fontsource/poppins";
+import { Authenticated, Refine } from "@refinedev/core";
+import routerProvider, {
+  CatchAllNavigate,
+  NavigateToResource,
+} from "@refinedev/react-router";
+import {
+  Blocks,
+  CircleUserRound,
+  LayoutDashboard,
+  Package,
+  ShoppingBag,
+  Sparkles,
+  TicketPercent,
+} from "lucide-react";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router";
+import { Toaster } from "./components/refine-ui/notification/toaster";
+import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
+import { RootLayout } from "./layouts/root-layout";
+import { LoginPage } from "./pages/auth/login";
+import { Dashboard } from "./pages/dashboard";
+import { CreateProduct } from "./pages/products/create";
+import { EditProduct } from "./pages/products/edit";
+import { ListProducts } from "./pages/products/list";
+import { ShowProduct } from "./pages/products/show";
+import { CreateVariant } from "./pages/variants/create";
+import { authProvider } from "./providers/auth-provider";
+import { dataProvider } from "./providers/data-provider";
+import { EditVariant } from "./pages/variants/edit";
+import { ListCategories } from "./pages/categories/list";
+import { CreateCategory } from "./pages/categories/create";
+import { EditCategory } from "./pages/categories/edit";
 
 const resources = [
   {
@@ -49,7 +65,8 @@ const resources = [
     name: "products",
     list: "/products",
     create: "/products/create",
-    show: "/products/:id/show",
+    show: "/products/show/:slug",
+    edit: "/products/edit/:slug",
     meta: {
       section: "Catalogue",
       label: "Products",
@@ -57,16 +74,39 @@ const resources = [
     },
   },
   {
+    name: "variants",
+    list: "/products",
+    create: "/products/:slug/variants/create",
+    show: "/products/:slug/variants/show/:id",
+    edit: "/products/:slug/variants/edit/:id",
+    meta: {
+      hide: true,
+      label: "Variants",
+    },
+  },
+  {
     name: "categories",
     list: "/categories",
     create: "/categories/create",
-    show: "/categories/:id/show",
+    edit: "/categories/edit/:slug",
     meta: {
       section: "Catalogue",
       label: "Categories",
       icon: <Blocks />,
     },
   },
+  {
+    name: "brands",
+    list: "/brands",
+    create: "/brands/create",
+    edit: "/brands/edit/:slug",
+    meta: {
+      section: "Catalogue",
+      label: "Brands",
+      icon: <Sparkles />,
+    },
+  },
+
   {
     name: "users",
     list: "/users",
@@ -81,28 +121,50 @@ const resources = [
 export function App() {
   return (
     <BrowserRouter>
-      <Refine resources={resources} routerProvider={routerProvider} authProvider={authProvider} dataProvider={dataProvider} notificationProvider={useNotificationProvider}>
+      <Refine
+        resources={resources}
+        routerProvider={routerProvider}
+        authProvider={authProvider}
+        dataProvider={dataProvider}
+        notificationProvider={useNotificationProvider}
+      >
         <Routes>
           <Route
             element={
               <Authenticated fallback={<CatchAllNavigate to="/login" />}>
-                <RootLayout>
-                  <Outlet />
-                </RootLayout>
+                <ThemeProvider
+                  defaultTheme="system"
+                  storageKey="mint-boutique-theme"
+                >
+                  <RootLayout>
+                    <Outlet />
+                  </RootLayout>
+                </ThemeProvider>
               </Authenticated>
             }
           >
             <Route index element={<Dashboard />} />
             <Route path="products">
               <Route index element={<ListProducts />} />
-              <Route path=":id">
-                <Route path="show" element={<ShowProduct />} />
+              <Route path="create" element={<CreateProduct />} />
+              <Route path="show/:slug" element={<ShowProduct />} />
+              <Route path="edit/:slug" element={<EditProduct />} />
+              <Route path=":slug/variants">
+                <Route
+                  index
+                  element={<NavigateToResource resource="products" />}
+                />
+                <Route path="create" element={<CreateVariant />} />
+                <Route path="edit/:id" element={<EditVariant />} />
               </Route>
             </Route>
+            <Route path="categories">
+              <Route index element={<ListCategories />} />
+              <Route path="create" element={<CreateCategory />} />
+              <Route path="edit/:slug" element={<EditCategory />} />
+            </Route>
           </Route>
-          <Route element={<Authenticated fallback={<Outlet />} />}>
-            <Route path="login" element={<LoginPage />} />
-          </Route>
+          <Route path="login" element={<LoginPage />} />
         </Routes>
       </Refine>
       <Toaster />

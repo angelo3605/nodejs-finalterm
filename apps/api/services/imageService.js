@@ -2,36 +2,40 @@ import fs from "fs";
 import path from "path";
 import prisma from "../prisma/client.js";
 
-export const addImageService = async (file) => {
-  if (!file) {
-    throw new Error("No file uploaded");
+export const addImageService = async (files) => {
+  if (!files || !files.length === 0) {
+    throw new Error("No images uploaded");
   }
 
   const uploadDir = path.resolve("public/uploads");
   if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
+    fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  const newImage = await prisma.image.create({
-    data: {
-      url: "",
-      altText: null,
-    },
-  });
+  const images = await Promise.all(
+    files.map(async (file) => {
+      const newImage = await prisma.image.create({
+        data: {
+          url: "",
+          altText: null,
+        },
+      });
 
-  const filename = `${newImage.id}${path.extname(file.originalname)}`;
-  const targetPath = path.join(uploadDir, filename);
+      const filename = `${newImage.id}${path.extname(file.originalname)}`;
+      const targetPath = path.join(uploadDir, filename);
 
-  fs.renameSync(file.path, targetPath);
+      fs.renameSync(file.path, targetPath);
 
-  const imageUrl = `/uploads/${filename}`;
+      const imageUrl = `/uploads/${filename}`;
 
-  const updated = await prisma.image.update({
-    where: { id: newImage.id },
-    data: { url: imageUrl },
-  });
+      return await prisma.image.update({
+        where: { id: newImage.id },
+        data: { url: imageUrl },
+      });
+    }),
+  );
 
-  return updated;
+  return images;
 };
 
 export const updateImageAltTextService = async (id, altText) => {
@@ -65,7 +69,7 @@ export const deleteImageService = async (id) => {
   return image;
 };
 
-export const getAllImagesService = async (page = 1, pageSize = 10) => {
+export const getAllImagesService = async (page, pageSize) => {
   const count = await prisma.image.count();
   const images = await prisma.image.findMany({
     skip: (page - 1) * pageSize,

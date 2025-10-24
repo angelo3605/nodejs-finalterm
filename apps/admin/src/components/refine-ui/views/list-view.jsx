@@ -1,15 +1,14 @@
-"use client";;
+"use client";
 import { useResourceParams, useUserFriendlyName } from "@refinedev/core";
 import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { CreateButton } from "@/components/refine-ui/buttons/create";
 import { cn } from "@/lib/utils";
 
-export function ListView({
-  children,
-  className
-}) {
-  return (<div className={cn("flex flex-col", "gap-4", className)}>{children}</div>);
+export function ListView({ children, className }) {
+  return (
+    <div className={cn("flex flex-col", "gap-4", className)}>{children}</div>
+  );
 }
 
 export const ListViewHeader = ({
@@ -17,7 +16,7 @@ export const ListViewHeader = ({
   resource: resourceFromProps,
   title: titleFromProps,
   wrapperClassName,
-  headerClassName
+  headerClassName,
 }) => {
   const getUserFriendlyName = useUserFriendlyName();
 
@@ -30,7 +29,10 @@ export const ListViewHeader = ({
 
   const title =
     titleFromProps ??
-    getUserFriendlyName(resource?.meta?.label ?? identifier ?? resource?.name, "plural");
+    getUserFriendlyName(
+      resource?.meta?.label ?? identifier ?? resource?.name,
+      "plural",
+    );
 
   return (
     <div className={cn("flex flex-col", "gap-4", wrapperClassName)}>

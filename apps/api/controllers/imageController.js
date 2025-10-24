@@ -1,8 +1,8 @@
 import { addImageService, deleteImageService, getAllImagesService, getImageByIdService, updateImageAltTextService } from "../services/imageService.js";
 
 export const uploadImage = async (req, res) => {
-  const image = await addImageService(req.file);
-  return res.json({ image });
+  const images = await addImageService(req.files);
+  return res.json({ images });
 };
 
 export const updateImage = async (req, res) => {
@@ -16,7 +16,8 @@ export const deleteImage = async (req, res) => {
 };
 
 export const getAllImages = async (req, res) => {
-  const { images, count } = await getAllImagesService();
+  const { page, pageSize } = req.query; 
+  const { images, count } = await getAllImagesService(Number(page ?? 1), Number(pageSize ?? 10));
   return res.json({ images, count });
 };
 

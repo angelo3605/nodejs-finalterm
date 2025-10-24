@@ -31,18 +31,22 @@ export function useNotificationProvider() {
         case "progress": {
           const toastId = key || Date.now();
 
-          toast(() => (
-            <UndoableNotification
-              message={message}
-              description={description}
-              undoableTimeout={undoableTimeout}
-              cancelMutation={cancelMutation}
-              onClose={() => toast.dismiss(toastId)} />
-          ), {
-            id: toastId,
-            duration: (undoableTimeout || 5) * 1000,
-            unstyled: true,
-          });
+          toast(
+            () => (
+              <UndoableNotification
+                message={message}
+                description={description}
+                undoableTimeout={undoableTimeout}
+                cancelMutation={cancelMutation}
+                onClose={() => toast.dismiss(toastId)}
+              />
+            ),
+            {
+              id: toastId,
+              duration: (undoableTimeout || 5) * 1000,
+              unstyled: true,
+            },
+          );
           return;
         }
 

@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import React from "react";
 import { useTheme } from "./theme-provider";
 import {
@@ -52,8 +52,9 @@ export function ThemeSelect() {
             "hover:text-accent-foreground",
             "focus-visible:outline-none",
             "focus-visible:ring-2",
-            "focus-visible:ring-ring"
-          )}>
+            "focus-visible:ring-ring",
+          )}
+        >
           <div className="flex items-center gap-2">
             {currentTheme?.icon}
             <span>{currentTheme?.label}</span>
@@ -69,9 +70,13 @@ export function ThemeSelect() {
             <DropdownMenuItem
               key={option.value}
               onClick={() => setTheme(option.value)}
-              className={cn("flex items-center gap-2 cursor-pointer relative pr-8", {
-                "bg-accent text-accent-foreground": isSelected,
-              })}>
+              className={cn(
+                "flex items-center gap-2 cursor-pointer relative pr-8",
+                {
+                  "bg-accent text-accent-foreground": isSelected,
+                },
+              )}
+            >
               {option.icon}
               <span>{option.label}</span>
               {isSelected && (
