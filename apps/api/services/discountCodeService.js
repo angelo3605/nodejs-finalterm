@@ -1,7 +1,34 @@
 import prisma from "../prisma/client.js";
 
+export const getDiscountCodeByCodeService = async (code) => {
+  const discountCode = await prisma.discountCode.findUnique({
+    where: { code },
+  });
+  if (!discountCode) {
+    throw new Error("Discount code not found");
+  }
+  return discountCode;
+};
 
-export const createDiscountCodeService = async (data) => {
+export const updateDiscountCodeService = async (code, { usageLimit, numOfUsage, desc }) => {
+  if (
+    !(await prisma.discountCode.findUnique({
+      where: { code },
+    }))
+  ) {
+    throw new Error("Discount code not found");
+  }
+  return await prisma.discountCode.update({
+    where: { id },
+    data: {
+      usageLimit,
+      numOfUsage,
+      desc,
+    },
+  });
+};
+
+/* export const createDiscountCodeService = async (data) => {
   const existing = await prisma.discountCode.findUnique({
     where: { code: data.code },
   });
@@ -56,4 +83,4 @@ export const updateDiscountCodeService = async (code, data) => {
   });
 
   return discount;
-};
+}; */

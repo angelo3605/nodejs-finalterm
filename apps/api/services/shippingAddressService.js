@@ -1,12 +1,46 @@
 import prisma from "../prisma/client.js";
 
-export const getShippingAddressesByUserService = async (userId) => {
+export const getAllShippingAddressesService = async ({ userId }) => {
   return await prisma.shippingAddress.findMany({
     where: { userId },
     orderBy: { isDefault: "desc" },
   });
 };
 
+export const getShippingAddressByIdService = async (id) => {
+  const shippingAddress = await prisma.shippingAddress.findUnique({
+    where: { id },
+  });
+  if (!shippingAddress) {
+    throw new Error("Shipping address not found");
+  }
+  return shippingAddress;
+};
+export const addShippingAddressService = async ({ userId, fullName, address, phoneNumber, isDefault = false }) => {
+  if (
+    await prisma.shippingAddress.findUnique({
+      where: { userId, fullName, address, phoneNumber },
+    })
+  ) {
+    throw new Error("Shipping address already exists");
+  }
+  if (!isDefault) {
+    isDefault = !(await prisma.shippingAddress.findFirst({
+      where: { userId },
+    }));
+  }
+  return await prisma.shippingAddress.create({
+    data: {
+      userId,
+      fullName,
+      address,
+      phoneNumber,
+      isDefault,
+    },
+  });
+};
+
+/* 
 export const addShippingAddressService = async (userId, fullName, address, phoneNumber) => {
   const isDuplicate = await prisma.shippingAddress.findFirst({
     where: { userId, fullName, address, phoneNumber },
@@ -42,4 +76,4 @@ export const deleteShippingAddressService = async (userId, infoShippingId) => {
   }
 
   return existing;
-};
+}; */

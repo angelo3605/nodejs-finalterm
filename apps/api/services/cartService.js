@@ -1,65 +1,91 @@
 import prisma from "../prisma/client.js";
 
-export const addToCartService = async (userId, variantId, quantity) => {
-  if (!userId || !variantId || quantity <= 0) throw new Error("Missing or invalid input");
+const cartSelect = {
+  id: true,
+  sumAmount: true,
+  user: {
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+    },
+  },
+  cartItems: {
+    select: {
+      id: true,
+      quantity: true,
+      variant: {
+        select: {
+          name: true,
+          price: true,
+          product: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  createdAt: true,
+  updatedAt: true,
+};
 
-  let cart = await prisma.cart.findFirst({ where: { userId, status: "ACTIVE" } });
-  if (!cart) cart = await prisma.cart.create({ data: { userId, sumAmount: 0, status: "ACTIVE" } });
+export const getAllCartsService = async ({ userId, status }) => {
+  return await prisma.cart.findMany({
+    where: { userId, status },
+    select: cartSelect,
+  });
+};
 
-  const existingItem = await prisma.cartItem.findFirst({ where: { cartId: cart.id, variantId } });
-  if (existingItem) {
-    return await prisma.cartItem.update({
-      where: { id: existingItem.id },
-      data: { quantity: existingItem.quantity + quantity },
+export const getCartByIdService = async (id) => {
+  const cart = await prisma.cart.findUnique({
+    where: { id },
+    select: cartSelect,
+  });
+  if (!cart) {
+    throw new Error("Cart not found");
+  }
+  return cart;
+};
+
+export const addCartService = async ({ userId }) => {
+  return await prisma.cart.create({
+    data: { userId },
+    select: cartSelect,
+  });
+};
+
+export const addOrSubtractToCartService = async (id, { variantId, amount = 1, forceDelete = false }) => {
+  const cart = await getCartByIdService(id);
+  if (cart.status !== "ACTIVE") {
+    throw new Error("Cannot modify non-active cart");
+  }
+
+  const item = await prisma.cartItem.findUnique({
+    where: { cartId: id, variantId },
+  });
+  if (!item && amount <= 0) {
+    throw new Error("Invalid amount");
+  }
+
+  if (item && (item.quantity + amount <= 0 || forceDelete)) {
+    await prisma.cartItem.delete({
+      where: { cartId: id, variantId },
+    });
+  } else {
+    await prisma.cartItem.upsert({
+      where: { id, variantId },
+      update: {
+        quantity: { increment: amount },
+      },
+      create: {
+        cartId: id,
+        variantId,
+        quantity: amount,
+      },
     });
   }
 
-  return await prisma.cartItem.create({ data: { cartId: cart.id, variantId, quantity } });
-};
-
-export const updateCartItemService = async (userId, cartItemId, quantity) => {
-  if (!userId || !cartItemId || quantity < 0) throw new Error("Missing or invalid input");
-
-  const item = await prisma.cartItem.findUnique({ where: { id: cartItemId }, include: { cart: true } });
-  if (!item || item.cart.userId !== userId) throw new Error("Unauthorized or item not found");
-
-  return await prisma.cartItem.update({ where: { id: cartItemId }, data: { quantity } });
-};
-
-export const removeItemFromCartService = async (userId, cartItemId) => {
-  if (!userId || !cartItemId) throw new Error("Missing input");
-
-  const item = await prisma.cartItem.findUnique({ where: { id: cartItemId }, include: { cart: true } });
-  if (!item || item.cart.userId !== userId) throw new Error("Unauthorized or item not found");
-
-  return await prisma.cartItem.delete({ where: { id: cartItemId } });
-};
-
-export const getCartSummaryService = async (userId) => {
-  if (!userId) throw new Error("User ID is required");
-
-  const cart = await prisma.cart.findFirst({
-    where: { userId, status: "ACTIVE" },
-    include: {
-      cartItems: { include: { variant: { include: { product: true } } } },
-    },
-  });
-
-  if (!cart) return { items: [], totalAmount: 0 };
-
-  let totalAmount = 0;
-  const items = cart.cartItems.map((item) => {
-    const itemTotal = item.variant.price * item.quantity;
-    totalAmount += itemTotal;
-
-    return {
-      productName: item.variant.product.name,
-      variantName: item.variant.name,
-      price: item.variant.price,
-      quantity: item.quantity,
-      totalAmount: itemTotal,
-    };
-  });
-
-  return { items, totalAmount };
+  return await getCartByIdService(id);
 };

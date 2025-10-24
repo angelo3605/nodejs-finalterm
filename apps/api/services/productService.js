@@ -83,7 +83,7 @@ export const updateProductService = async (slug, { name, desc, imageUrls, brand,
   ) {
     throw new Error("Product not found");
   }
-  const product = prisma.product.update({
+  return await prisma.product.update({
     where: { slug },
     data: {
       slug: name ? slugify(name, { lower: true }) : undefined,
@@ -96,5 +96,4 @@ export const updateProductService = async (slug, { name, desc, imageUrls, brand,
     },
     select: productSelect,
   });
-  return product;
 };
