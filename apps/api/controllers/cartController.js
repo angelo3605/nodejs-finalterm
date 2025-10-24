@@ -4,45 +4,29 @@ export const addToCart = async (req, res) => {
   const userId = req.user.id;
   const { cartItemId, quantity } = req.body;
 
-  try {
-    const cartSummary = await addToCartService(userId, cartItemId, quantity);
-    return res.json({ cartSummary });
-  } catch (error) {
-    return res.status(400).json({ message: error.message });
-  }
+  const cartSummary = await addToCartService(userId, cartItemId, quantity);
+  return res.json({ cartSummary });
 };
 
 export const updateCart = async (req, res) => {
   const userId = req.user.id;
   const { cartItemId, quantity } = req.body;
 
-  try {
-    const cartSummary = await updateCartService(userId, cartItemId, quantity);
-    return res.json({ cartSummary });
-  } catch (error) {
-    return res.status(400).json({ message: error.message });
-  }
+  const cartSummary = await updateCartService(userId, cartItemId, quantity);
+  return res.json({ cartSummary });
 };
 
 export const removeFromCart = async (req, res) => {
   const userId = req.user.id;
   const { cartItemId } = req.body;
 
-  try {
-    const cartSummary = await removeItemFromCartService(userId, cartItemId);
-    return res.json({ cartSummary });
-  } catch (error) {
-    return res.status(400).json({ message: error.message });
-  }
+  const cartSummary = await removeItemFromCartService(userId, cartItemId);
+  return res.json({ cartSummary });
 };
 
 export const getCartSummary = async (req, res) => {
   const userId = req.user.id;
 
-  try {
-    const summary = await getCartSummaryService(userId);
-    return res.json({ summary });
-  } catch (error) {
-    return res.status(400).json({ message: error.message });
-  }
+  const summary = await getCartSummaryService(userId);
+  return res.json({ summary });
 };

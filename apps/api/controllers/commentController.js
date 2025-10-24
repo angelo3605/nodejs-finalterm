@@ -3,26 +3,16 @@ import { createCommentService, getCommentsByProductService } from "../services/c
 export const createCommentController = async (req, res) => {
   const { message, productId, parentId } = req.body;
 
-  try {
-    const comment = await createCommentService(message, productId, parentId, req.userId, req.user ? null : req.anonymousUserId);
+  const comment = await createCommentService(message, productId, parentId, req.userId, req.user ? null : req.anonymousUserId);
 
-    req.io.emit("newComment", productId);
+  req.io.emit("newComment", productId);
 
-    return res.status(201).json({ comment });
-  } catch (error) {
-    console.error("Create comment failed:", error);
-    return res.status(500).json({ message: error.message });
-  }
+  return res.status(201).json({ comment });
 };
 
 export const getCommentsByProductController = async (req, res) => {
   const { productId } = req.params;
 
-  try {
-    const comments = await getCommentsByProductService(productId);
-    return res.status(200).json({ comments });
-  } catch (error) {
-    console.error("Error fetching comments:", error);
-    return res.status(500).json({ message: error.message });
-  }
+  const comments = await getCommentsByProductService(productId);
+  return res.status(200).json({ comments });
 };
