@@ -13,15 +13,17 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { BadgeInfo } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Separator } from "@/components/ui/separator";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
+import { useMemo } from "react";
 
 export function ShowProduct() {
   const { slug } = useParams();
@@ -34,53 +36,72 @@ export function ShowProduct() {
   });
   const product = data?.data;
 
+  const formatter = useMemo(
+    () =>
+      new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+        maximumFractionDigits: 2,
+      }),
+    [],
+  );
+
   return (
     <ShowView>
       <ShowViewHeader headerClassName="mint-show-header" />
       <LoadingOverlay loading={isLoading}>
-        <div className="grid grid-cols-[40%_60%] gap-20">
-          <Carousel opts={{ loop: true }}>
-            <CarouselContent>
-              {product?.imageUrls.map((url) => (
-                <CarouselItem key={url} className="aspect-4/5">
-                  <img
-                    src={url}
-                    className="size-full object-cover bg-muted rounded-xl"
-                  />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
-          <div className="space-y-4">
-            <p className="text-muted-foreground">
-              {product?.category.name} / {product?.brand.name}
-            </p>
-            <h2 className="font-bold text-3xl">{product?.name}</h2>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-4">
-                  <BadgeInfo /> Description
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className={cn(product?.desc || "text-muted-foreground")}>
-                  {product?.desc ||
-                    "This product is mysterious... no description yet"}
-                </p>
-              </CardContent>
-            </Card>
-            <div className="space-y-4">
-              <span className="block font-bold">Variants</span>
-              <div className="flex flex-wrap gap-2">
-                {product?.variants.map((variant) => (
-                  <Badge variant="outline" className="text-base">
-                    {variant.name}
-                  </Badge>
+        <div className="space-y-12">
+          <div className="grid grid-cols-[2fr_3fr] gap-8">
+            <Carousel opts={{ loop: true }} className="mx-12">
+              <CarouselContent>
+                {product?.imageUrls.map((url) => (
+                  <CarouselItem key={url} className="aspect-4/5">
+                    <img
+                      src={url}
+                      className="size-full object-cover bg-muted rounded-xl"
+                    />
+                  </CarouselItem>
                 ))}
-              </div>
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+            <div className="space-y-4">
+              <p className="text-muted-foreground">
+                {product?.category.name} / {product?.brand.name}
+              </p>
+              <h2 className="font-bold text-3xl">{product?.name}</h2>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Variant</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Stock</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {product?.variants.map((variant) => (
+                    <TableRow key={variant.id}>
+                      <TableCell>{variant.name}</TableCell>
+                      <TableCell>{formatter.format(variant.price)}</TableCell>
+                      <TableCell>{variant.stockQuantity}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
+          </div>
+          <div className="space-y-8">
+            <div className="flex items-center gap-4">
+              <span className="font-bold">Description</span>
+              <Separator className="flex-1" />
+            </div>
+            <p
+              className="prose max-w-none dark:prose-invert"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(marked.parse(product?.desc ?? "")),
+              }}
+            ></p>
           </div>
         </div>
       </LoadingOverlay>

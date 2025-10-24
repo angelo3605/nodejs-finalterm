@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
 import { useSelect } from "@refinedev/core";
 import { useEffect } from "react";
+import { TiptapEditor } from "@/components/tiptap-editor";
 
 export function ProductForm({ refineForm }) {
   const {
@@ -50,13 +51,7 @@ export function ProductForm({ refineForm }) {
           {formLoading && <Spinner />}
           Confirm
         </Button>
-        <ImagePicker
-          control={form.control}
-          name="imageUrls"
-          maxFiles={10}
-          label="Images"
-        />
-        <div className="grid md:grid-cols-[1fr_2fr] gap-4">
+        <div className="grid md:grid-cols-[2fr_3fr] gap-4">
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -83,23 +78,19 @@ export function ProductForm({ refineForm }) {
               options={brands}
               label="Brand"
             />
+            <ImagePicker
+              control={form.control}
+              name="imageUrls"
+              maxFiles={10}
+              label="Images"
+            />
           </div>
           <div className="space-y-4">
-            <FormField
+            <TiptapEditor
               control={form.control}
               name="desc"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter product description..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Description"
+              height={428}
             />
           </div>
         </div>

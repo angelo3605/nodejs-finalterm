@@ -69,7 +69,7 @@ export function ListProducts() {
           <ShowButton
             variant="link"
             className="text-foreground"
-            recordItemId={product.id}
+            recordItemId={product.slug}
             meta={{ slug: product.slug }}
           >
             {product.name}
@@ -98,7 +98,7 @@ export function ListProducts() {
           <EditButton
             variant="ghost"
             size="icon"
-            recordItemId={product.id}
+            recordItemId={product.slug}
             meta={{ slug: product.slug }}
           >
             <Pencil />
@@ -106,7 +106,7 @@ export function ListProducts() {
           <DeleteButton
             variant="ghost"
             size="icon"
-            recordItemId={product.id}
+            recordItemId={product.slug}
             meta={{ slug: product.slug }}
           >
             <Trash />

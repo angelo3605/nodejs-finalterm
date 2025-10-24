@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @config "../tailwind.config.js";
 
@@ -158,4 +159,8 @@
 /* On Chromium-based browsers, `object-fit: cover` images look pixelated. This will fix it! */
 img {
   overflow-clip-margin: unset !important;
+}
+
+.ProseMirror {
+  outline: none;
 }

@@ -89,7 +89,7 @@ export function ImageManager({ onRefresh }) {
             <div className="flex items-center gap-2">
               <img
                 src={`${api.defaults.baseURL}${row.original.url}`}
-                className="shrink-0 size-[40px] object-cover border rounded-xs"
+                className="shrink-0 size-[40px] object-cover rounded-sm"
               />
               <span
                 className={cn(

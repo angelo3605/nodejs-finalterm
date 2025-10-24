@@ -34,6 +34,7 @@ import {
   ChevronsUpDown,
   ImageOff,
   ImagePlus,
+  X,
 } from "lucide-react";
 import { ImageManager } from "./image-manager";
 
@@ -44,12 +45,17 @@ function ImagePreviews({ imageUrls, onClick }) {
         <div className="flex gap-2 p-2 h-40">
           {imageUrls && imageUrls.length > 0 ? (
             imageUrls.map((url) => (
-              <img
-                key={url}
-                src={url}
-                className="rounded"
+              <button
                 onClick={() => onClick(url)}
-              />
+                className="group cursor-pointer relative"
+              >
+                <img
+                  key={url}
+                  src={url}
+                  className="rounded-sm object-contain h-full"
+                />
+                <X className="box-content size-5 p-1 absolute top-2 right-2 text-white bg-black/33 rounded-full group-[:not(:hover)]:opacity-0 transition" />
+              </button>
             ))
           ) : (
             <Empty>
