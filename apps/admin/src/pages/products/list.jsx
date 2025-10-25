@@ -131,7 +131,7 @@ export function ListProducts() {
       new Intl.NumberFormat("vi-VN", {
         style: "currency",
         currency: "VND",
-        maximumFractionDigits: 2,
+        maximumFractionDigits: 0,
       }),
     [],
   );
