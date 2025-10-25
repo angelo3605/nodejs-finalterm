@@ -7,9 +7,11 @@ export const getAllShippingAddressesService = async ({ userId }) => {
   });
 };
 
-export const getShippingAddressByIdService = async (id) => {
+export const getShippingAddressByIdService = async (id, { userId }) => {
   const shippingAddress = await prisma.shippingAddress.findUnique({
-    where: { id },
+    where: {
+      id_userId: { id, userId },
+    },
   });
   if (!shippingAddress) {
     throw new Error("Shipping address not found");
@@ -17,7 +19,7 @@ export const getShippingAddressByIdService = async (id) => {
   return shippingAddress;
 };
 
-export const addShippingAddressService = async ({ userId, fullName, address, phoneNumber, isDefault = false }) => {
+export const createShippingAddressService = async ({ userId, fullName, address, phoneNumber, isDefault = false }) => {
   if (
     await prisma.shippingAddress.findFirst({
       where: { userId, fullName, address, phoneNumber },
@@ -28,7 +30,7 @@ export const addShippingAddressService = async ({ userId, fullName, address, pho
   const isFirst = !(await prisma.shippingAddress.findFirst({
     where: { userId },
   }));
-  return await prisma.shippingAddress.create({
+  const shippingAddress = await prisma.shippingAddress.create({
     data: {
       userId,
       fullName,
@@ -37,42 +39,49 @@ export const addShippingAddressService = async ({ userId, fullName, address, pho
       isDefault: isDefault || isFirst,
     },
   });
-};
-
-/* 
-export const addShippingAddressService = async (userId, fullName, address, phoneNumber) => {
-  const isDuplicate = await prisma.shippingAddress.findFirst({
-    where: { userId, fullName, address, phoneNumber },
-  });
-
-  if (isDuplicate) throw new Error("Shipping address already exists");
-
-  const existingAddresses = await prisma.shippingAddress.findMany({ where: { userId } });
-  const isDefault = existingAddresses.length === 0;
-
-  return await prisma.shippingAddress.create({
-    data: { userId, fullName, address, phoneNumber, isDefault },
-  });
-};
-
-export const setDefaultShippingAddressService = async (userId, infoShippingId) => {
-  const existing = await prisma.shippingAddress.findFirst({ where: { userId, id: infoShippingId } });
-  if (!existing) throw new Error("Địa chỉ không hợp lệ.");
-
-  await prisma.shippingAddress.updateMany({ where: { userId, isDefault: true }, data: { isDefault: false } });
-  return await prisma.shippingAddress.update({ where: { id: infoShippingId }, data: { isDefault: true } });
-};
-
-export const deleteShippingAddressService = async (userId, infoShippingId) => {
-  const existing = await prisma.shippingAddress.findFirst({ where: { userId, id: infoShippingId } });
-  if (!existing) throw new Error("Cannot find shipping address");
-
-  await prisma.shippingAddress.delete({ where: { id: infoShippingId } });
-
-  if (existing.isDefault) {
-    const latest = await prisma.shippingAddress.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" } });
-    if (latest) await prisma.shippingAddress.update({ where: { id: latest.id }, data: { isDefault: true } });
+  if (isDefault) {
+    await prisma.shippingAddress.updateMany({
+      where: { userId, isDefault: true, NOT: { id: shippingAddress.id } },
+      data: { isDefault: false },
+    });
   }
+  return shippingAddress;
+};
 
-  return existing;
-}; */
+export const updateShippingAddressService = async (id, { userId, fullName, address, phoneNumber, isDefault }) => {
+  const shippingAddress = await prisma.shippingAddress.update({
+    where: {
+      id_userId: { id, userId },
+    },
+    data: { fullName, address, phoneNumber, isDefault },
+  });
+  if (!shippingAddress) {
+    throw new Error("Shipping address not found");
+  }
+  if (isDefault) {
+    await prisma.shippingAddress.updateMany({
+      where: { userId, isDefault: true, NOT: { id } },
+      data: { isDefault: false },
+    });
+  }
+  return shippingAddress;
+};
+
+export const deleteShippingAddressService = async (id, { userId }) => {
+  const shippingAddress = await prisma.shippingAddress.delete({
+    where: {
+      id_userId: { id, userId },
+    },
+  });
+  if (shippingAddress.isDefault) {
+    const latest = await prisma.shippingAddress.findFirst({
+      where: { userId, isDefault: false, NOT: { id } },
+      orderBy: { updatedAt: "desc" },
+    });
+    await prisma.shippingAddress.update({
+      where: { id: latest.id },
+      data: { isDefault: true },
+    });
+  }
+  return shippingAddress;
+};

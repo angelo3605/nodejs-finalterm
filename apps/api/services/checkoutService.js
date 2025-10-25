@@ -2,7 +2,7 @@ import { registerService } from "./authService.js";
 import { getOrCreateCartService, markCartAsCheckedOutService } from "./cartService.js";
 import { getDiscountCodeByCodeService, updateDiscountCodeService } from "./discountCodeService.js";
 import { createOrderService } from "./orderService.js";
-import { addShippingAddressService, getShippingAddressByIdService } from "./shippingAddressService.js";
+import { createShippingAddressService, getShippingAddressByIdService } from "./shippingAddressService.js";
 import { getUserByIdService, updateUserService } from "./userService.js";
 import { customAlphabet } from "nanoid";
 import prisma from "../prisma/client.js";
@@ -93,7 +93,7 @@ export const guestCheckoutService = async ({ guestId, email, fullName, address, 
   }
 
   const guestUser = await registerService(email, generatePassword(), fullName);
-  const shippingAddress = await addShippingAddressService({
+  const shippingAddress = await createShippingAddressService({
     userId: guestUser.id,
     fullName,
     address,

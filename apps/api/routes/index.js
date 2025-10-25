@@ -12,6 +12,7 @@ import productRouter from "./productRoutes.js";
 import profileRouter from "./profileRoutes.js";
 import variantRouter from "./variantRoutes.js";
 import orderRouter from "./orderRoutes.js";
+import shippingAddressRouter from "./shippingAddressRoutes.js";
 
 const router = Router();
 
@@ -27,6 +28,7 @@ router.use("/profile", profileRouter);
 router.use("/cart", cartRouter);
 router.use("/checkout", checkoutRouter);
 router.use("/orders", orderRouter);
+router.use("/profile/shipping-addresses", shippingAddressRouter);
 
 router.use(handleError);
 
