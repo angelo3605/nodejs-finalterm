@@ -39,7 +39,7 @@ enum CartStatus {
 }
 
 type ShippingInfo {
-  street      String
+  address     String
   phoneNumber String
   fullName    String
 }
@@ -55,7 +55,6 @@ model User {
   oauths            OAuthAccount[]
   resetTokens       PasswordResetToken[]
   shippingAddresses ShippingAddress[]
-  carts             Cart[]
   orders            Order[]
   comments          Comment[]
   ratings           Rating[]
@@ -98,6 +97,8 @@ model ShippingAddress {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([id, userId])
 }
 
 model Brand {
@@ -107,8 +108,6 @@ model Brand {
   isDeleted Boolean @default(false)
 
   products Product[]
-
-  @@index([isDeleted])
 }
 
 model Category {
@@ -123,8 +122,6 @@ model Category {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([isDeleted])
 }
 
 model Product {
@@ -142,12 +139,10 @@ model Product {
   variants  ProductVariant[]
   comments  Comment[]
   ratings   Rating[]
-  imageUrls String[] @default([])
+  imageUrls String[]         @default([])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([isDeleted])
 }
 
 model ProductVariant {
@@ -160,19 +155,16 @@ model ProductVariant {
   productId String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id])
 
-  orderItems OrderItem[]
-  cartItems  CartItem[]
+  cartItems CartItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([isDeleted])
 }
 
 model Image {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  url      String
-  altText  String?
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  url     String
+  altText String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -196,10 +188,6 @@ model Comment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([productId])
-  @@index([userId])
-  @@index([anonymousUserId])
 }
 
 model Rating {
@@ -214,9 +202,7 @@ model Rating {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, productId], name: "userId_productId")
-  @@index([productId])
-  @@index([userId])
+  @@unique([userId, productId])
 }
 
 model Cart {
@@ -224,15 +210,13 @@ model Cart {
   sumAmount Float
   status    CartStatus @default(ACTIVE)
 
-  userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id])
+  userId  String?
+  guestId String?
 
   cartItems CartItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([userId])
 }
 
 model CartItem {
@@ -246,6 +230,8 @@ model CartItem {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([cartId, variantId])
 }
 
 model Order {
@@ -254,19 +240,16 @@ model Order {
   totalAmount Float
   status      OrderStatus @default(PENDING)
 
-  userId         String        @db.ObjectId
-  user           User          @relation(fields: [userId], references: [id])
-  orderItems     OrderItem[]
-  payments       Payment[]
-  discountCodeId String?       @db.ObjectId
-  discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  userId       String      @db.ObjectId
+  user         User        @relation(fields: [userId], references: [id])
+  orderItems   OrderItem[]
+  payments     Payment[]
+  discountCode String?
 
   shippingAddress ShippingInfo
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([userId])
 }
 
 model OrderItem {
@@ -275,19 +258,14 @@ model OrderItem {
   unitPrice Float
   sumAmount Float
 
-  orderId   String         @db.ObjectId
-  order     Order          @relation(fields: [orderId], references: [id])
-  variantId String         @db.ObjectId
-  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  orderId String @db.ObjectId
+  order   Order  @relation(fields: [orderId], references: [id])
 
   productName String
   variantName String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([orderId])
-  @@index([variantId])
 }
 
 model Payment {
@@ -304,8 +282,6 @@ model Payment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([orderId])
 }
 
 model DiscountCode {
@@ -316,8 +292,6 @@ model DiscountCode {
   value      Float
   usageLimit Int?
   numOfUsage Int          @default(0)
-
-  orders Order[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
