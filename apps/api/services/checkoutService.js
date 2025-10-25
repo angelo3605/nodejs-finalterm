@@ -1,15 +1,21 @@
 import { registerService } from "./authService.js";
-import { getCartByIdService } from "./cartService.js";
+import { getOrCreateCartService, markCartAsCheckedOutService } from "./cartService.js";
 import { getDiscountCodeByCodeService, updateDiscountCodeService } from "./discountCodeService.js";
-import { createOrderService } from "./orderService";
+import { createOrderService } from "./orderService.js";
 import { addShippingAddressService, getShippingAddressByIdService } from "./shippingAddressService.js";
 import { getUserByIdService, updateUserService } from "./userService.js";
 import { customAlphabet } from "nanoid";
+import prisma from "../prisma/client.js";
+import { updateVariantService } from "./variantService.js";
 
 const generatePassword = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 20);
 
-export const checkoutService = async ({ userId, shippingAddressId, cartId, discountCode, loyaltyPointsToUse = 0 }) => {
-  const [shippingAddress, user, cart] = await Promise.all([await getShippingAddressByIdService(shippingAddressId), await getUserByIdService(userId), await getCartByIdService(cartId)]);
+export const checkoutService = async ({ userId, guestId, shippingAddressId, discountCode, loyaltyPointsToUse = 0 }) => {
+  const [shippingAddress, user, cart] = await Promise.all([
+    await getShippingAddressByIdService(shippingAddressId),
+    await getUserByIdService(userId),
+    await getOrCreateCartService(guestId ? { guestId } : { userId }),
+  ]);
 
   if (cart.cartItems.length === 0) {
     throw new Error("Cart is empty");
@@ -20,7 +26,6 @@ export const checkoutService = async ({ userId, shippingAddressId, cartId, disco
     const sum = item.variant.price * item.quantity;
     subTotal += sum;
     return {
-      variantId: item.variant.id,
       quantity: item.quantity,
       unitPrice: item.variant.price,
       sumAmount: sum,
@@ -48,19 +53,29 @@ export const checkoutService = async ({ userId, shippingAddressId, cartId, disco
     userId: user.id,
     sumAmount: subTotal,
     totalAmount: total,
-    shippingAddress,
+    shippingAddress: {
+      address: shippingAddress.address,
+      phoneNumber: shippingAddress.phoneNumber,
+      fullName: user.fullName,
+    },
     discountCode,
     orderItems,
   });
 
-  await Promis.all([
+  await Promise.all([
     updateUserService(user.id, {
       loyaltyPoints: user.loyaltyPoints - loyaltyPointsToUse + Math.floor(total / 1000.0),
     }),
+    markCartAsCheckedOutService({ userId: user.id }),
     discountCode &&
       updateDiscountCodeService(discountCode, {
         numOfUsage: discountRecord.numOfUsage + 1,
       }),
+    cart.cartItems.map((item) =>
+      updateVariantService(item.variant.id, {
+        stockQuantity: item.variant.stockQuantity - item.quantity,
+      }),
+    ),
   ]);
 
   // TODO: send email (preferrably Mailpit for local development)
@@ -68,7 +83,7 @@ export const checkoutService = async ({ userId, shippingAddressId, cartId, disco
   return order;
 };
 
-export const guestCheckoutService = async ({ email, fullName, address, phoneNumber, cartId, discountCode }) => {
+export const guestCheckoutService = async ({ guestId, email, fullName, address, phoneNumber, discountCode }) => {
   if (
     await prisma.user.findUnique({
       where: { email },
@@ -80,16 +95,16 @@ export const guestCheckoutService = async ({ email, fullName, address, phoneNumb
   const guestUser = await registerService(email, generatePassword(), fullName);
   const shippingAddress = await addShippingAddressService({
     userId: guestUser.id,
+    fullName,
     address,
     phoneNumber,
   });
 
   const order = await checkoutService({
     userId: guestUser.id,
+    guestId,
     shippingAddressId: shippingAddress.id,
     discountCode,
-    loyaltyPointsToUse,
-    cartId,
   });
 
   // TODO: send password via email

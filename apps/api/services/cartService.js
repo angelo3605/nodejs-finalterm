@@ -1,91 +1,119 @@
 import prisma from "../prisma/client.js";
+import { getVariantByIdService } from "./variantService.js";
 
-const cartSelect = {
+const cartItemSelect = {
   id: true,
-  sumAmount: true,
-  user: {
+  quantity: true,
+  variant: {
     select: {
       id: true,
-      fullName: true,
-      email: true,
-    },
-  },
-  cartItems: {
-    select: {
-      id: true,
-      quantity: true,
-      variant: {
+      name: true,
+      price: true,
+      stockQuantity: true,
+      product: {
         select: {
+          id: true,
           name: true,
-          price: true,
-          product: {
-            select: {
-              name: true,
-            },
-          },
         },
       },
     },
+  },
+};
+const cartSelect = {
+  id: true,
+  sumAmount: true,
+  cartItems: {
+    select: cartItemSelect,
   },
   createdAt: true,
   updatedAt: true,
 };
 
-export const getAllCartsService = async ({ userId, status }) => {
-  return await prisma.cart.findMany({
-    where: { userId, status },
-    select: cartSelect,
-  });
-};
+export const getOrCreateCartService = async ({ userId, guestId }) => {
+  if (!userId && !guestId) {
+    throw new Error("User or guest not found");
+  }
+  let identifier = userId ? { userId } : { guestId };
 
-export const getCartByIdService = async (id) => {
-  const cart = await prisma.cart.findUnique({
-    where: { id },
+  let cart = await prisma.cart.findFirst({
+    where: {
+      ...identifier,
+      status: "ACTIVE",
+    },
     select: cartSelect,
   });
   if (!cart) {
-    throw new Error("Cart not found");
+    return await prisma.cart.create({
+      data: {
+        ...identifier,
+        status: "ACTIVE",
+        sumAmount: 0,
+      },
+      select: cartSelect,
+    });
   }
   return cart;
 };
 
-export const addCartService = async ({ userId }) => {
-  return await prisma.cart.create({
-    data: { userId },
-    select: cartSelect,
-  });
-};
+export const addOrSubtractToCartService = async ({ userId, guestId, variantId, amount = 1, forceDelete = false }) => {
+  const variant = await getVariantByIdService(variantId);
 
-export const addOrSubtractToCartService = async (id, { variantId, amount = 1, forceDelete = false }) => {
-  const cart = await getCartByIdService(id);
-  if (cart.status !== "ACTIVE") {
-    throw new Error("Cannot modify non-active cart");
-  }
+  const cart = await getOrCreateCartService({ userId, guestId });
+  const item = cart.cartItems.find((item) => item.variant.id === variantId);
 
-  const item = await prisma.cartItem.findUnique({
-    where: { cartId: id, variantId },
-  });
   if (!item && amount <= 0) {
     throw new Error("Invalid amount");
+  }
+  if (!forceDelete && amount + (item?.quantity ?? 0) > variant.stockQuantity) {
+    throw new Error("Not enough stock");
   }
 
   if (item && (item.quantity + amount <= 0 || forceDelete)) {
     await prisma.cartItem.delete({
-      where: { cartId: id, variantId },
+      where: {
+        cartId_variantId: { cartId: cart.id, variantId },
+      },
     });
   } else {
     await prisma.cartItem.upsert({
-      where: { id, variantId },
+      where: {
+        cartId_variantId: { cartId: cart.id, variantId },
+      },
       update: {
         quantity: { increment: amount },
       },
       create: {
-        cartId: id,
+        cartId: cart.id,
         variantId,
         quantity: amount,
       },
     });
   }
 
-  return await getCartByIdService(id);
+  const newCart = await prisma.cart.findUnique({
+    where: { id: cart.id },
+    select: cartSelect,
+  });
+  const sumAmount = newCart.cartItems.reduce((sum, item) => sum + item.quantity * item.variant.price, 0);
+
+  return await prisma.cart.update({
+    where: { id: newCart.id },
+    data: { sumAmount },
+    select: cartSelect,
+  });
+};
+
+export const markCartAsCheckedOutService = async ({ userId, guestId }) => {
+  if (!userId && !guestId) {
+    throw new Error("User or guest not found");
+  }
+  return await prisma.cart.updateMany({
+    where: {
+      ...(userId ? { userId } : { guestId }),
+      status: "ACTIVE",
+    },
+    data: {
+      status: "CHECKED_OUT",
+    },
+  });
 };

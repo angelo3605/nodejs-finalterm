@@ -18,3 +18,12 @@ requireAuth.use(passport.authenticate("jwt", { session: false }), async (req, re
 
   next();
 });
+
+export const optionalAuth = (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (user) {
+      req.user = user;
+    }
+    next();
+  })(req, res, next);
+};

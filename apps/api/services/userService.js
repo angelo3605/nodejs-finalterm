@@ -34,7 +34,7 @@ export const updateUserService = async (id, { fullName, email, password, role, l
     data: {
       fullName,
       email,
-      password: await bcrypt.hash(password, 10),
+      password: password ? await bcrypt.hash(password, 10) : undefined,
       role,
       loyaltyPoints,
     },

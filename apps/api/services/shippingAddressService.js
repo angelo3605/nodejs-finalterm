@@ -16,26 +16,25 @@ export const getShippingAddressByIdService = async (id) => {
   }
   return shippingAddress;
 };
+
 export const addShippingAddressService = async ({ userId, fullName, address, phoneNumber, isDefault = false }) => {
   if (
-    await prisma.shippingAddress.findUnique({
+    await prisma.shippingAddress.findFirst({
       where: { userId, fullName, address, phoneNumber },
     })
   ) {
     throw new Error("Shipping address already exists");
   }
-  if (!isDefault) {
-    isDefault = !(await prisma.shippingAddress.findFirst({
-      where: { userId },
-    }));
-  }
+  const isFirst = !(await prisma.shippingAddress.findFirst({
+    where: { userId },
+  }));
   return await prisma.shippingAddress.create({
     data: {
       userId,
       fullName,
       address,
       phoneNumber,
-      isDefault,
+      isDefault: isDefault || isFirst,
     },
   });
 };

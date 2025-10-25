@@ -1,4 +1,18 @@
-import {
+import { getAllOrdersService } from "../services/orderService.js";
+
+export const getAllOrders = async (req, res) => {
+  const orders = await getAllOrdersService({});
+  return res.json({ orders });
+};
+
+export const getMyOrders = async (req, res) => {
+  const orders = await getAllOrdersService({
+    userId: req.user.id,
+  });
+  return res.json({ orders });
+};
+
+/* import {
   guestCheckoutService,
   checkoutService,
   getOrderDetailsByIdService,
@@ -78,4 +92,4 @@ export const getAllOrder = async (req, res) => {
   const orders = await getAllOrdersService();
 
   return res.json({ orders });
-};
+}; */

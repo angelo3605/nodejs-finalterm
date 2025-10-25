@@ -6,12 +6,7 @@ const orderSelect = {
   sumAmount: true,
   totalAmount: true,
   status: true,
-  discountCode: {
-    select: {
-      code: true,
-      value: true,
-    },
-  },
+  discountCode: true,
   shippingAddress: true,
   user: {
     select: {
@@ -39,7 +34,7 @@ export const getAllOrdersService = async ({ userId }) => {
 };
 
 export const getOrderByIdService = async (id) => {
-  const order = await prisma.order.findMany({
+  const order = await prisma.order.findUnique({
     where: { id },
     select: orderSelect,
   });
@@ -59,7 +54,7 @@ export const createOrderService = async ({ userId, sumAmount, totalAmount, shipp
       shippingAddress,
       discountCode,
       orderItems: {
-        create: { orderItems },
+        create: orderItems,
       },
     },
     select: orderSelect,
