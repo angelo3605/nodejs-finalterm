@@ -1,18 +1,43 @@
-import { createCommentService, getCommentsByProductService } from "../services/commentService.js";
+import { createCommentService, deleteCommentService, getAllCommentsService, getCommentByIdService } from "../services/commentService.js";
+import { getIo } from "../utils/socket.js";
 
-export const createCommentController = async (req, res) => {
-  const { message, productId, parentId } = req.body;
+export const createComment = async (req, res) => {
+  const { message, parentId } = req.body;
+  const { slug } = req.params;
 
-  const comment = await createCommentService(message, productId, parentId, req.userId, req.user ? null : req.anonymousUserId);
+  const comment = await createCommentService({
+    productSlug: slug,
+    userId: req.user?.id,
+    guestId: req.guestId,
+    message,
+    parentId,
+  });
 
-  req.io.emit("newComment", productId);
+  getIo().of("/comments").to(slug).emit("comment:new", comment);
 
-  return res.status(201).json({ comment });
+  return res.json({ comment });
 };
 
-export const getCommentsByProductController = async (req, res) => {
-  const { productId } = req.params;
+export const getCommentById = async (req, res) => {
+  const comment = await getCommentByIdService(req.params.id);
+  return res.json({ comment });
+};
 
-  const comments = await getCommentsByProductService(productId);
-  return res.status(200).json({ comments });
+export const getAllComments = async (req, res) => {
+  const comments = await getAllCommentsService({
+    productSlug: req.params.slug,
+  });
+  return res.json({ comments });
+};
+
+export const deleteComment = async (req, res) => {
+  const { id } = req.params;
+
+  const oldComment = await getCommentByIdService(id, true);
+  if (oldComment.userId !== req.user?.id && req.user?.role !== "ADMIN") {
+    return res.status(401).json({ message: "Not allowed" });
+  }
+
+  const comment = await deleteCommentService(id);
+  return res.json({ comment });
 };
