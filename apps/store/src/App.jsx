@@ -1,56 +1,32 @@
-import Header from './components/Header.jsx';
-import Hero from './components/Hero.jsx';
-import Featured from './components/Featured.jsx';
-import SearchBar from './components/SearchBar.jsx';
-import NewArrivals from './components/NewArrivals.jsx';
-import PlantStands from './components/PlantStands.jsx';
-import Banner from './components/Banner.jsx';
-import Footer from './components/Footer.jsx';
+import { BrowserRouter, Routes, Route, Outlet } from "react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import RootLayout from "./layouts/RootLayout";
+import Home from "./pages/Home";
+import Product from "./pages/Product";
+import Login from "./pages/Login";
+
+const queryClient = new QueryClient();
 
 export default function App() {
   return (
-    <div className="app">
-      <Header />
-      <main>
-        <Hero />
-        <section className="section">
-          <div className="container">
-            <div className="section-header">
-              <h2>Featured</h2>
-              <a href="#" className="view-all">
-                view all
-              </a>
-            </div>
-            <Featured />
-          </div>
-        </section>
-        <section className="section light">
-          <div className="container">
-            <SearchBar />
-          </div>
-        </section>
-        <section className="section">
-          <div className="container">
-            <div className="section-header">
-              <h2>Colorful New Arrivals</h2>
-              <a href="#" className="view-all">
-                view all
-              </a>
-            </div>
-            <NewArrivals />
-          </div>
-        </section>
-        <section className="section">
-          <div className="container">
-            <div className="section-header">
-              <h2>Plant stands</h2>
-            </div>
-            <PlantStands />
-          </div>
-        </section>
-        <Banner />
-      </main>
-      <Footer />
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="login" element={<Login />} />
+          <Route
+            element={
+              <RootLayout>
+                <Outlet />
+              </RootLayout>
+            }
+          >
+            <Route index element={<Home />} />
+            <Route path=":cat">
+              <Route path=":id" element={<Product />} />
+            </Route>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
