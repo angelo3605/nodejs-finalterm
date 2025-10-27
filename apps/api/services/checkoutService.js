@@ -7,12 +7,13 @@ import { getUserByIdService, updateUserService } from "./userService.js";
 import { customAlphabet } from "nanoid";
 import prisma from "../prisma/client.js";
 import { updateVariantService } from "./variantService.js";
+import { getEmailTemplate, transporter } from "../utils/mailer.js";
 
 const generatePassword = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 20);
 
 export const checkoutService = async ({ userId, guestId, shippingAddressId, discountCode, loyaltyPointsToUse = 0 }) => {
   const [shippingAddress, user, cart] = await Promise.all([
-    await getShippingAddressByIdService(shippingAddressId),
+    await getShippingAddressByIdService(shippingAddressId, { userId }),
     await getUserByIdService(userId),
     await getOrCreateCartService(guestId ? { guestId } : { userId }),
   ]);
@@ -78,7 +79,23 @@ export const checkoutService = async ({ userId, guestId, shippingAddressId, disc
     ),
   ]);
 
-  // TODO: send email (preferrably Mailpit for local development)
+  const formatter = new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  });
+
+  transporter.sendMail({
+    from: '"Mint Boutique" <no-reply@mint.boutique>',
+    to: user.email,
+    subject: "Your order is confirmed!",
+    html: await getEmailTemplate("orderConfirmation", {
+      fullName: user.fullName,
+      orderId: order.id,
+      date: order.createdAt.toLocaleDateString("vi-VN"),
+      total: formatter.format(order.totalAmount),
+    }),
+  });
 
   return order;
 };
@@ -92,7 +109,8 @@ export const guestCheckoutService = async ({ guestId, email, fullName, address, 
     throw new Error("Email already exists");
   }
 
-  const guestUser = await registerService(email, generatePassword(), fullName);
+  const password = generatePassword();
+  const guestUser = await registerService(email, password, fullName);
   const shippingAddress = await createShippingAddressService({
     userId: guestUser.id,
     fullName,
@@ -107,7 +125,18 @@ export const guestCheckoutService = async ({ guestId, email, fullName, address, 
     discountCode,
   });
 
-  // TODO: send password via email
+  // TODO: Do not hardcode `loginUrl`
+  transporter.sendMail({
+    from: '"Mint Boutique" <no-reply@mint.boutique>',
+    to: guestUser.email,
+    subject: "Your Mint Boutique account is ready",
+    html: await getEmailTemplate("guestLoginInfo", {
+      fullName: guestUser.fullName,
+      email: guestUser.email,
+      password,
+      loginUrl: "http://localhost:5174/login",
+    }),
+  });
 
   return order;
 };

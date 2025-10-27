@@ -15,6 +15,7 @@ import orderRouter from "./orderRoutes.js";
 import shippingAddressRouter from "./shippingAddressRoutes.js";
 import dashboardRouter from "./dashboardRoutes.js";
 import commentRouter from "./commentRoutes.js";
+import ratingRouter from "./ratingRoutes.js";
 
 const router = Router();
 
@@ -33,6 +34,7 @@ router.use("/orders", orderRouter);
 router.use("/profile/shipping-addresses", shippingAddressRouter);
 router.use("/dashboard", dashboardRouter);
 router.use(commentRouter);
+router.use(ratingRouter);
 
 router.use(handleError);
 
