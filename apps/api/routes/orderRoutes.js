@@ -1,15 +1,13 @@
 import { Router } from "express";
-import { checkout, getAllOrder, getDetailOrder } from "../controllers/orderController.js";
 import { requireAuth } from "../middlewares/authMiddleware.js";
+import { checkRole } from "../middlewares/roleMiddleware.js";
+import { getAllOrders, getMyOrders } from "../controllers/orderController.js";
 
-const orderRouter = Router();
+const orderRouter = new Router();
 
 orderRouter.use(requireAuth);
 
-orderRouter.get("/", getAllOrder);
-
-orderRouter.post("/checkout", checkout);
-
-orderRouter.get("/:orderId", getDetailOrder);
+orderRouter.get("/", checkRole("ADMIN"), getAllOrders);
+orderRouter.get("/me", getMyOrders);
 
 export default orderRouter;

@@ -1,54 +1,67 @@
 import prisma from "../prisma/client.js";
-import { generateRandomString } from "../utils/randomStr.js";
-import { sendEmail } from "../utils/sendEmail.js";
 
-import { updateUserService } from "./userService.js";
-
-export const getAllOrdersService = async () => {
-  return await prisma.order.findMany({
-    select: { id: true, status: true, totalAmount: true },
-    include: { orderItems: true, payments: true },
-  });
-};
-
-export const getOrdersByUserService = async ({ userId }) => {
-  if (!userId) throw new Error("User ID is required");
-  return await prisma.order.findMany({
-    where: { userId },
-    select: { id: true, status: true, totalAmount: true },
-    include: { orderItems: true, payments: true },
-  });
-};
-
-export const getOrderDetailsByIdService = async ({ orderId }) => {
-  if (!orderId) throw new Error("Order ID is required");
-  const order = await prisma.order.findUnique({
-    where: { id: orderId },
+const orderSelect = {
+  id: true,
+  createdAt: true,
+  sumAmount: true,
+  totalAmount: true,
+  status: true,
+  discountCode: true,
+  shippingAddress: true,
+  user: {
     select: {
       id: true,
-      createdAt: true,
-      sumAmount: true,
-      totalAmount: true,
-      status: true,
-      discountCodeId: true,
-      shippingAddress: true,
-      user: { select: { fullName: true, email: true } },
-      orderItems: {
-        select: {
-          quantity: true,
-          unitPrice: true,
-          sumAmount: true,
-          productName: true,
-          variantName: true,
-        },
-      },
+      fullName: true,
+      email: true,
     },
+  },
+  orderItems: {
+    select: {
+      quantity: true,
+      unitPrice: true,
+      sumAmount: true,
+      productName: true,
+      variantName: true,
+    },
+  },
+};
+
+export const getAllOrdersService = async ({ userId }) => {
+  return await prisma.order.findMany({
+    where: { userId },
+    select: orderSelect,
   });
-  if (!order) throw new Error("Order not found");
+};
+
+export const getOrderByIdService = async (id) => {
+  const order = await prisma.order.findUnique({
+    where: { id },
+    select: orderSelect,
+  });
+  if (!order) {
+    throw new Error("Order not found");
+  }
   return order;
 };
 
-export const updateOrderStatusService = async ({ orderId, status }) => {
+export const createOrderService = async ({ userId, sumAmount, totalAmount, shippingAddress, discountCode, orderItems }) => {
+  return await prisma.order.create({
+    data: {
+      userId,
+      sumAmount,
+      totalAmount,
+      status: "PENDING",
+      shippingAddress,
+      discountCode,
+      orderItems: {
+        create: orderItems,
+      },
+    },
+    select: orderSelect,
+  });
+};
+
+/* export const updateOrderStatusService = async ({ orderId, status }) => {
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) throw new Error("Cannot find order");
   return await prisma.order.update({ where: { id: orderId }, data: { status } });
@@ -213,4 +226,4 @@ export const checkoutService = async ({ tx = null, userId, shippingAddressId, di
   await sendEmail(user.email, subject, html);
 
   return order;
-};
+}; */

@@ -1,13 +1,14 @@
-import express from "express";
-import { addToCart, updateCart, removeFromCart, getCartSummary } from "../controllers/cartController.js";
-import { requireAuth } from "../middlewares/authMiddleware.js";
+import { Router } from "express";
+import { optionalAuth } from "../middlewares/authMiddleware.js";
+import { addOrSubtractToCart, getCart } from "../controllers/cartController.js";
+import { validate } from "../middlewares/zodMiddleware.js";
+import { cartSchema } from "@mint-boutique/zod-schemas";
 
-const cartRoutes = express.Router();
-cartRoutes.use(requireAuth);
+const cartRouter = new Router();
 
-cartRoutes.post("/", addToCart);
-cartRoutes.put("/", updateCart);
-cartRoutes.delete("/:cartItemId", removeFromCart);
-cartRoutes.get("/summary", getCartSummary);
+cartRouter.use(optionalAuth);
 
-export default cartRoutes;
+cartRouter.get("/", getCart);
+cartRouter.post("/", validate(cartSchema), addOrSubtractToCart);
+
+export default cartRouter;
