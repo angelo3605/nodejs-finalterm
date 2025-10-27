@@ -22,6 +22,13 @@ const productSelect = {
       updatedAt: true,
     },
   },
+  comments: {
+    select: {
+      senderName: true,
+      message: true,
+      createdAt: true,
+    },
+  },
 };
 
 export const createProductService = async ({ name, desc, imageUrls, brand, category }) => {
