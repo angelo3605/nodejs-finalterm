@@ -1,0 +1,42 @@
+<mjml>
+  <mj-head>
+    <mj-preview>Your Mint Boutique account is ready</mj-preview>
+    <mj-style>
+      .footer-text { color: #999; font-size: 12px; }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#fafafa" font-family="Helvetica, Arial, sans-serif">
+    <mj-section background-color="#ffffff" padding="20px">
+      <mj-column>
+        <mj-text font-size="22px" color="#2d2d2d" font-weight="bold" padding="20px 0 10px">
+          Hi {{fullName}}, your account is ready!
+        </mj-text>
+        <mj-text color="#555" font-size="16px" line-height="1.5">
+          Thanks for shopping with <strong>Mint Boutique</strong>. We created an account for you so you can track your orders and enjoy faster checkout next time.
+        </mj-text>
+        <mj-divider border-color="#e0e0e0" padding="16px 0" />
+        <mj-text font-size="18px" font-weight="bold" color="#333">
+          Login Info
+        </mj-text>
+        <mj-table font-size="14px" color="#555">
+          <tr>
+            <td>Email:</td>
+            <td><strong>{{email}}</strong></td>
+          </tr>
+          <tr>
+            <td>Password:</td>
+            <td><strong>{{password}}</strong></td>
+          </tr>
+        </mj-table>
+        <mj-button background-color="#2f855a" color="#fff" border-radius="6px" href="{{loginUrl}}" padding="24px 0">
+          Login Now
+        </mj-button>
+        <mj-divider border-color="#e0e0e0" padding="16px 0" />
+        <mj-text color="#777" font-size="14px">
+          For security, we recommend changing your password after logging in. Need help? Reply to this email or contact
+          <a href="mailto:support@mint.boutique" style="color:#2f855a;">support@mint.boutique</a>.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

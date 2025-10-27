@@ -1,30 +1,22 @@
-import { rateProductService, getProductRatingsService, updateProductRatingsService } from "../services/ratingService.js";
+import { getAverageRatingService, getRatingsService, upsertRatingService } from "../services/ratingService.js";
 
-export const createRatingController = async (req, res) => {
-  const userId = req.user.id;
-  const { productId, stars } = req.body;
-
-  const rating = await rateProductService(userId, productId, stars);
-
-  req.io.emit("newRating", productId);
-
-  return res.status(201).json(rating);
+export const rateProduct = async (req, res) => {
+  const { stars, review } = req.body;
+  const rating = await upsertRatingService({
+    userId: req.user.id,
+    productSlug: req.params.slug,
+    stars,
+    review,
+  });
+  return res.json({ rating });
 };
 
-export const getRatingsByProductController = async (req, res) => {
-  const { productId } = req.params;
-
-  const ratings = await getProductRatingsService(productId);
-  return res.status(200).json(ratings);
-};
-
-export const upsertRatingController = async (req, res) => {
-  const userId = req.user.id;
-  const { productId, stars } = req.body;
-
-  const rating = await updateProductRatingsService(userId, productId, stars);
-
-  req.io.emit("newRating", productId);
-
-  return res.status(200).json(rating);
+export const getRatings = async (req, res) => {
+  const ratings = await getRatingsService({
+    productSlug: req.params.slug,
+  });
+  const avgRating = await getAverageRatingService({
+    productSlug: req.params.slug,
+  });
+  return res.json({ ratings, avgRating });
 };

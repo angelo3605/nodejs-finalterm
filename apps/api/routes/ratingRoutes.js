@@ -1,17 +1,10 @@
 import { Router } from "express";
-import {
-  createRatingController,
-  getRatingsByProductController,
-  upsertRatingController,
-} from "../controllers/ratingController.js";
 import { requireAuth } from "../middlewares/authMiddleware.js";
+import { getRatings, rateProduct } from "../controllers/ratingController.js";
 
-const ratingRouter = Router();
+const ratingRouter = new Router();
 
-ratingRouter.get("/:productId", getRatingsByProductController);
-
-ratingRouter.use(requireAuth);
-ratingRouter.post("/", createRatingController);
-ratingRouter.put("/", upsertRatingController);
+ratingRouter.get("/products/:slug/ratings", getRatings);
+ratingRouter.post("/products/:slug/ratings", requireAuth, rateProduct);
 
 export default ratingRouter;

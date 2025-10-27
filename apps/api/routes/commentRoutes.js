@@ -1,11 +1,13 @@
 import { Router } from "express";
-import { createCommentController, getCommentsByProductController } from "../controllers/commentController.js";
-import { extractUserId } from "../middlewares/authMiddleware.js";
+import { createComment, getAllComments, deleteComment } from "../controllers/commentController.js";
+import { optionalAuth } from "../middlewares/authMiddleware.js";
 
-const commentRouter = Router();
+const commentRouter = new Router();
 
-commentRouter.post("/", extractUserId, createCommentController);
+commentRouter.use(optionalAuth);
 
-commentRouter.get("/:productId", getCommentsByProductController);
+commentRouter.get("/products/:slug/comments", getAllComments);
+commentRouter.post("/products/:slug/comments", createComment);
+commentRouter.delete("/comments/:id", deleteComment);
 
 export default commentRouter;
