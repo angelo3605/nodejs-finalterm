@@ -32,6 +32,7 @@ import { EditVariant } from "./pages/variants/edit";
 import { ListCategories } from "./pages/categories/list";
 import { CreateCategory } from "./pages/categories/create";
 import { EditCategory } from "./pages/categories/edit";
+import { ListOrders } from "./pages/orders/list";
 
 const resources = [
   {
@@ -144,6 +145,9 @@ export function App() {
             }
           >
             <Route index element={<Dashboard />} />
+            <Route path="orders">
+              <Route index element={<ListOrders />} />
+            </Route>
             <Route path="products">
               <Route index element={<ListProducts />} />
               <Route path="create" element={<CreateProduct />} />
