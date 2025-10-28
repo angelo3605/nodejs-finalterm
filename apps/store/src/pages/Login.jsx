@@ -30,27 +30,32 @@ export default function Login() {
 
   return (
     <>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit((values) => mutate(values))}>
+      <div>
+        <img src="https://placehold.co/1000x1200" />
         <div>
-          <label>
-            Email: <input {...register("email")} />
-          </label>
-          {errors.email && <p>{errors.email.message}</p>}
+          <h1>Login</h1>
+          <form onSubmit={handleSubmit((values) => mutate(values))}>
+            <div>
+              <label>
+                Email: <input {...register("email")} />
+              </label>
+              {errors.email && <p>{errors.email.message}</p>}
+            </div>
+            <div>
+              <label>
+                Password: <input {...register("password")} />
+              </label>
+              {errors.password && <p>{errors.password.message}</p>}
+            </div>
+            <div>
+              <label>
+                <input {...register("rememberMe")} type="checkbox" /> Remember me
+              </label>
+            </div>
+            <button type="submit">Login</button>
+          </form>
         </div>
-        <div>
-          <label>
-            Password: <input {...register("password")} />
-          </label>
-          {errors.password && <p>{errors.password.message}</p>}
-        </div>
-        <div>
-          <label>
-            <input {...register("rememberMe")} type="checkbox" /> Remember me
-          </label>
-        </div>
-        <button type="submit">Login</button>
-      </form>
+      </div>
     </>
   );
 }

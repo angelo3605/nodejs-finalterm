@@ -4,6 +4,7 @@ import RootLayout from "./layouts/RootLayout";
 import Home from "./pages/Home";
 import Product from "./pages/Product";
 import Login from "./pages/Login";
+import { Catalog } from "./pages/Catalog";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ export default function App() {
             }
           >
             <Route index element={<Home />} />
+            <Route path="all" element={<Catalog />} />
             <Route path=":cat">
               <Route path=":id" element={<Product />} />
             </Route>

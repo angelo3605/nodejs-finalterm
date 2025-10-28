@@ -10,11 +10,11 @@ export default function Product() {
   const {
     isPending,
     isError,
-    data: { data: { product, message } = {} } = {},
+    data: { product, message } = {},
     error,
   } = useQuery({
     queryKey: ["products", id],
-    queryFn: () => api.get(`/products/${id}`),
+    queryFn: () => api.get(`/products/${id}`).then((res) => res.data),
   });
 
   if (isPending) {
