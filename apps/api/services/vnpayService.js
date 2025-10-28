@@ -1,33 +1,51 @@
 import dayjs from "dayjs";
-import qs from "querystring";
 import crypto from "crypto";
+import { updateOrderStatusService } from "./orderService.js";
+import { longCurrencyFormatter } from "@mint-boutique/formatters";
+import { allowedClients } from "../utils/whitelist.js";
 
 const sortObject = (o) =>
   Object.keys(o)
     .sort()
-    .reduce((newO, key) => ({ ...newO, [key]: newO[key] }), {});
+    .reduce((newO, key) => ({ ...newO, [key]: o[key] }), {});
 
-export const getVnpayPaymentUrl = ({ amount, bankCode, orderDesc, orderType, ipAddr, language = "vn" }) => {
+const checkHash = (vnpParams) => {
+  const secureHash = vnpParams.vnp_SecureHash;
+
+  delete vnpParams.vnp_SecureHash;
+  delete vnpParams.vnp_SecureHashType;
+
+  const sortedParams = sortObject(vnpParams);
+  const signData = new URLSearchParams(sortedParams).toString();
+
+  const hmac = crypto.createHmac("sha512", process.env.VNP_HASHSECRET);
+  const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+
+  return secureHash === signed;
+};
+
+export const getVnpayPaymentUrl = ({ order, ipAddr, bankCode, orderType = "fashion", language = "vn", expireMinutes = 15 }) => {
   const { VNP_TMNCODE: tmnCode, VNP_HASHSECRET: secretKey, VNP_URL: vnpUrl, VNP_RETURNURL: returnUrl } = process.env;
 
-  const date = dayjs();
-
-  const createDate = date.format("yyyymmddHHmmss");
-  const orderId = date.format("HHmmss");
+  const now = dayjs();
+  const createDate = now.format("YYYYMMDDHHmmss");
+  const expireDate = now.add(expireMinutes, "minute").format("YYYYMMDDHHmmss");
+  const orderInfo = `Payment for Order ${order.id}`;
 
   const vnpParams = {
-    vnp_Version: "2.1.0",
+    vnp_Version: "2.1.1",
     vnp_Command: "pay",
     vnp_TmnCode: tmnCode,
     vnp_Locale: language,
     vnp_CurrCode: "VND",
-    vnp_TxnRef: orderId,
-    vnp_OrderInfo: orderDesc,
+    vnp_TxnRef: order.id,
+    vnp_OrderInfo: orderInfo,
     vnp_OrderType: orderType,
-    vnp_Amount: amount * 100.0,
+    vnp_Amount: order.totalAmount * 100,
     vnp_ReturnUrl: returnUrl,
     vnp_IpAddr: ipAddr,
     vnp_CreateDate: createDate,
+    vnp_ExpireDate: expireDate,
   };
 
   if (bankCode) {
@@ -35,29 +53,47 @@ export const getVnpayPaymentUrl = ({ amount, bankCode, orderDesc, orderType, ipA
   }
 
   const sortedParams = sortObject(vnpParams);
-  const signData = qs.stringify(sortedParams, { encode: false });
+  const searchParams = new URLSearchParams(sortedParams);
 
   const hmac = crypto.createHmac("sha512", secretKey);
-  sortedParams.vnp_SecureHash = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+  sortedParams.vnp_SecureHash = hmac.update(Buffer.from(searchParams.toString(), "utf-8")).digest("hex");
 
-  return `vnpUrl?${qs.stringify(sortedParams, { encode: false })}`;
+  return `${vnpUrl}?${new URLSearchParams(sortedParams).toString()}`;
 };
 
-export const handleVnpayIpn = (vnpParams) => {
-  const secureHash = vnpParams.vnp_SecureHash;
-
-  delete vnpParams.vnp_SecureHash;
-  delete vnpParams.vnp_SecureHashType;
-
-  const sortedParams = sortObject(vnpParams);
-  const signData = qs.stringify(sortedParams, { encode: false });
-
-  const hmac = crypto.createHmac("sha512", process.env.VNP_HASHSECRET);
-  const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
-
-  if (secureHash !== signed) {
-    return "97";
+export const handleVnpayIpn = async (vnpParams) => {
+  if (!checkHash(vnpParams)) {
+    return { RspCode: "97", Message: "Checksum failed" };
   }
 
-  return "00";
+  try {
+    await updateOrderStatusService(vnpParams.vnp_TxnRef, {
+      status: vnpParams.vnp_ResponseCode === "00" ? "PROCESSING" : "CANCELLED",
+    });
+  } catch (err) {
+    return { RspCode: "01", Message: err.message ?? "Something went wrong" };
+  }
+
+  return { RspCode: "00", Message: "Success" };
+};
+
+export const handleVnpayCallback = (vnpParams, { redirectUrl }) => {
+  if (!checkHash(vnpParams)) {
+    throw new Error(`VNPay responded with code '${vnpParams.vnp_ResponseCode}'`);
+  }
+
+  if (!allowedClients.includes(redirectUrl)) {
+    throw new Error("Blocked by whitelist");
+  }
+
+  const newRedirectUrl = new URL(redirectUrl);
+  for (const [key, value] of [
+    ["status", vnpParams.vnp_ResponseCode],
+    ["orderId", vnpParams.vnp_TxnRef],
+    ["orderInfo", vnpParams.vnp_OrderInfo],
+  ]) {
+    newRedirectUrl.searchParams.set(key, value);
+  }
+
+  return newRedirectUrl.toString();
 };

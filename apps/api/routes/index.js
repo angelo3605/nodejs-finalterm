@@ -16,6 +16,7 @@ import shippingAddressRouter from "./shippingAddressRoutes.js";
 import dashboardRouter from "./dashboardRoutes.js";
 import commentRouter from "./commentRoutes.js";
 import ratingRouter from "./ratingRoutes.js";
+import vnpayRouter from "./vnpayRoutes.js";
 
 const router = Router();
 
@@ -35,6 +36,7 @@ router.use("/profile/shipping-addresses", shippingAddressRouter);
 router.use("/dashboard", dashboardRouter);
 router.use(commentRouter);
 router.use(ratingRouter);
+router.use("/payment", vnpayRouter);
 
 router.use(handleError);
 

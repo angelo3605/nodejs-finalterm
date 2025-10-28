@@ -8,11 +8,10 @@ import { fileURLToPath } from "url";
 import router from "./routes/index.js";
 import passport from "./utils/passport.js";
 import { initSocket } from "./utils/socket.js";
+import { allowedClients } from "./utils/whitelist.js";
 
 const __filename__ = fileURLToPath(import.meta.url);
 const __dirname__ = path.dirname(__filename__);
-
-const allowedClients = process.env.ALLOWED_CLIENTS?.split(",").map((clientUrl) => clientUrl.trim()) ?? [];
 
 const app = express();
 
