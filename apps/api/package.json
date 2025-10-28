@@ -2,10 +2,12 @@
   "name": "api",
   "private": true,
   "dependencies": {
+    "@mint-boutique/zod-schemas": "*",
     "@prisma/client": "^6.16.2",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.18",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "express-jwt": "^8.5.1",
@@ -23,8 +25,7 @@
     "slugify": "^1.6.6",
     "socket.io": "^4.8.1",
     "vnpay": "^2.4.4",
-    "zod": "^4.1.11",
-    "@mint-boutique/zod-schemas": "*"
+    "zod": "^4.1.11"
   },
   "scripts": {
     "dev": "nodemon"

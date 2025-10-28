@@ -34,7 +34,7 @@ const chartConfig = {
   },
 };
 
-export function OrderStatusPieChart({ data, totalOrders }) {
+export function OrderStatusPieChart({ data }) {
   return (
     <Card className="shadow-none">
       <CardHeader>
@@ -75,7 +75,10 @@ export function OrderStatusPieChart({ data, totalOrders }) {
                           y={viewBox.cy}
                           className="fill-foreground text-4xl font-bold"
                         >
-                          {totalOrders}
+                          {
+                            data.find(({ status }) => status === "PENDING")
+                              .count
+                          }
                         </tspan>
                         <tspan
                           x={viewBox.cx}

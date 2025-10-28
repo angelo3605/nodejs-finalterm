@@ -27,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { longCurrencyFormatter } from "@mint-boutique/formatters";
 
 const statusColors = {
   PENDING: "bg-chart-5/10! *:text-chart-5!",
@@ -37,16 +38,6 @@ const statusColors = {
 };
 
 export function ListOrders() {
-  const formatter = useMemo(
-    () =>
-      new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-        maximumFractionDigits: 0,
-      }),
-    [],
-  );
-
   const columns = useMemo(
     () => [
       {
@@ -80,7 +71,7 @@ export function ListOrders() {
         header: "Total Amount",
         size: 80,
         cell: ({ row: { original: order } }) =>
-          formatter.format(order.totalAmount),
+          longCurrencyFormatter.format(order.totalAmount),
       },
       {
         id: "userFullName",
@@ -110,7 +101,7 @@ export function ListOrders() {
               >
                 <SelectTrigger
                   className={cn(
-                    "w-32 border-none shadow-none rounded-full h-[32px]!",
+                    "w-32 border-none shadow-none rounded-full h-8!",
                     statusColors[order.status],
                   )}
                 >
@@ -168,7 +159,7 @@ export function ListOrders() {
               <TableCell>{item.variantName}</TableCell>
               <TableCell className="text-right">{item.quantity}</TableCell>
               <TableCell className="text-right">
-                {formatter.format(item.sumAmount)}
+                {longCurrencyFormatter.format(item.sumAmount)}
               </TableCell>
             </TableRow>
           ))}

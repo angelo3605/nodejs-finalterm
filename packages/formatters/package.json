@@ -1,0 +1,6 @@
+{
+    "name": "@mint-boutique/formatters",
+    "private": true,
+    "type": "module",
+    "main": "index.js"
+}
