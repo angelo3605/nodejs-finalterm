@@ -1,49 +1,27 @@
 import Hero from "../components/Hero";
-import Featured from "../components/Featured";
-import SearchBar from "../components/SearchBar";
-import NewArrivals from "../components/NewArrivals";
-import PlantStands from "../components/PlantStands";
 import Banner from "../components/Banner";
+import { api } from "@mint-boutique/axios-client";
+import { useQuery } from "@tanstack/react-query";
+import { Section } from "../components/Section";
+import { Card } from "../components/Card";
 
 export default function Home() {
+  const { data: { products } = {}, isPending } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => api.get("/products").then((res) => res.data),
+  });
+
   return (
     <>
       <Hero />
-      <section className="section">
-        <div className="container">
-          <div className="section-header">
-            <h2>Featured</h2>
-            <a href="#" className="view-all">
-              view all
-            </a>
-          </div>
-          <Featured />
-        </div>
-      </section>
-      <section className="section light">
-        <div className="container">
-          <SearchBar />
-        </div>
-      </section>
-      <section className="section">
-        <div className="container">
-          <div className="section-header">
-            <h2>Colorful New Arrivals</h2>
-            <a href="#" className="view-all">
-              view all
-            </a>
-          </div>
-          <NewArrivals />
-        </div>
-      </section>
-      <section className="section">
-        <div className="container">
-          <div className="section-header">
-            <h2>Plant stands</h2>
-          </div>
-          <PlantStands />
-        </div>
-      </section>
+      <main className="mx-auto w-[min(1200px,92%)]">
+        <Section title="Best sellers">
+          <div className="space-x-8">{isPending ? "Loading..." : products.map((product, i) => <Card key={i} product={product} />)}</div>
+        </Section>
+        <Section title="New arrivals">
+          <div className="space-x-8">{isPending ? "Loading..." : products.map((product, i) => <Card key={i} product={product} />)}</div>
+        </Section>
+      </main>
       <Banner />
     </>
   );

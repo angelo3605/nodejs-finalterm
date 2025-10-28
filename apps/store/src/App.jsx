@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Product from "./pages/Product";
 import Login from "./pages/Login";
 import { Catalog } from "./pages/Catalog";
+import Register from "./pages/Register";
 
 const queryClient = new QueryClient();
 
@@ -14,6 +15,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
           <Route
             element={
               <RootLayout>

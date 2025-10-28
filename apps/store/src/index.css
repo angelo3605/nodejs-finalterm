@@ -1,6 +1,82 @@
 @import "tailwindcss";
 
-:root {
+.floating-label {
+  @apply block relative mt-2;
+}
+
+.floating-label__label {
+  @apply leading-none absolute -translate-y-1/2 top-1/2 left-4 bg-transparent text-gray-600 transition-all pointer-events-none;
+}
+
+.floating-label__input {
+  @apply w-full h-12 px-4 outline-none inset-ring inset-ring-gray-300 rounded-lg;
+
+  @variant focus {
+    @apply inset-ring-3 inset-ring-emerald-700;
+  }
+}
+
+.floating-label__input:focus + .floating-label__label {
+  @apply text-emerald-700;
+}
+
+.floating-label__input:focus + .floating-label__label,
+.floating-label__input:not(:placeholder-shown) + .floating-label__label {
+  @apply top-0 text-sm bg-white px-1 left-3;
+}
+
+.btn {
+  @apply flex justify-center items-center gap-2 h-11 px-4 rounded-lg cursor-pointer hover:not-disabled:not-focus:brightness-105 transition-all;
+
+  @variant disabled {
+    @apply saturate-0 opacity-50 cursor-not-allowed;
+  }
+}
+
+.btn-primary {
+  @apply bg-emerald-600 text-white font-bold shadow-lg/10;
+}
+
+.btn-outline-light {
+  @apply border border-white/50 hover:border-white;
+}
+
+.btn-outline-dark {
+  @apply border border-black/50 hover:border-black;
+}
+
+.btn-cta {
+  @apply bg-white text-black;
+}
+
+.btn-jump:hover {
+  @apply -translate-y-0.5;
+}
+
+.link {
+  @apply text-emerald-700 hover:underline w-max flex items-center gap-2;
+}
+
+.bg-fancy {
+  --s: 80px; /* control the size*/
+  --c1: var(--color-emerald-700);
+  --c2: color-mix(in hsl, var(--color-emerald-600) 50%, transparent 50%);
+
+  --_s: calc(2 * var(--s)) calc(2 * var(--s));
+  --_g: 35.36% 35.36% at;
+  --_c: #0000 66%, var(--c2) 68% 70%, #0000 72%;
+  background:
+    radial-gradient(var(--_g) 100% 25%, var(--_c)) var(--s) var(--s) / var(--_s),
+    radial-gradient(var(--_g) 0 75%, var(--_c)) var(--s) var(--s) / var(--_s),
+    radial-gradient(var(--_g) 100% 25%, var(--_c)) 0 0 / var(--_s),
+    radial-gradient(var(--_g) 0 75%, var(--_c)) 0 0 / var(--_s),
+    repeating-conic-gradient(var(--c1) 0 25%, #0000 0 50%) 0 0 / var(--_s),
+    radial-gradient(var(--_c)) 0 calc(var(--s) / 2) / var(--s) var(--s) var(--c1);
+}
+
+/* ----------------------------------------------------------------------- */
+
+/* :root {
   --green-900: #0e5a47;
   --green-800: #0f6b54;
   --green-700: #11775c;
@@ -331,7 +407,6 @@ body {
   border-top: 1px solid #e9efec;
 }
 
-/* Responsive */
 @media (max-width: 960px) {
   .hero-inner {
     grid-template-columns: 1fr;
@@ -353,4 +428,4 @@ body {
   .grid-4 {
     grid-template-columns: 1fr;
   }
-}
+} */
