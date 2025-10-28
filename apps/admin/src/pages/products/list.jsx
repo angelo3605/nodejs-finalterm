@@ -23,6 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { longCurrencyFormatter } from "@mint-boutique/formatters";
 import { useTable } from "@refinedev/react-table";
 import {
   ChevronDown,
@@ -126,16 +127,6 @@ export function ListProducts() {
     },
   } = table;
 
-  const formatter = useMemo(
-    () =>
-      new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-        maximumFractionDigits: 0,
-      }),
-    [],
-  );
-
   const renderSubComponent = ({ row: { original: product } }) => (
     <Table>
       <TableHeader className={cn(product.variants?.length > 0 && "border-b")}>
@@ -150,7 +141,7 @@ export function ListProducts() {
         {product.variants?.map((variant) => (
           <TableRow key={variant.id}>
             <TableCell>{variant.name}</TableCell>
-            <TableCell>{formatter.format(variant.price)}</TableCell>
+            <TableCell>{longCurrencyFormatter.format(variant.price)}</TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
                 {variant.stockQuantity}{" "}

@@ -61,6 +61,14 @@ export const createOrderService = async ({ userId, sumAmount, totalAmount, shipp
   });
 };
 
+export const updateOrderStatusService = async (id, { status }) => {
+  return await prisma.order.update({
+    where: { id },
+    data: { status },
+    select: orderSelect,
+  });
+};
+
 /* export const updateOrderStatusService = async ({ orderId, status }) => {
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) throw new Error("Cannot find order");

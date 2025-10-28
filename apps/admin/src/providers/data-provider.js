@@ -59,4 +59,9 @@ export const dataProvider = {
   },
 
   getApiUrl: () => api.defaults.baseURL,
+
+  custom: async ({ url, method }) => {
+    const { data } = await api[method](url);
+    return data;
+  },
 };

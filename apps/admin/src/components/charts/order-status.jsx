@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from "../ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "../ui/chart";
-import { useMemo } from "react";
 
 const chartConfig = {
   count: {
@@ -35,11 +34,11 @@ const chartConfig = {
   },
 };
 
-export function OrderStatusPieChart({ data, totalOrders }) {
+export function OrderStatusPieChart({ data }) {
   return (
     <Card className="shadow-none">
       <CardHeader>
-        <CardTitle>Order statuses</CardTitle>
+        <CardTitle className="font-normal">Order statuses</CardTitle>
         <CardDescription>All time</CardDescription>
       </CardHeader>
       <CardContent>
@@ -56,7 +55,10 @@ export function OrderStatusPieChart({ data, totalOrders }) {
               }))}
               dataKey="count"
               nameKey="status"
-              innerRadius={50}
+              innerRadius="85%"
+              outerRadius="100%"
+              paddingAngle={5}
+              cornerRadius="25%"
             >
               <Label
                 content={({ viewBox }) => {
@@ -71,16 +73,19 @@ export function OrderStatusPieChart({ data, totalOrders }) {
                         <tspan
                           x={viewBox.cx}
                           y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold"
+                          className="fill-foreground text-4xl font-bold"
                         >
-                          {totalOrders}
+                          {
+                            data.find(({ status }) => status === "PENDING")
+                              .count
+                          }
                         </tspan>
                         <tspan
                           x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
+                          y={(viewBox.cy || 0) + 32}
+                          className="fill-muted-foreground text-sm"
                         >
-                          Orders
+                          PENDING
                         </tspan>
                       </text>
                     );
