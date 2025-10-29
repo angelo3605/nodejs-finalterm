@@ -11,32 +11,19 @@ const userSelect = {
 };
 
 export const getUserByIdService = async (id) => {
-  const user = await prisma.user.findUnique({
+  return await prisma.user.findUnique({
     where: { id },
     select: userSelect,
   });
-  if (!user) {
-    throw new Error("User not found");
-  }
-  return user;
 };
 
-export const updateUserService = async (id, { fullName, email, password, role, loyaltyPoints }) => {
-  if (
-    !(await prisma.user.findUnique({
-      where: { id },
-    }))
-  ) {
-    throw new Error("User not found");
-  }
+export const updateUserService = async (id, data) => {
+  const password = data.password ? await bcrypt.hash(data.password, 10) : undefined;
   return await prisma.user.update({
     where: { id },
     data: {
-      fullName,
-      email,
-      password: password ? await bcrypt.hash(password, 10) : undefined,
-      role,
-      loyaltyPoints,
+      ...data,
+      password,
     },
   });
 };

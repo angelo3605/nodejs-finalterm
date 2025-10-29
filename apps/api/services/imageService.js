@@ -63,12 +63,9 @@ export const deleteImageService = async (id) => {
 };
 
 export const getAllImagesService = async ({ page, pageSize }) => {
-  const [data, total] = await Promise.all([
-    prisma.image.count({
-      where: { isDeleted: false },
-    }),
+  const [total, data] = await Promise.all([
+    prisma.image.count(),
     prisma.image.findMany({
-      where: { isDeleted: false },
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),

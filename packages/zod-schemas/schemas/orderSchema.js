@@ -23,3 +23,5 @@ export const orderSchema = z.object({
       .regex(/^[a-z-0-9]+$/),
   }),
 });
+
+export const orderStatusSchema = z.enum(["PENDING", "PROCESSING", "DELIVERING", "DELIVERED", "CANCELLED"]);

@@ -27,7 +27,7 @@ const orderSelect = {
 };
 
 export const getAllOrdersService = async ({ userId }, { page, pageSize }) => {
-  const [data, total] = await Promise.all([
+  const [total, data] = await Promise.all([
     prisma.order.count({
       where: { userId },
     }),

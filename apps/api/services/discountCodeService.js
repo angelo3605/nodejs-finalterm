@@ -20,7 +20,7 @@ export const updateDiscountCodeService = async (code, data) => {
 };
 
 export const getAllDiscountCodesService = async ({ page, pageSize }) => {
-  const [data, total] = await Promise.all([
+  const [total, data] = await Promise.all([
     prisma.discountCode.count({
       where: { isDeleted: false },
     }),

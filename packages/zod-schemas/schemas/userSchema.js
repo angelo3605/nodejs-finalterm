@@ -16,9 +16,14 @@ export const registerSchema = userSchema.pick({
 
 export const loginSchema = userSchema
   .pick({
-    fullName: true,
     email: true,
+    password: true,
   })
   .extend({
     rememberMe: z.coerce.boolean().default(false),
   });
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(6),
+  newPassword: z.string().min(6),
+});

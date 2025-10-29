@@ -1,10 +1,33 @@
-import { registerSchema, loginSchema } from "./schemas/userSchema.js";
-import { imageSchema } from "./schemas/imageSchema.js";
 import { brandSchema } from "./schemas/brandSchema.js";
-import { categorySchema } from "./schemas/categorySchema.js";
-import { productSchema } from "./schemas/productSchema.js";
-import { variantSchema } from "./schemas/variantSchema.js";
 import { cartSchema } from "./schemas/cartSchema.js";
+import { categorySchema } from "./schemas/categorySchema.js";
+import { commentSchema } from "./schemas/commentSchema.js";
+import { discountCodeSchema } from "./schemas/discountCodeSchema.js";
+import { imageSchema } from "./schemas/imageSchema.js";
+import { orderSchema, orderStatusSchema } from "./schemas/orderSchema.js";
 import { paginationSchema } from "./schemas/paginationSchema.js";
+import { productSchema } from "./schemas/productSchema.js";
+import { ratingSchema } from "./schemas/ratingSchema.js";
+import { shippingAddressSchema } from "./schemas/shippingAddressSchema.js";
+import { changePasswordSchema, loginSchema, registerSchema, userSchema } from "./schemas/userSchema.js";
+import { variantSchema } from "./schemas/variantSchema.js";
 
-export { registerSchema, loginSchema, imageSchema, brandSchema, categorySchema, productSchema, variantSchema, cartSchema, paginationSchema };
+export {
+  brandSchema,
+  cartSchema,
+  categorySchema,
+  changePasswordSchema,
+  commentSchema,
+  discountCodeSchema,
+  imageSchema,
+  loginSchema,
+  orderSchema,
+  orderStatusSchema,
+  paginationSchema,
+  productSchema,
+  ratingSchema,
+  registerSchema,
+  shippingAddressSchema,
+  userSchema,
+  variantSchema,
+};

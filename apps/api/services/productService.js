@@ -53,7 +53,7 @@ export const createProductService = async (data) => {
 };
 
 export const getAllProductsService = async ({ page, pageSize }) => {
-  const [data, total] = await Promise.all([
+  const [total, data] = await Promise.all([
     prisma.product.count({
       where: { isDeleted: false },
     }),

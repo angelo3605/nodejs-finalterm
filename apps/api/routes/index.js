@@ -18,6 +18,7 @@ import dashboardRouter from "./dashboardRoutes.js";
 import commentRouter from "./commentRoutes.js";
 import ratingRouter from "./ratingRoutes.js";
 import vnpayRouter from "./vnpayRoutes.js";
+import discountCodeRouter from "./discountCodeRoutes.js";
 
 const router = Router();
 
@@ -36,6 +37,7 @@ router.use("/checkout", checkoutRouter);
 router.use("/orders", orderRouter);
 router.use("/profile/shipping-addresses", shippingAddressRouter);
 router.use("/dashboard", dashboardRouter);
+router.use("/discount-codes", discountCodeRouter);
 router.use(commentRouter);
 router.use(ratingRouter);
 router.use("/payment", vnpayRouter);
