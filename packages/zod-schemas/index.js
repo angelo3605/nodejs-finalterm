@@ -6,7 +6,7 @@ import { discountCodeSchema } from "./schemas/discountCodeSchema.js";
 import { imageSchema } from "./schemas/imageSchema.js";
 import { orderSchema, orderStatusSchema } from "./schemas/orderSchema.js";
 import { paginationSchema } from "./schemas/paginationSchema.js";
-import { productSchema } from "./schemas/productSchema.js";
+import { productFilteringSchema, productSchema, productSortingSchema } from "./schemas/productSchema.js";
 import { ratingSchema } from "./schemas/ratingSchema.js";
 import { shippingAddressSchema } from "./schemas/shippingAddressSchema.js";
 import { changePasswordSchema, loginSchema, registerSchema, userSchema } from "./schemas/userSchema.js";
@@ -24,7 +24,9 @@ export {
   orderSchema,
   orderStatusSchema,
   paginationSchema,
+  productFilteringSchema,
   productSchema,
+  productSortingSchema,
   ratingSchema,
   registerSchema,
   shippingAddressSchema,

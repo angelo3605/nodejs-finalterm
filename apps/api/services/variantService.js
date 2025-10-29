@@ -1,14 +1,7 @@
 import prisma from "../prisma/client.js";
 
 export const createVariantService = async (data) => {
-  return await prisma.productVariant.create({
-    data: {
-      ...data,
-      product: {
-        connect: { slug: data.productSlug },
-      },
-    },
-  });
+  return await prisma.productVariant.create({ data });
 };
 
 export const updateVariantService = async (id, data) => {

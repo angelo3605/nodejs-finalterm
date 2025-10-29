@@ -7,27 +7,27 @@ import { Blocks } from "lucide-react";
 import { LoadingOverlay } from "@/components/refine-ui/layout/loading-overlay";
 import { SimpleCard } from "@/components/simple-card";
 
-export function ListCategories() {
+export function ListBrands() {
   const {
     result,
     query: { isLoading },
   } = useList({
-    resource: "categories",
+    resource: "brands",
   });
 
-  const categories = result.data ?? [];
+  const brands = result.data ?? [];
 
   return (
     <ListView>
       <ListViewHeader />
       <LoadingOverlay loading={isLoading} className="h-[300px]">
         <div className="grid grid-cols-4 gap-4">
-          {categories.map((category) => (
+          {brands.map((brand) => (
             <SimpleCard
-              resource="categories"
-              slug={category.slug}
-              name={category.name}
-              imageUrl={category.imageUrl}
+              resource="brands"
+              slug={brand.slug}
+              name={brand.name}
+              imageUrl={brand.imageUrl}
               FallbackIcon={Blocks}
             />
           ))}

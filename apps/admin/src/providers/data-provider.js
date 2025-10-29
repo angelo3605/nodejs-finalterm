@@ -25,19 +25,16 @@ export const dataProvider = {
       params.append("pageSize", pagination.pageSize);
     }
 
-    /* if (sorters && sorters.length > 0) {
-      params.append("_sort", sorters.map((sorter) => sorter.field).join(","));
-      params.append("_order", sorters.map((sorter) => sorter.order).join(","));
+    if (sorters?.length) {
+      params.append("sortBy", sorters[0].field);
+      params.append("sortInAsc", sorters[0].order === "asc" ? 1 : 0);
     }
 
-    if (filters && filters.length > 0) {
+    if (filters?.length) {
       filters.forEach((filter) => {
-        if ("field" in filter && filter.operator === "eq") {
-          // Our fake API supports "eq" operator by simply appending the field name and value to the query string.
-          params.append(filter.field, filter.value);
-        }
+        params.append(filter.field, filter.value);
       });
-    } */
+    }
 
     return api.get(`/${resource}?${params.toString()}`).then((res) => res.data);
   },

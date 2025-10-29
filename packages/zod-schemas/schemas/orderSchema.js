@@ -24,4 +24,6 @@ export const orderSchema = z.object({
   }),
 });
 
-export const orderStatusSchema = z.enum(["PENDING", "PROCESSING", "DELIVERING", "DELIVERED", "CANCELLED"]);
+export const orderStatusSchema = z.object({
+  status: z.enum(["PENDING", "PROCESSING", "DELIVERING", "DELIVERED", "CANCELLED"]),
+});

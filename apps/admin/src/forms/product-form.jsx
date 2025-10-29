@@ -26,14 +26,14 @@ export function ProductForm({ refineForm }) {
     resource: "brands",
     optionLabel: "name",
     optionValue: "slug",
-    defaultValue: query?.data?.data.brand.slug,
+    defaultValue: query?.data?.data.brand?.slug,
   });
 
   const { options: categories } = useSelect({
     resource: "categories",
     optionLabel: "name",
     optionValue: "slug",
-    defaultValue: query?.data?.data.category.slug,
+    defaultValue: query?.data?.data.category?.slug,
   });
 
   useEffect(() => {

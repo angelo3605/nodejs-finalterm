@@ -63,7 +63,10 @@ export function DataTablePagination({
           <span className={cn("text-sm", "font-medium")}>Rows per page</span>
           <Select
             value={`${pageSize}`}
-            onValueChange={(v) => setPageSize(Number(v))}
+            onValueChange={(v) => {
+              setCurrentPage(1);
+              setPageSize(Number(v));
+            }}
           >
             <SelectTrigger className={cn("h-8", "w-[70px]")}>
               <SelectValue placeholder={pageSize} />

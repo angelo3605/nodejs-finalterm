@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 export const DeleteButton = React.forwardRef(
   (
@@ -59,13 +60,18 @@ export const DeleteButton = React.forwardRef(
               ref={ref}
               disabled={isDisabled}
             >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {children ?? (
-                <div className="flex items-center gap-2 font-semibold">
-                  <Trash className="h-4 w-4" />
-                  <span>{label}</span>
-                </div>
+              {loading && (
+                <Loader2
+                  className={cn("h-4 w-4 animate-spin", children && "mr-2")}
+                />
               )}
+              {!(children && loading) &&
+                (children ?? (
+                  <div className="flex items-center gap-2 font-semibold">
+                    <Trash className="h-4 w-4" />
+                    <span>{label}</span>
+                  </div>
+                ))}
             </Button>
           </span>
         </PopoverTrigger>

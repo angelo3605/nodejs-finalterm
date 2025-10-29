@@ -152,8 +152,8 @@ model ProductVariant {
   stockQuantity Int
   isDeleted     Boolean @default(false)
 
-  productId String  @db.ObjectId
-  product   Product @relation(fields: [productId], references: [id])
+  productSlug String
+  product     Product @relation(fields: [productSlug], references: [slug])
 
   cartItems CartItem[]
 
@@ -292,6 +292,7 @@ model DiscountCode {
   value      Float
   usageLimit Int?
   numOfUsage Int          @default(0)
+  isDeleted  Boolean      @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

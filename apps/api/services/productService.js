@@ -9,8 +9,8 @@ const productSelect = {
   imageUrls: true,
   createdAt: true,
   updatedAt: true,
-  brand: { where: { isDeleted: false } },
-  category: { where: { isDeleted: false } },
+  brand: true,
+  category: true,
   variants: {
     where: { isDeleted: false },
     select: {
@@ -52,16 +52,61 @@ export const createProductService = async (data) => {
   });
 };
 
-export const getAllProductsService = async ({ page, pageSize }) => {
+export const getAllProductsService = async (sorting, filtering, { page, pageSize }) => {
+  const { sortBy, sortInAsc } = sorting;
+  const { name, minPrice, maxPrice, category, brands } = filtering;
+
+  const where = {
+    isDeleted: false,
+    name: name
+      ? {
+          contains: name,
+          mode: "insensitive",
+        }
+      : undefined,
+    variants:
+      minPrice || maxPrice
+        ? {
+            some: {
+              price: {
+                gte: minPrice,
+                lte: maxPrice,
+              },
+            },
+          }
+        : undefined,
+    brand: brands?.length
+      ? {
+          slug: { in: brands },
+        }
+      : undefined,
+    category: category
+      ? {
+          slug: category,
+        }
+      : undefined,
+  };
+
+  const sortOrder = sortInAsc ? "asc" : "desc";
+
   const [total, data] = await Promise.all([
-    prisma.product.count({
-      where: { isDeleted: false },
-    }),
+    prisma.product.count({ where }),
     prisma.product.findMany({
-      where: { isDeleted: false },
+      where,
       select: productSelect,
       skip: (page - 1) * pageSize,
       take: pageSize,
+      orderBy: sortBy
+        ? sortBy === "price"
+          ? {
+              variants: {
+                _min: { price: sortOrder },
+              },
+            }
+          : {
+              [sortBy]: sortOrder,
+            }
+        : { createdAt: "desc" },
     }),
   ]);
   return { data, total };
