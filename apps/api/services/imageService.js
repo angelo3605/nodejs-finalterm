@@ -39,23 +39,16 @@ export const addImageService = async (files) => {
 };
 
 export const updateImageAltTextService = async (id, altText) => {
-  const updatedImage = await prisma.image.update({
+  return await prisma.image.update({
     where: { id },
     data: { altText },
   });
-  if (!updatedImage) {
-    throw new Error("Cannot find image");
-  }
-  return updatedImage;
 };
 
 export const deleteImageService = async (id) => {
   const image = await prisma.image.findUnique({
     where: { id },
   });
-  if (!image) {
-    throw new Error("Cannot find image");
-  }
 
   const uploadDir = path.resolve("public/uploads");
   const filepath = path.join(uploadDir, `${id}${path.extname(image.url)}`);
@@ -64,27 +57,27 @@ export const deleteImageService = async (id) => {
     fs.unlinkSync(filepath);
   }
 
-  await prisma.image.delete({ where: { id } });
-
-  return image;
+  return await prisma.image.delete({
+    where: { id },
+  });
 };
 
-export const getAllImagesService = async (page, pageSize) => {
-  const count = await prisma.image.count();
-  const images = await prisma.image.findMany({
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-  });
-
-  return { images, count };
+export const getAllImagesService = async ({ page, pageSize }) => {
+  const [data, total] = await Promise.all([
+    prisma.image.count({
+      where: { isDeleted: false },
+    }),
+    prisma.image.findMany({
+      where: { isDeleted: false },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+  ]);
+  return { data, total };
 };
 
 export const getImageByIdService = async (id) => {
-  const image = await prisma.image.findUnique({
+  return await prisma.image.findUnique({
     where: { id },
   });
-  if (!image) {
-    throw new Error("Cannot find image");
-  }
-  return image;
 };

@@ -1,24 +1,45 @@
-import { createDiscountCodeService, getAllDiscountCodesService, getDiscountCodeDetailsService } from "../services/discountService";
+import { createDiscountCodeService, getAllDiscountCodesService, getDiscountCodeByCodeService, updateDiscountCodeService } from "../services/discountCodeService.js";
 
-export const applyDiscount = async (req, res) => {
-  const { code } = req.body;
-  const discount = await getDiscountCodeDetailsService(code);
-  return res.json(discount);
+export const getAllDiscountCodes = async (req, res) => {
+  const data = await getAllDiscountCodesService(req.pagination);
+  return res.json(data);
+};
+
+export const getDiscountCodeByCode = async (req, res) => {
+  const discountCode = await getDiscountCodeByCodeService(req.params.code);
+  return res.json({
+    data: discountCode,
+  });
 };
 
 export const createDiscountCode = async (req, res) => {
-  const { code, desc, type, value, usageLimit } = req.body;
-  const discount = await createDiscountCodeService(code, desc, type, value, usageLimit);
-  return res.json(discount);
+  const discountCode = await createDiscountCodeService(req.body);
+  return res.json({
+    data: discountCode,
+  });
 };
 
-export const getAllDiscountCodes = async (req, res) => {
-  const discounts = await getAllDiscountCodesService();
-  return res.json(discounts);
+export const updateDiscountCode = async (req, res) => {
+  const discountCode = await updateDiscountCodeService(req.params.code, req.body);
+  return res.json({
+    data: discountCode,
+  });
 };
 
-export const getDiscountCodeDetails = async (req, res) => {
-  const { code } = req.body;
-  const discount = await getDiscountCodeDetailsService(code);
-  return res.json(discount);
+export const deleteDiscountCode = async (req, res) => {
+  const discountCode = await updateDiscountCodeService(req.params.code, {
+    isDeleted: true,
+  });
+  return res.json({
+    data: discountCode,
+  });
+};
+
+export const restoreDiscountCode = async (req, res) => {
+  const discountCode = await updateDiscountCodeService(req.params.code, {
+    isDeleted: false,
+  });
+  return res.json({
+    data: discountCode,
+  });
 };

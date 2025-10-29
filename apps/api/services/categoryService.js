@@ -3,13 +3,6 @@ import prisma from "../prisma/client.js";
 
 export const createCategoryService = async (data) => {
   const slug = slugify(data.name, { lower: true });
-  if (
-    await prisma.category.findUnique({
-      where: { slug },
-    })
-  ) {
-    throw new Error("Category already exists");
-  }
   return await prisma.category.create({
     data: { slug, ...data },
   });
@@ -28,29 +21,18 @@ export const getDeletedCategoriesService = async () => {
 };
 
 export const getCategoryBySlugService = async (slug) => {
-  const category = await prisma.category.findUnique({
+  return await prisma.category.findUnique({
     where: { slug },
   });
-  if (!category) {
-    throw new Error("Category not found");
-  }
-  return category;
 };
 
 export const updateCategoryService = async (slug, data) => {
-  if (
-    !(await prisma.category.count({
-      where: { slug },
-    }))
-  ) {
-    throw new Error("Category not found");
-  }
-  const category = prisma.category.update({
+  const newSlug = data.name ? slugify(data.name, { lower: true }) : undefined;
+  return await prisma.category.update({
     where: { slug },
     data: {
       ...data,
-      slug: data.name ? slugify(data.name, { lower: true }) : undefined,
+      slug: newSlug,
     },
   });
-  return category;
 };

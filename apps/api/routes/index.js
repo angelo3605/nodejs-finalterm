@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import { handleError } from "../middlewares/errorMiddleware.js";
 import { createGuestSession } from "../middlewares/guestMiddleware.js";
+import { attachPagination } from "../middlewares/paginationMiddleware.js";
 import authRouter from "./authRoutes.js";
 import brandRouter from "./brandRoutes.js";
 import cartRouter from "./cartRoutes.js";
@@ -21,6 +22,7 @@ import vnpayRouter from "./vnpayRoutes.js";
 const router = Router();
 
 router.use(createGuestSession);
+router.use(attachPagination);
 
 router.use("/auth", authRouter);
 router.use("/images", imageRouter);

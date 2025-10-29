@@ -18,7 +18,7 @@ const ratingSelect = {
   createdAt: true,
 };
 
-export const getRatingsService = async ({ productSlug }) => {
+export const getAllRatingsService = async ({ productSlug }) => {
   return await prisma.rating.findMany({
     where: { productSlug },
     select: ratingSelect,
@@ -33,20 +33,21 @@ export const getAverageRatingService = async ({ productSlug }) => {
     _count: { stars: true },
   });
   return {
-    stars: rating._avg.stars || 0,
+    avgStar: rating._avg.stars || 0,
     numOfReviews: rating._count.stars,
   };
 };
 
-export const upsertRatingService = async ({ userId, productSlug, stars, review }) => {
+export const upsertRatingService = async ({ productSlug }, { userId }, data) => {
   return await prisma.rating.upsert({
-    where: { userId_productSlug: { userId, productSlug } },
-    update: { stars, review },
+    where: {
+      userId_productSlug: { userId, productSlug },
+    },
+    update: data,
     create: {
       userId,
       productSlug,
-      stars,
-      review,
+      ...data,
     },
     select: ratingSelect,
   });

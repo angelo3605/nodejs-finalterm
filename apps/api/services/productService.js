@@ -31,37 +31,40 @@ const productSelect = {
   },
 };
 
-export const createProductService = async ({ name, desc, imageUrls, brand, category }) => {
-  const slug = slugify(name, { lower: true });
-  if (
-    await prisma.product.findUnique({
-      where: { slug },
-    })
-  ) {
-    throw new Error("Product already exists");
-  }
+export const createProductService = async (data) => {
+  const slug = slugify(data.name, { lower: true });
   return await prisma.product.create({
     data: {
+      ...data,
       slug,
-      name,
-      desc,
-      imageUrls,
-      brand: brand ? { connect: { slug: brand } } : undefined,
-      category: category ? { connect: { slug: category } } : undefined,
+      brand: data.brand
+        ? {
+            connect: { slug: data.brand },
+          }
+        : undefined,
+      category: data.category
+        ? {
+            connect: { slug: data.category },
+          }
+        : undefined,
     },
     select: productSelect,
   });
 };
 
-export const getAllProductsService = async (page = 1, pageSize = 10) => {
-  const count = await prisma.product.count();
-  const products = await prisma.product.findMany({
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-    where: { isDeleted: false },
-    select: productSelect,
-  });
-  return { products, count };
+export const getAllProductsService = async ({ page, pageSize }) => {
+  const [data, total] = await Promise.all([
+    prisma.product.count({
+      where: { isDeleted: false },
+    }),
+    prisma.product.findMany({
+      where: { isDeleted: false },
+      select: productSelect,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+  ]);
+  return { data, total };
 };
 
 export const getDeletedProductsService = async () => {
@@ -76,30 +79,26 @@ export const getProductBySlugService = async (slug) => {
     where: { slug },
     select: productSelect,
   });
-  if (!product) {
-    throw new Error("Product not found");
-  }
   return product;
 };
 
-export const updateProductService = async (slug, { name, desc, imageUrls, brand, category, isDeleted }) => {
-  if (
-    !(await prisma.product.count({
-      where: { slug },
-    }))
-  ) {
-    throw new Error("Product not found");
-  }
+export const updateProductService = async (slug, data) => {
+  const newSlug = data.name ? slugify(data.name, { lower: true }) : undefined;
   return await prisma.product.update({
     where: { slug },
     data: {
-      slug: name ? slugify(name, { lower: true }) : undefined,
-      name,
-      desc,
-      imageUrls,
-      isDeleted,
-      brand: brand ? { connect: { slug: brand } } : undefined,
-      category: category ? { connect: { slug: category } } : undefined,
+      ...data,
+      slug: newSlug,
+      brand: data.brand
+        ? {
+            connect: { slug: data.brand },
+          }
+        : undefined,
+      category: data.category
+        ? {
+            connect: { slug: data.category },
+          }
+        : undefined,
     },
     select: productSelect,
   });

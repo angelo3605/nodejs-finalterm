@@ -2,31 +2,46 @@ import { createCategoryService, getAllCategoriesService, getCategoryBySlugServic
 
 export const getAllCategories = async (req, res) => {
   const categories = await getAllCategoriesService();
-  return res.json({ categories });
+  return res.json({
+    data: categories,
+  });
 };
 
 export const getCategoryBySlug = async (req, res) => {
   const category = await getCategoryBySlugService(req.params.slug);
-  return res.json({ category });
+  return res.json({
+    data: category,
+  });
 };
 
 export const createCategory = async (req, res) => {
   const category = await createCategoryService(req.body);
-  return res.json({ category });
+  return res.json({
+    data: category,
+  });
 };
 
 export const updateCategory = async (req, res) => {
-  const { isDeleted, ...data } = req.body;
-  const category = await updateCategoryService(req.params.slug, data);
-  return res.json({ category });
+  const category = await updateCategoryService(req.params.slug, req.body);
+  return res.json({
+    data: category,
+  });
 };
 
 export const deleteCategory = async (req, res) => {
-  const category = await updateCategoryService(req.params.slug, { isDeleted: true });
-  return res.json({ category });
+  const category = await updateCategoryService(req.params.slug, {
+    isDeleted: true,
+  });
+  return res.json({
+    data: category,
+  });
 };
 
 export const restoreCategory = async (req, res) => {
-  const category = await updateCategoryService(req.params.slug, { isDeleted: false });
-  return res.json({ category });
+  const category = await updateCategoryService(req.params.slug, {
+    isDeleted: false,
+  });
+  return res.json({
+    data: category,
+  });
 };

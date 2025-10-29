@@ -1,43 +1,58 @@
 import { createCommentService, deleteCommentService, getAllCommentsService, getCommentByIdService } from "../services/commentService.js";
 import { getIo } from "../utils/socket.js";
 
+// TODO: Fix WebSocket
+
 export const createComment = async (req, res) => {
-  const { message, parentId } = req.body;
-  const { slug } = req.params;
+  const comment = await createCommentService(
+    {
+      productSlug: req.params.slug,
+    },
+    {
+      userId: req.user?.id,
+      guestId: req.guestId,
+    },
+    req.body,
+  );
 
-  const comment = await createCommentService({
-    productSlug: slug,
-    userId: req.user?.id,
-    guestId: req.guestId,
-    message,
-    parentId,
+  // getIo().of("/comments").to(req.params.slug).emit("comment:new", comment);
+
+  return res.json({
+    data: comment,
   });
-
-  getIo().of("/comments").to(slug).emit("comment:new", comment);
-
-  return res.json({ comment });
 };
 
 export const getCommentById = async (req, res) => {
   const comment = await getCommentByIdService(req.params.id);
-  return res.json({ comment });
+  return res.json({
+    data: comment,
+  });
 };
 
 export const getAllComments = async (req, res) => {
   const comments = await getAllCommentsService({
     productSlug: req.params.slug,
   });
-  return res.json({ comments });
+  return res.json({
+    data: comments,
+  });
 };
 
 export const deleteComment = async (req, res) => {
-  const { id } = req.params;
+  const comment = await deleteCommentService(
+    req.params.id,
+    {
+      userId: req.user?.id,
+      guestId: req.guestId,
+    },
+    {
+      forceDelete: req.user?.role === "ADMIN",
+    },
+  );
 
-  const oldComment = await getCommentByIdService(id, true);
-  if (oldComment.userId !== req.user?.id && req.user?.role !== "ADMIN") {
-    return res.status(401).json({ message: "Not allowed" });
-  }
+  // getIo().of("/comments").to(req.params.slug).emit("comment:delete", comment);
 
-  const comment = await deleteCommentService(id);
-  return res.json({ comment });
+  return res.json({
+    data: comment,
+  });
 };
