@@ -7,7 +7,7 @@ export const vnpayIpn = async (req, res) => {
 
 export const vnpayCallback = async (req, res) => {
   const redirectUrl = handleVnpayCallback(req.query, {
-    redirectUrl: "http://localhost:5173",
+    redirectUrl: process.env.STORE_CLIENT,
   });
   return res.redirect(redirectUrl);
 };

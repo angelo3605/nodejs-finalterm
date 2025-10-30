@@ -9,7 +9,7 @@ import { paginationSchema } from "./schemas/paginationSchema.js";
 import { productFilteringSchema, productSchema, productSortingSchema } from "./schemas/productSchema.js";
 import { ratingSchema } from "./schemas/ratingSchema.js";
 import { shippingAddressSchema } from "./schemas/shippingAddressSchema.js";
-import { changePasswordSchema, loginSchema, registerSchema, userSchema } from "./schemas/userSchema.js";
+import { changePasswordSchema, loginSchema, registerSchema, userSchema, forgotSchema, resetSchema } from "./schemas/userSchema.js";
 import { variantSchema } from "./schemas/variantSchema.js";
 
 export {
@@ -32,4 +32,6 @@ export {
   shippingAddressSchema,
   userSchema,
   variantSchema,
+  forgotSchema,
+  resetSchema,
 };

@@ -22,7 +22,7 @@ export const getEmailTemplate = async (name, context = {}) => {
   let { html } = await mjml2html(template);
 
   for (const [key, value] of Object.entries(context)) {
-    html = html.replaceAll(`{{${key}}}`, value);
+    html = html.replaceAll(`[[${key}]]`, value);
   }
 
   return html;

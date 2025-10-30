@@ -1,4 +1,4 @@
-import { registerService, signTokenService, logoutService } from "../services/authService.js";
+import { registerService, signTokenService, logoutService, forgotService, resetService } from "../services/authService.js";
 import jwt from "jsonwebtoken";
 
 export const issueToken = (req, res) => {
@@ -13,6 +13,11 @@ export const issueToken = (req, res) => {
     sameSite: "strict",
     maxAge: 60 * 60 * 1000 * (rememberMe ? 24 * 7 : 1),
   });
+
+  if (req.query?.state) {
+    return res.redirect(req.query.state === "admin" ? process.env.ADMIN_CLIENT : process.env.STORE_CLIENT);
+  }
+
   return res.json({
     message: "Login successfully",
   });
@@ -41,5 +46,19 @@ export const logout = async (req, res) => {
 
   return res.json({
     message: "Logout successfully",
+  });
+};
+
+export const forgot = async (req, res) => {
+  await forgotService(req.body.email);
+  return res.json({
+    message: "Email sent",
+  });
+};
+
+export const reset = async (req, res) => {
+  await resetService(req.body.token, req.body.password);
+  return res.json({
+    message: "Reset successfully",
   });
 };

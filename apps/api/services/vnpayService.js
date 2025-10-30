@@ -2,7 +2,6 @@ import dayjs from "dayjs";
 import crypto from "crypto";
 import { updateOrderStatusService } from "./orderService.js";
 import { longCurrencyFormatter } from "@mint-boutique/formatters";
-import { allowedClients } from "../utils/whitelist.js";
 
 const sortObject = (o) =>
   Object.keys(o)
@@ -82,7 +81,7 @@ export const handleVnpayCallback = (vnpParams, { redirectUrl }) => {
     throw new Error(`VNPay responded with code '${vnpParams.vnp_ResponseCode}'`);
   }
 
-  if (!allowedClients.includes(redirectUrl)) {
+  if (![process.env.STORE_CLIENT, process.env.ADMIN_CLIENT].includes(redirectUrl)) {
     throw new Error("Blocked by whitelist");
   }
 

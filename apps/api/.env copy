@@ -1,5 +1,6 @@
 PORT=5000
-ALLOWED_CLIENTS=http://localhost:5173,http://localhost:5174
+STORE_CLIENT=http://localhost:5173
+ADMIN_CLIENT=http://localhost:5174
 
 DATABASE_URL=
 

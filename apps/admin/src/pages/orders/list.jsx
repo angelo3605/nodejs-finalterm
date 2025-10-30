@@ -38,91 +38,88 @@ const statusColors = {
 };
 
 export function ListOrders() {
-  const columns = useMemo(
-    () => [
-      {
-        id: "expander",
-        header: "",
-        size: 80,
-        cell: ({ row }) => (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => row.toggleExpanded()}
-          >
-            {row.getIsExpanded() ? <ChevronUp /> : <ChevronDown />}
-          </Button>
-        ),
-      },
-      {
-        id: "id",
-        header: "Confirmation ID",
-        cell: ({ row: { original: order } }) => <pre>{order.id}</pre>,
-      },
-      {
-        id: "createdAt",
-        header: "Date of Purchase",
-        size: 120,
-        cell: ({ row: { original: order } }) =>
-          new Date(order.createdAt).toLocaleString("vi-VN"),
-      },
-      {
-        id: "totalAmount",
-        header: "Total Amount",
-        size: 80,
-        cell: ({ row: { original: order } }) =>
-          longCurrencyFormatter.format(order.totalAmount),
-      },
-      {
-        id: "userFullName",
-        accessorKey: "user.fullName",
-        header: "Customer Name",
-        size: 120,
-      },
-      {
-        id: "status",
-        header: "Status",
-        cell: ({ row: { original: order } }) => {
-          const {
-            mutate,
-            mutation: { isPending },
-          } = useUpdate({
-            resource: "orders",
-          });
+  const columns = useMemo(() => [
+    {
+      id: "expander",
+      header: "",
+      size: 80,
+      cell: ({ row }) => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => row.toggleExpanded()}
+        >
+          {row.getIsExpanded() ? <ChevronUp /> : <ChevronDown />}
+        </Button>
+      ),
+    },
+    {
+      id: "id",
+      header: "Confirmation ID",
+      cell: ({ row: { original: order } }) => <pre>{order.id}</pre>,
+    },
+    {
+      id: "createdAt",
+      header: "Date of Purchase",
+      size: 120,
+      cell: ({ row: { original: order } }) =>
+        new Date(order.createdAt).toLocaleString("vi-VN"),
+    },
+    {
+      id: "totalAmount",
+      header: "Total Amount",
+      size: 80,
+      cell: ({ row: { original: order } }) =>
+        longCurrencyFormatter.format(order.totalAmount),
+    },
+    {
+      id: "userFullName",
+      accessorKey: "user.fullName",
+      header: "Customer Name",
+      size: 120,
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: ({ row: { original: order } }) => {
+        const {
+          mutate,
+          mutation: { isPending },
+        } = useUpdate({
+          resource: "orders",
+        });
 
-          return (
-            <div className="flex items-center gap-2 p-1">
-              <Select
-                value={order.status}
-                onValueChange={(status) =>
-                  mutate({ id: order.id, values: { status } })
-                }
-                disabled={isPending}
+        return (
+          <div className="flex items-center gap-2 p-1">
+            <Select
+              value={order.status}
+              onValueChange={(status) =>
+                mutate({ id: order.id, values: { status } })
+              }
+              disabled={isPending}
+            >
+              <SelectTrigger
+                className={cn(
+                  "w-32 border-none shadow-none rounded-full h-8!",
+                  statusColors[order.status],
+                )}
               >
-                <SelectTrigger
-                  className={cn(
-                    "w-32 border-none shadow-none rounded-full h-8!",
-                    statusColors[order.status],
-                  )}
-                >
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="PROCESSING">Processing</SelectItem>
-                  <SelectItem value="DELIVERING">Delivering</SelectItem>
-                  <SelectItem value="DELIVERED">Delivered</SelectItem>
-                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-              <Spinner className={isPending || "opacity-0"} />
-            </div>
-          );
-        },
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="PROCESSING">Processing</SelectItem>
+                <SelectItem value="DELIVERING">Delivering</SelectItem>
+                <SelectItem value="DELIVERED">Delivered</SelectItem>
+                <SelectItem value="CANCELLED">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+            <Spinner className={isPending || "opacity-0"} />
+          </div>
+        );
       },
-    ],
-    [],
-  );
+    },
+  ]);
 
   const table = useTable({
     columns,

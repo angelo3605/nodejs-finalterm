@@ -19,6 +19,7 @@ import commentRouter from "./commentRoutes.js";
 import ratingRouter from "./ratingRoutes.js";
 import vnpayRouter from "./vnpayRoutes.js";
 import discountCodeRouter from "./discountCodeRoutes.js";
+import userRouter from "./userRoutes.js";
 
 const router = Router();
 
@@ -41,6 +42,7 @@ router.use("/discount-codes", discountCodeRouter);
 router.use(commentRouter);
 router.use(ratingRouter);
 router.use("/payment", vnpayRouter);
+router.use("/users", userRouter);
 
 router.use(handleError);
 

@@ -39,6 +39,7 @@ import { EditBrand } from "./pages/brands/edit";
 import { ListDiscountCodes } from "./pages/discount-codes/list";
 import { CreateDiscountCode } from "./pages/discount-codes/create";
 import { EditDiscountCode } from "./pages/discount-codes/edit";
+import { ListUsers } from "./pages/users/list";
 
 const resources = [
   {
@@ -184,6 +185,9 @@ export function App() {
               <Route index element={<ListBrands />} />
               <Route path="create" element={<CreateBrand />} />
               <Route path="edit/:slug" element={<EditBrand />} />
+            </Route>
+            <Route path="users">
+              <Route index element={<ListUsers />} />
             </Route>
           </Route>
           <Route path="login" element={<LoginPage />} />

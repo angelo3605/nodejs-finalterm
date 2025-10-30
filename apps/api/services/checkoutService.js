@@ -129,7 +129,6 @@ export const guestCheckoutService = async ({ guestId, email, fullName, address, 
     discountCode,
   });
 
-  // TODO: Do not hardcode `loginUrl`
   transporter.sendMail({
     from: '"Mint Boutique" <no-reply@mint.boutique>',
     to: guestUser.email,
@@ -138,7 +137,7 @@ export const guestCheckoutService = async ({ guestId, email, fullName, address, 
       fullName: guestUser.fullName,
       email: guestUser.email,
       password,
-      loginUrl: "http://localhost:5174/login",
+      loginUrl: `${process.env.STORE_CLIENT}/login`,
     }),
   });
 

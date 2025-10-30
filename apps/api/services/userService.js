@@ -10,6 +10,21 @@ const userSelect = {
   createdAt: true,
 };
 
+export const getAllUsersService = async ({ excludeIds }, { page, pageSize }) => {
+  const where = {
+    id: excludeIds?.length ? { notIn: excludeIds } : undefined,
+  };
+  const [total, data] = await Promise.all([
+    prisma.user.count({ where }),
+    prisma.user.findMany({
+      where,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+  ]);
+  return { data, total };
+};
+
 export const getUserByIdService = async (id) => {
   return await prisma.user.findUnique({
     where: { id },
