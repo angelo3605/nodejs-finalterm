@@ -6,6 +6,11 @@ import Product from "./pages/Product";
 import Login from "./pages/Login";
 import { Catalog } from "./pages/Catalog";
 import Register from "./pages/Register";
+import "@fontsource/dancing-script/700.css";
+import "@fontsource-variable/ibm-plex-sans";
+import Forgot from "./pages/Forgot";
+import Reset from "./pages/Reset";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +21,8 @@ export default function App() {
         <Routes>
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="forgot" element={<Forgot />} />
+          <Route path="reset" element={<Reset />} />
           <Route
             element={
               <RootLayout>
@@ -27,6 +34,7 @@ export default function App() {
             <Route path="all" element={<Catalog />} />
             <Route path=":cat">
               <Route path=":id" element={<Product />} />
+              <Route index path="*" element={<NotFound />} />
             </Route>
           </Route>
         </Routes>

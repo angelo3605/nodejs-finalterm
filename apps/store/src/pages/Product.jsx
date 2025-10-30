@@ -10,11 +10,11 @@ export default function Product() {
   const {
     isPending,
     isError,
-    data: { product, message } = {},
+    data: product,
     error,
   } = useQuery({
     queryKey: ["products", id],
-    queryFn: () => api.get(`/products/${id}`).then((res) => res.data),
+    queryFn: () => api.get(`/products/${id}`).then((res) => res.data?.data),
   });
 
   if (isPending) {
@@ -22,10 +22,10 @@ export default function Product() {
   }
 
   if (isError) {
-    return message ?? error.message;
+    return error.message;
   }
 
-  if (product.category.slug !== cat) {
+  if (product.category?.slug !== cat) {
     return "Invalid category";
   }
 
@@ -36,7 +36,7 @@ export default function Product() {
         <div>{variant.name}</div>
       ))}
       <span>
-        {product.category.name} / {product.brand.name}
+        {product.category?.name} / {product.brand?.name}
       </span>
       {product.imageUrls.map((url) => (
         <img src={url} height={300} />

@@ -1,23 +1,24 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registerSchema } from "@mint-boutique/zod-schemas";
+import { resetSchema } from "@mint-boutique/zod-schemas";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
 import { api } from "@mint-boutique/axios-client";
 import { FaSpinner } from "react-icons/fa6";
 import AuthLayout from "../layouts/AuthLayout";
+import { useNavigate, useSearchParams } from "react-router";
 
-export default function Register() {
+export default function Reset() {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
   const navigate = useNavigate();
+
+  if (!token) {
+    navigate("/login");
+  }
 
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
-    mutationFn: ({ fullName, email, password }) =>
-      api.post("/auth/register", {
-        fullName,
-        email,
-        password,
-      }),
+    mutationFn: ({ password }) => api.post("/auth/reset", { token, password }),
     onSuccess: () => {
       queryClient.invalidateQueries(["profile"]);
       navigate("/login");
@@ -32,31 +33,19 @@ export default function Register() {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(
+      resetSchema.pick({
+        password: true,
+      }),
+    ),
     defauktValues: {
-      fullName: "",
-      email: "",
       password: "",
     },
   });
 
   return (
-    <AuthLayout title="Register" desc="Create an account to get the most out of our site." backTitle="Back to login" backUrl="/login">
+    <AuthLayout title="Reset password" desc="Choose a secure password to continue.">
       <form onSubmit={handleSubmit((values) => mutate(values))} className="space-y-4">
-        <div className="space-y-2">
-          <label className="floating-label">
-            <input {...register("fullName")} placeholder="" className="floating-label__input" />
-            <span className="floating-label__label">Full name</span>
-          </label>
-          {errors.fullName && <p className="text-red-500">{errors.fullName.message}</p>}
-        </div>
-        <div className="space-y-2">
-          <label className="floating-label">
-            <input {...register("email")} placeholder="" className="floating-label__input" />
-            <span className="floating-label__label">Email</span>
-          </label>
-          {errors.email && <p className="text-red-500">{errors.email.message}</p>}
-        </div>
         <div className="space-y-2">
           <label className="floating-label">
             <input {...register("password")} placeholder="" type="password" className="floating-label__input" />
@@ -66,7 +55,7 @@ export default function Register() {
         </div>
         <button type="submit" className="btn btn-primary" disabled={isPending}>
           {isPending && <FaSpinner className="animate-spin" />}
-          Register
+          Send
         </button>
       </form>
     </AuthLayout>

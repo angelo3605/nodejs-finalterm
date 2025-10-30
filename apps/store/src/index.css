@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@config "../tailwind.config.js";
 
 .floating-label {
   @apply block relative mt-2;
@@ -37,6 +40,10 @@
   @apply bg-emerald-600 text-white font-bold shadow-lg/10;
 }
 
+.btn-secondary {
+  @apply bg-emerald-100 text-emerald-800 font-bold;
+}
+
 .btn-outline-light {
   @apply border border-white/50 hover:border-white;
 }
@@ -72,6 +79,34 @@
     radial-gradient(var(--_g) 0 75%, var(--_c)) 0 0 / var(--_s),
     repeating-conic-gradient(var(--c1) 0 25%, #0000 0 50%) 0 0 / var(--_s),
     radial-gradient(var(--_c)) 0 calc(var(--s) / 2) / var(--s) var(--s) var(--c1);
+}
+
+.menu {
+  @apply bg-white text-black py-2 shadow-lg rounded-lg flex flex-col;
+}
+
+.menu-item {
+  @apply flex items-center h-10 gap-4 px-4 hover:bg-black/10 cursor-pointer not-last:border-b border-gray-200;
+
+  svg {
+    @apply size-5;
+  }
+}
+
+.checkbox {
+  @apply flex items-center gap-2 cursor-pointer w-max;
+}
+
+.checkbox__input {
+  @apply hidden;
+}
+
+.checkbox__icon {
+  @apply box-content size-3 p-1 border-2 border-gray-400 rounded-lg text-white;
+}
+
+.checkbox__input:checked + .checkbox__icon {
+  @apply bg-emerald-600 border-emerald-600;
 }
 
 /* ----------------------------------------------------------------------- */

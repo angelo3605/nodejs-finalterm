@@ -65,9 +65,5 @@ export const forgotService = async (email) => {
 
 export const resetService = async (token, password) => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  const hashed = await bcrypt.hash(password, 10);
-
-  await updateUserService(decoded.id, {
-    password: hashed,
-  });
+  await updateUserService(decoded.id, { password });
 };

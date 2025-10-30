@@ -10,7 +10,7 @@ export function Card({ product }) {
           {Number.isFinite(minPrice) ? minPrice : ""} VND
         </div>
         <span className="opacity-75">
-          {product.category.name} / {product.brand.name}
+          {product.category?.name} / {product.brand?.name}
         </span>
       </div>
     </button>

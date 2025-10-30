@@ -1,6 +1,6 @@
-import Logo from "@/assets/logo.svg?react";
-import FacebookLogo from "@/assets/oauth-icons/facebook.svg?react";
-import GoogleLogo from "@/assets/oauth-icons/google.svg?react";
+import Logo from "@mint-boutique/assets/logo.svg?react";
+import FacebookLogo from "@mint-boutique/assets/oauth-icons/facebook.svg?react";
+import GoogleLogo from "@mint-boutique/assets/oauth-icons/google.svg?react";
 import { Button } from "@/components/ui/button";
 import {
   Card,

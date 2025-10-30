@@ -11,17 +11,19 @@ import { initSocket } from "./utils/socket.js";
 const __filename__ = fileURLToPath(import.meta.url);
 const __dirname__ = path.dirname(__filename__);
 
+const allowedClients = [process.env.STORE_URL, process.env.ADMIN_URL, "http://localhost:5173", "http://localhost:5174"];
+
 const app = express();
 
 const server = createServer(app);
-initSocket(server, [process.env.STORE_URL, process.env.ADMIN_URL]);
+initSocket(server, allowedClients);
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
     origin: (origin, cb) => {
-      if (!origin || [process.env.STORE_URL, process.env.ADMIN_URL].includes(origin)) {
+      if (!origin || allowedClients.includes(origin)) {
         cb(null, true);
       } else {
         cb(new Error("Blocked by CORS"), false);

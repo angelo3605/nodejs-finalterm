@@ -6,8 +6,8 @@ export default function Hero() {
     <section className="w-full bg-fancy text-white">
       <div className="flex flex-col lg:flex-row items-center gap-20 mx-auto w-[min(1200px,92%)] py-10">
         <div className="flex-1 flex flex-col gap-4">
-          <p className="uppercase opacity-75 font-bold tracking-wide">— feel the green</p>
-          <h1 className="text-5xl font-bold">Happiness blooms from within</h1>
+          <p className="uppercase opacity-75 font-bold tracking-widest">&mdash; Fresh plants, fresh vibe</p>
+          <h1 className="text-5xl font-bold font-brand">Good mood blooms from inside 🌱</h1>
           <p className="leading-wide py-4">
             Bring fresh energy into your home with curated plants and pots. Our environment, the world in which we live and work, is a mirror of our attitudes and expectations.
           </p>
