@@ -1,6 +1,6 @@
 import { ThemeProvider } from "@/components/refine-ui/theme/theme-provider";
 import "@fontsource/dancing-script/700.css";
-import "@fontsource/poppins";
+import "@fontsource-variable/ibm-plex-sans";
 import { Authenticated, Refine } from "@refinedev/core";
 import routerProvider, {
   CatchAllNavigate,
@@ -33,6 +33,13 @@ import { ListCategories } from "./pages/categories/list";
 import { CreateCategory } from "./pages/categories/create";
 import { EditCategory } from "./pages/categories/edit";
 import { ListOrders } from "./pages/orders/list";
+import { ListBrands } from "./pages/brands/list";
+import { CreateBrand } from "./pages/brands/create";
+import { EditBrand } from "./pages/brands/edit";
+import { ListDiscountCodes } from "./pages/discount-codes/list";
+import { CreateDiscountCode } from "./pages/discount-codes/create";
+import { EditDiscountCode } from "./pages/discount-codes/edit";
+import { ListUsers } from "./pages/users/list";
 
 const resources = [
   {
@@ -56,6 +63,8 @@ const resources = [
   {
     name: "discount-codes",
     list: "/discount-codes",
+    create: "/discount-codes/create",
+    edit: "/discount-codes/edit/:code",
     meta: {
       section: "Sales & Discounts",
       label: "Discount codes",
@@ -148,6 +157,11 @@ export function App() {
             <Route path="orders">
               <Route index element={<ListOrders />} />
             </Route>
+            <Route path="discount-codes">
+              <Route index element={<ListDiscountCodes />} />
+              <Route path="create" element={<CreateDiscountCode />} />
+              <Route path="edit/:code" element={<EditDiscountCode />} />
+            </Route>
             <Route path="products">
               <Route index element={<ListProducts />} />
               <Route path="create" element={<CreateProduct />} />
@@ -166,6 +180,14 @@ export function App() {
               <Route index element={<ListCategories />} />
               <Route path="create" element={<CreateCategory />} />
               <Route path="edit/:slug" element={<EditCategory />} />
+            </Route>
+            <Route path="brands">
+              <Route index element={<ListBrands />} />
+              <Route path="create" element={<CreateBrand />} />
+              <Route path="edit/:slug" element={<EditBrand />} />
+            </Route>
+            <Route path="users">
+              <Route index element={<ListUsers />} />
             </Route>
           </Route>
           <Route path="login" element={<LoginPage />} />

@@ -27,10 +27,20 @@ import { useForm } from "react-hook-form";
 import { loginSchema } from "@mint-boutique/zod-schemas";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { api } from "@mint-boutique/axios-client";
 
-function OauthButton({ provider, name, Icon, onCallback }) {
+function OauthButton({ provider, name, Icon }) {
+  const handleClick = () => {
+    window.location.href = `${api.defaults.baseURL}/auth/${provider}?redirectTo=admin`;
+  };
+
   return (
-    <Button variant="outline" className="w-full">
+    <Button
+      type="button"
+      variant="outline"
+      className="w-full"
+      onClick={handleClick}
+    >
       <Icon /> Login with {name}
     </Button>
   );

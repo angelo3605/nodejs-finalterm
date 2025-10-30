@@ -23,27 +23,26 @@ const commentSelect = {
 
 export const getAllCommentsService = async ({ productSlug }) => {
   return await prisma.comment.findMany({
-    where: { productSlug, parent: null },
+    where: {
+      productSlug,
+      parent: null,
+    },
     select: commentSelect,
     orderBy: { createdAt: "desc" },
   });
 };
 
-export const getCommentByIdService = async (id, getUserId = false) => {
+export const getCommentByIdService = async (id) => {
   const comment = await prisma.comment.findUnique({
     where: { id },
-    select: {
-      ...commentSelect,
-      userId: getUserId,
-    },
+    select: commentSelect,
   });
-  if (!comment) {
-    throw new Error("No comment found");
-  }
   return comment;
 };
 
-export const createCommentService = async ({ productSlug, userId, guestId, message, parentId }) => {
+export const createCommentService = async ({ productSlug }, { userId, guestId }, data) => {
+  const { message, parentId } = data;
+
   let user;
 
   try {
@@ -79,11 +78,18 @@ export const createCommentService = async ({ productSlug, userId, guestId, messa
   });
 };
 
-export const deleteCommentService = async (id) => {
+export const deleteCommentService = async (id, { userId, guestId }, { forceDelete = false }) => {
+  const identifier = userId ? { userId } : { guestId };
   await prisma.comment.deleteMany({
-    where: { parentId: id },
+    where: {
+      parentId: id,
+      ...(forceDelete || identifier),
+    },
   });
   return await prisma.comment.delete({
-    where: { id },
+    where: {
+      id,
+      ...(forceDelete || identifier),
+    },
   });
 };

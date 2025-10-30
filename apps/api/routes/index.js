@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import { handleError } from "../middlewares/errorMiddleware.js";
 import { createGuestSession } from "../middlewares/guestMiddleware.js";
+import { attachPagination } from "../middlewares/paginationMiddleware.js";
 import authRouter from "./authRoutes.js";
 import brandRouter from "./brandRoutes.js";
 import cartRouter from "./cartRoutes.js";
@@ -16,10 +17,14 @@ import shippingAddressRouter from "./shippingAddressRoutes.js";
 import dashboardRouter from "./dashboardRoutes.js";
 import commentRouter from "./commentRoutes.js";
 import ratingRouter from "./ratingRoutes.js";
+import vnpayRouter from "./vnpayRoutes.js";
+import discountCodeRouter from "./discountCodeRoutes.js";
+import userRouter from "./userRoutes.js";
 
 const router = Router();
 
 router.use(createGuestSession);
+router.use(attachPagination);
 
 router.use("/auth", authRouter);
 router.use("/images", imageRouter);
@@ -33,8 +38,11 @@ router.use("/checkout", checkoutRouter);
 router.use("/orders", orderRouter);
 router.use("/profile/shipping-addresses", shippingAddressRouter);
 router.use("/dashboard", dashboardRouter);
+router.use("/discount-codes", discountCodeRouter);
 router.use(commentRouter);
 router.use(ratingRouter);
+router.use("/payment", vnpayRouter);
+router.use("/users", userRouter);
 
 router.use(handleError);
 

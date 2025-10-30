@@ -1,22 +1,31 @@
-import { getAverageRatingService, getRatingsService, upsertRatingService } from "../services/ratingService.js";
+import { getAverageRatingService, getAllRatingsService, upsertRatingService } from "../services/ratingService.js";
 
 export const rateProduct = async (req, res) => {
-  const { stars, review } = req.body;
-  const rating = await upsertRatingService({
-    userId: req.user.id,
-    productSlug: req.params.slug,
-    stars,
-    review,
+  const rating = await upsertRatingService(
+    {
+      userId: req.user.id,
+    },
+    {
+      productSlug: req.params.slug,
+    },
+    req.body,
+  );
+  return res.json({
+    data: rating,
   });
-  return res.json({ rating });
 };
 
-export const getRatings = async (req, res) => {
-  const ratings = await getRatingsService({
+export const getAllRatings = async (req, res) => {
+  const ratings = await getAllRatingsService({
     productSlug: req.params.slug,
   });
   const avgRating = await getAverageRatingService({
     productSlug: req.params.slug,
   });
-  return res.json({ ratings, avgRating });
+  return res.json({
+    data: {
+      ...avgRating,
+      ratings,
+    },
+  });
 };

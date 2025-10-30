@@ -24,6 +24,10 @@ export const checkoutService = async ({ userId, guestId, shippingAddressId, disc
 
   let subTotal = 0;
   const orderItems = cart.cartItems.map((item) => {
+    if (item.quantity > item.variant.stockQuantity) {
+      throw new Error("Not enough stock");
+    }
+
     const sum = item.variant.price * item.quantity;
     subTotal += sum;
     return {
@@ -125,7 +129,6 @@ export const guestCheckoutService = async ({ guestId, email, fullName, address, 
     discountCode,
   });
 
-  // TODO: Do not hardcode `loginUrl`
   transporter.sendMail({
     from: '"Mint Boutique" <no-reply@mint.boutique>',
     to: guestUser.email,
@@ -134,7 +137,7 @@ export const guestCheckoutService = async ({ guestId, email, fullName, address, 
       fullName: guestUser.fullName,
       email: guestUser.email,
       password,
-      loginUrl: "http://localhost:5174/login",
+      loginUrl: `${process.env.STORE_CLIENT}/login`,
     }),
   });
 

@@ -16,3 +16,12 @@ export function checkRole(role) {
     next();
   };
 }
+
+export function restrictRoute(req, res, next) {
+  if (req.user?.id && req.user?.role === "BLOCKED") {
+    return res.status(403).json({
+      message: "Permission denied",
+    });
+  }
+  next();
+}
