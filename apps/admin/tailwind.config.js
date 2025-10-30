@@ -2,7 +2,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Poppins", "sans-serif"],
+        sans: ["IBM Plex Sans Variable", "sans-serif"],
         brand: ["Dancing Script", "cursive"],
       },
     },

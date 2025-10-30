@@ -1,24 +1,54 @@
 import prisma from "../prisma/client.js";
 
-export const rateProductService = async (userId, productId, stars) => {
-  const existingRating = await prisma.rating.findFirst({ where: { userId, productId } });
-  if (existingRating) throw new Error("You have already rated this product");
-
-  return await prisma.rating.create({ data: { userId, productId, stars } });
+const ratingSelect = {
+  id: true,
+  stars: true,
+  review: true,
+  user: {
+    select: {
+      fullName: true,
+    },
+  },
+  product: {
+    select: {
+      slug: true,
+      name: true,
+    },
+  },
+  createdAt: true,
 };
 
-export const getProductRatingsService = async (productId) => {
-  if (!productId) throw new Error("Product ID is required");
-
-  return await prisma.rating.findMany({ where: { productId } });
+export const getAllRatingsService = async ({ productSlug }) => {
+  return await prisma.rating.findMany({
+    where: { productSlug },
+    select: ratingSelect,
+    orderBy: { createdAt: "desc" },
+  });
 };
 
-export const updateProductRatingService = async (userId, productId, stars) => {
-  if (!userId || !productId || stars == null) throw new Error("Missing required fields");
+export const getAverageRatingService = async ({ productSlug }) => {
+  const rating = await prisma.rating.aggregate({
+    where: { productSlug },
+    _avg: { stars: true },
+    _count: { stars: true },
+  });
+  return {
+    avgStar: rating._avg.stars || 0,
+    numOfReviews: rating._count.stars,
+  };
+};
 
+export const upsertRatingService = async ({ productSlug }, { userId }, data) => {
   return await prisma.rating.upsert({
-    where: { userId_productId: { userId, productId } },
-    update: { stars, updatedAt: new Date() },
-    create: { userId, productId, stars },
+    where: {
+      userId_productSlug: { userId, productSlug },
+    },
+    update: data,
+    create: {
+      userId,
+      productSlug,
+      ...data,
+    },
+    select: ratingSelect,
   });
 };

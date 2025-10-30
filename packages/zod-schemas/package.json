@@ -2,5 +2,8 @@
     "name": "@mint-boutique/zod-schemas",
     "private": true,
     "type": "module",
-    "main": "index.js"
+    "main": "index.js",
+    "dependencies": {
+        "zod": "*"
+    }
 }

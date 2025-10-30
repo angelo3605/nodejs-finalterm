@@ -1,28 +1,23 @@
 import { api } from "@mint-boutique/axios-client";
 
 export const dataProvider = {
-  getMany: async ({ resource, ids, meta }) => {
+  getMany: ({ resource, ids, meta }) => {
     const params = new URLSearchParams();
-
     if (ids) {
       ids.forEach((id) => params.append("id", id));
     }
-
-    const { data } = await api.get(`/${resource}?${params.toString()}`);
-    return { data: data[resource] };
+    return api.get(`/${resource}?${params.toString()}`).then((res) => res.data);
   },
 
-  getOne: async ({ resource, id, meta }) => {
-    const { data } = await api.get(`/${resource}/${id}`);
-    return { data: Object.values(data)[0] };
+  getOne: ({ resource, id, meta }) => {
+    return api.get(`/${resource}/${id}`).then((res) => res.data);
   },
 
-  update: async ({ resource, id, variables }) => {
-    const { data } = await api.patch(`/${resource}/${id}`, variables);
-    return { data };
+  update: ({ resource, id, variables }) => {
+    return api.patch(`/${resource}/${id}`, variables).then((res) => res.data);
   },
 
-  getList: async ({ resource, pagination, filters, sorters, meta }) => {
+  getList: ({ resource, pagination, filters, sorters, meta }) => {
     const params = new URLSearchParams();
 
     if (pagination) {
@@ -30,33 +25,31 @@ export const dataProvider = {
       params.append("pageSize", pagination.pageSize);
     }
 
-    /* if (sorters && sorters.length > 0) {
-      params.append("_sort", sorters.map((sorter) => sorter.field).join(","));
-      params.append("_order", sorters.map((sorter) => sorter.order).join(","));
+    if (sorters?.length) {
+      params.append("sortBy", sorters[0].field);
+      params.append("sortInAsc", sorters[0].order === "asc" ? 1 : 0);
     }
 
-    if (filters && filters.length > 0) {
+    if (filters?.length) {
       filters.forEach((filter) => {
-        if ("field" in filter && filter.operator === "eq") {
-          // Our fake API supports "eq" operator by simply appending the field name and value to the query string.
-          params.append(filter.field, filter.value);
-        }
+        params.append(filter.field, filter.value);
       });
-    } */
+    }
 
-    const { data } = await api.get(`/${resource}?${params.toString()}`);
-    return { data: data[resource], total: data.count ?? data[resource].length };
+    return api.get(`/${resource}?${params.toString()}`).then((res) => res.data);
   },
 
-  create: async ({ resource, variables }) => {
-    const { data } = await api.post(`/${resource}`, variables);
-    return { data: Object.values(data)[0] };
+  create: ({ resource, variables }) => {
+    return api.post(`/${resource}`, variables).then((res) => res.data);
   },
 
-  deleteOne: async ({ resource, id }) => {
-    const { data } = await api.delete(`/${resource}/${id}`);
-    return { data: Object.values(data)[0] };
+  deleteOne: ({ resource, id }) => {
+    return api.delete(`/${resource}/${id}`).then((res) => res.data);
   },
 
   getApiUrl: () => api.defaults.baseURL,
+
+  custom: ({ url, method }) => {
+    return api[method](url).then((res) => res.data);
+  },
 };

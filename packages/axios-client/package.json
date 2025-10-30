@@ -2,7 +2,7 @@
     "name": "@mint-boutique/axios-client",
     "private": true,
     "type": "module",
-    "main": "src/index.js",
+    "main": "index.js",
     "dependencies": {
         "axios": "*"
     }

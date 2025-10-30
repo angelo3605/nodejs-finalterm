@@ -30,11 +30,7 @@ const cartSelect = {
 };
 
 export const getOrCreateCartService = async ({ userId, guestId }) => {
-  if (!userId && !guestId) {
-    throw new Error("User or guest not found");
-  }
-  let identifier = userId ? { userId } : { guestId };
-
+  const identifier = userId ? { userId } : { guestId };
   let cart = await prisma.cart.findFirst({
     where: {
       ...identifier,
@@ -55,32 +51,42 @@ export const getOrCreateCartService = async ({ userId, guestId }) => {
   return cart;
 };
 
-export const addOrSubtractToCartService = async ({ userId, guestId, variantId, amount = 1, forceDelete = false }) => {
+export const addOrSubtractToCartService = async ({ userId, guestId }, data) => {
+  const { variantId, amount, deleteItem } = data;
+
   const variant = await getVariantByIdService(variantId);
 
   const cart = await getOrCreateCartService({ userId, guestId });
   const item = cart.cartItems.find((item) => item.variant.id === variantId);
 
   if (!item && amount <= 0) {
-    throw new Error("Invalid amount");
+    throw new Error("Cannot find item to subtract");
   }
-  if (!forceDelete && amount + (item?.quantity ?? 0) > variant.stockQuantity) {
+
+  const newQuantity = amount + (item?.quantity ?? 0);
+  if (!deleteItem && newQuantity > variant.stockQuantity) {
     throw new Error("Not enough stock");
   }
 
-  if (item && (item.quantity + amount <= 0 || forceDelete)) {
+  if (item && (newQuantity <= 0 || deleteItem)) {
     await prisma.cartItem.delete({
       where: {
-        cartId_variantId: { cartId: cart.id, variantId },
+        cartId_variantId: {
+          cartId: cart.id,
+          variantId,
+        },
       },
     });
   } else {
     await prisma.cartItem.upsert({
       where: {
-        cartId_variantId: { cartId: cart.id, variantId },
+        cartId_variantId: {
+          cartId: cart.id,
+          variantId,
+        },
       },
       update: {
-        quantity: { increment: amount },
+        quantity: newQuantity,
       },
       create: {
         cartId: cart.id,
@@ -104,12 +110,10 @@ export const addOrSubtractToCartService = async ({ userId, guestId, variantId, a
 };
 
 export const markCartAsCheckedOutService = async ({ userId, guestId }) => {
-  if (!userId && !guestId) {
-    throw new Error("User or guest not found");
-  }
+  const identifier = userId ? { userId } : { guestId };
   return await prisma.cart.updateMany({
     where: {
-      ...(userId ? { userId } : { guestId }),
+      ...identifier,
       status: "ACTIVE",
     },
     data: {

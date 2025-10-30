@@ -1,69 +1,71 @@
 import { api } from "@mint-boutique/axios-client";
 
 export const authProvider = {
-  login: async ({ email, password, rememberMe }) => {
-    try {
-      await api.post("/auth/login", { email, password, rememberMe });
-      return {
+  login: ({ email, password, rememberMe }) => {
+    return api
+      .post("/auth/login", { email, password, rememberMe })
+      .then(() => ({
         success: true,
         redirectTo: "/",
-      };
-    } catch (err) {
-      const { status, data } = err.response;
-      return {
+      }))
+      .catch((err) => ({
         success: false,
         error: {
           name: "Login Error",
           message:
-            status === 401
+            err.response.status === 401
               ? "Incorrect email or password"
-              : (data?.message ?? err.message ?? "Something went wrong"),
+              : (err.response.data?.message ??
+                err.message ??
+                "Something went wrong"),
         },
-      };
-    }
+      }));
   },
 
-  logout: async () => {
-    try {
-      await api.post("/auth/logout");
-      return {
+  logout: () => {
+    return api
+      .post("/auth/logout")
+      .then(() => ({
         success: true,
-      };
-    } catch (err) {
-      const { data } = err.response;
-      return {
+      }))
+      .catch((err) => ({
         success: false,
         error: {
           name: "Logout Error",
-          message: data?.message ?? err.message ?? "Something went wrong",
+          message:
+            err.response.data?.message ?? err.message ?? "Something went wrong",
         },
-      };
-    }
+      }));
   },
 
-  check: async () => {
-    try {
-      const { data } = await api.get("/profile");
-      if (data.user.role !== "ADMIN") {
-        throw new Error("Unauthorized");
-      }
-      return {
-        authenticated: true,
-      };
-    } catch (err) {
-      const { data } = err.response;
-      return {
+  check: () => {
+    return api
+      .get("/profile")
+      .then((res) => {
+        const { data: user } = res.data;
+        if (user?.role !== "ADMIN") {
+          return {
+            authenticated: false,
+            error: {
+              name: "Authentication Failed",
+              message: "Unauthorized",
+            },
+          };
+        }
+        return {
+          authenticated: true,
+        };
+      })
+      .catch((err) => ({
         authenticated: false,
         error: {
           name: "Authentication Failed",
-          message: data?.message ?? "Not logged in",
+          message: err.response.data?.message ?? "Not logged in",
         },
-      };
-    }
+      }));
   },
 
-  getIdentity: async () => {
-    const { data } = await api.get("/profile");
-    return data.user;
+  getIdentity: () => {
+    return api.get("/profile").then((res) => res.data?.data);
   },
 };

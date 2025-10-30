@@ -195,10 +195,10 @@ export function DataTable({ table, renderSubComponent }) {
           </TableBody>
         </Table>
       </div>
-      {!isLoading && getRowModel().rows?.length > 0 && (
+      {!isLoading && (
         <DataTablePagination
           currentPage={currentPage}
-          pageCount={pageCount}
+          pageCount={Math.max(pageCount, 1)}
           setCurrentPage={setCurrentPage}
           pageSize={pageSize}
           setPageSize={setPageSize}
