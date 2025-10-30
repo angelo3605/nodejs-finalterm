@@ -81,7 +81,7 @@ export const handleVnpayCallback = (vnpParams, { redirectUrl }) => {
     throw new Error(`VNPay responded with code '${vnpParams.vnp_ResponseCode}'`);
   }
 
-  if (![process.env.STORE_CLIENT, process.env.ADMIN_CLIENT].includes(redirectUrl)) {
+  if (![process.env.STORE_URL, process.env.ADMIN_URL].includes(redirectUrl)) {
     throw new Error("Blocked by whitelist");
   }
 

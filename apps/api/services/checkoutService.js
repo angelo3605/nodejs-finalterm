@@ -137,7 +137,7 @@ export const guestCheckoutService = async ({ guestId, email, fullName, address, 
       fullName: guestUser.fullName,
       email: guestUser.email,
       password,
-      loginUrl: `${process.env.STORE_CLIENT}/login`,
+      loginUrl: `${process.env.STORE_URL}/login`,
     }),
   });
 

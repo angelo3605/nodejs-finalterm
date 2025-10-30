@@ -41,13 +41,17 @@ export function NavUser() {
             side="top"
             className="w-(--radix-popper-anchor-width)"
           >
-            <DropdownMenuItem>
-              <CircleUserRound className="text-inherit" />
-              <span>Account</span>
+            <DropdownMenuItem asChild>
+              <a href={`${import.meta.env.VITE_STORE_URL}/profile`}>
+                <CircleUserRound className="text-inherit" />
+                <span>Account</span>
+              </a>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Store className="text-inherit" />
-              <span>Return to Store</span>
+            <DropdownMenuItem asChild>
+              <a href={import.meta.env.VITE_STORE_URL}>
+                <Store className="text-inherit" />
+                <span>Return to Store</span>
+              </a>
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => logout()}>
               <LogOut className="text-inherit" />

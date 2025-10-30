@@ -58,7 +58,7 @@ export const forgotService = async (email) => {
     subject: "Your Mint Boutique account is ready",
     html: await getEmailTemplate("resetPassword", {
       fullName: user.fullName,
-      resetUrl: `${process.env.STORE_CLIENT}/reset?token=${token}`,
+      resetUrl: `${process.env.STORE_URL}/reset?token=${token}`,
     }),
   });
 };

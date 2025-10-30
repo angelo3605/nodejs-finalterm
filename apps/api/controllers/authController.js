@@ -15,7 +15,7 @@ export const issueToken = (req, res) => {
   });
 
   if (req.query?.state) {
-    return res.redirect(req.query.state === "admin" ? process.env.ADMIN_CLIENT : process.env.STORE_CLIENT);
+    return res.redirect(req.query.state === "admin" ? process.env.ADMIN_URL : process.env.STORE_URL);
   }
 
   return res.json({

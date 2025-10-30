@@ -1,10 +1,9 @@
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import "dotenv/config";
-import express from "express";
-import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import express from "express";
+import { createServer } from "http";
 import router from "./routes/index.js";
 import passport from "./utils/passport.js";
 import { initSocket } from "./utils/socket.js";
@@ -15,14 +14,14 @@ const __dirname__ = path.dirname(__filename__);
 const app = express();
 
 const server = createServer(app);
-initSocket(server, [process.env.STORE_CLIENT, process.env.ADMIN_CLIENT]);
+initSocket(server, [process.env.STORE_URL, process.env.ADMIN_URL]);
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
     origin: (origin, cb) => {
-      if (!origin || [process.env.STORE_CLIENT, process.env.ADMIN_CLIENT].includes(origin)) {
+      if (!origin || [process.env.STORE_URL, process.env.ADMIN_URL].includes(origin)) {
         cb(null, true);
       } else {
         cb(new Error("Blocked by CORS"), false);
