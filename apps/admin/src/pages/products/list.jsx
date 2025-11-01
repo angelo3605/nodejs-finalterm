@@ -34,6 +34,7 @@ import { useTable } from "@refinedev/react-table";
 import {
   ChevronDown,
   ChevronUp,
+  Crown,
   Package,
   Pencil,
   Trash,
@@ -96,9 +97,17 @@ export function ListProducts() {
               <Package className="opacity-33" />
             </div>
           )}
+          {product.isFeatured && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Crown className="size-5 text-yellow-500" />
+              </TooltipTrigger>
+              <TooltipContent>Featured</TooltipContent>
+            </Tooltip>
+          )}
           <ShowButton
             variant="link"
-            className="text-foreground"
+            className="text-foreground p-0"
             recordItemId={product.slug}
             meta={{ slug: product.slug }}
           >

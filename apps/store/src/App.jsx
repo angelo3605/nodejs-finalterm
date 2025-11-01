@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Outlet } from "react-router";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RootLayout from "./layouts/RootLayout";
 import Home from "./pages/Home";
@@ -11,6 +11,11 @@ import "@fontsource-variable/ibm-plex-sans";
 import Forgot from "./pages/Forgot";
 import Reset from "./pages/Reset";
 import NotFound from "./pages/NotFound";
+import "swiper/css";
+import "swiper/css/effect-coverflow";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import "swiper/css/autoplay";
 
 const queryClient = new QueryClient();
 
@@ -31,11 +36,10 @@ export default function App() {
             }
           >
             <Route index element={<Home />} />
-            <Route path="all" element={<Catalog />} />
-            <Route path=":cat">
-              <Route path=":id" element={<Product />} />
-              <Route index path="*" element={<NotFound />} />
-            </Route>
+            <Route path="all" element={<Home />} />
+            <Route path="category/:slug" element={<Catalog />} />
+            <Route path="product/:slug" element={<Product />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </BrowserRouter>

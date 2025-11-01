@@ -125,11 +125,12 @@ model Category {
 }
 
 model Product {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  slug      String  @unique
-  name      String
-  desc      String?
-  isDeleted Boolean @default(false)
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  slug       String  @unique
+  name       String
+  desc       String?
+  isFeatured Boolean @default(false)
+  isDeleted  Boolean @default(false)
 
   brandId    String?   @db.ObjectId
   brand      Brand?    @relation(fields: [brandId], references: [id])

@@ -5,28 +5,15 @@ import DOMPurify from "dompurify";
 import { marked } from "marked";
 
 export default function Product() {
-  const { cat, id } = useParams();
+  const { slug } = useParams();
 
-  const {
-    isPending,
-    isError,
-    data: product,
-    error,
-  } = useQuery({
-    queryKey: ["products", id],
-    queryFn: () => api.get(`/products/${id}`).then((res) => res.data?.data),
+  const { isPending, data: product } = useQuery({
+    queryKey: ["products", slug],
+    queryFn: () => api.get(`/products/${slug}`).then((res) => res.data?.data),
   });
 
   if (isPending) {
     return "Loading...";
-  }
-
-  if (isError) {
-    return error.message;
-  }
-
-  if (product.category?.slug !== cat) {
-    return "Invalid category";
   }
 
   return (

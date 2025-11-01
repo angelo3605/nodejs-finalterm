@@ -1,7 +1,16 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
 @config "../tailwind.config.js";
+
+:root {
+    --swiper-pagination-bottom: calc(var(--spacing) * -1);
+}
+
+img {
+    overflow-clip-margin: unset !important;
+}
 
 .floating-label {
   @apply block relative mt-2;
@@ -79,6 +88,18 @@
     radial-gradient(var(--_g) 0 75%, var(--_c)) 0 0 / var(--_s),
     repeating-conic-gradient(var(--c1) 0 25%, #0000 0 50%) 0 0 / var(--_s),
     radial-gradient(var(--_c)) 0 calc(var(--s) / 2) / var(--s) var(--s) var(--c1);
+}
+
+.popover {
+    @apply fade-in zoom-in fade-out zoom-out fill-mode-forwards origin-top;
+
+    [aria-expanded=true] + & {
+        @apply animate-in;
+    }
+
+    [aria-expanded=false] + & {
+        @apply animate-out;
+    }
 }
 
 .menu {

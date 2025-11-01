@@ -6,6 +6,7 @@ export const productSchema = z.object({
   imageUrls: z.array(z.string().trim()).optional(),
   brand: z.string().trim().nonempty().optional(),
   category: z.string().trim().nonempty().optional(),
+  isFeatured: z.coerce.boolean().default(false),
 });
 
 export const productSortingSchema = z
@@ -17,6 +18,7 @@ export const productSortingSchema = z
 
 export const productFilteringSchema = z
   .object({
+    isFeatured: z.coerce.number().int().min(0).max(1).transform(Boolean).default(false),
     name: z.string().nonempty().trim(),
     minPrice: z.coerce.number().min(0),
     maxPrice: z.coerce.number().min(0),

@@ -1,6 +1,8 @@
 import slugify from "slugify";
 import prisma from "../prisma/client.js";
 
+const MAX_FEATURED = 5;
+
 const productSelect = {
   id: true,
   slug: true,
@@ -11,6 +13,7 @@ const productSelect = {
   updatedAt: true,
   brand: true,
   category: true,
+  isFeatured: true,
   variants: {
     where: { isDeleted: false },
     select: {
@@ -20,6 +23,18 @@ const productSelect = {
       stockQuantity: true,
       createdAt: true,
       updatedAt: true,
+    },
+  },
+  ratings: {
+    select: {
+      stars: true,
+      review: true,
+      user: {
+        select: {
+          fullName: true,
+        },
+      },
+      createdAt: true,
     },
   },
   comments: {
@@ -32,6 +47,15 @@ const productSelect = {
 };
 
 export const createProductService = async (data) => {
+  if (
+    data.isFeatured &&
+    (await prisma.product.count({
+      where: { isFeatured: true },
+    })) > MAX_FEATURED
+  ) {
+    throw new Error(`Only ${MAX_FEATURED} featured products allowed`);
+  }
+
   const slug = slugify(data.name, { lower: true });
   return await prisma.product.create({
     data: {
@@ -54,9 +78,10 @@ export const createProductService = async (data) => {
 
 export const getAllProductsService = async (sorting, filtering, { page, pageSize }) => {
   const { sortBy, sortInAsc } = sorting;
-  const { name, minPrice, maxPrice, category, brands } = filtering;
+  const { name, minPrice, maxPrice, category, brands, isFeatured } = filtering;
 
   const where = {
+    isFeatured: isFeatured || undefined,
     isDeleted: false,
     name: name
       ? {
@@ -120,14 +145,25 @@ export const getDeletedProductsService = async () => {
 };
 
 export const getProductBySlugService = async (slug) => {
-  const product = await prisma.product.findUnique({
+  return await prisma.product.findUnique({
     where: { slug },
     select: productSelect,
   });
-  return product;
 };
 
 export const updateProductService = async (slug, data) => {
+  if (
+    data.isFeatured &&
+    (await prisma.product.count({
+      where: {
+        isFeatured: true,
+        NOT: { slug },
+      },
+    })) > MAX_FEATURED
+  ) {
+    throw new Error(`Only ${MAX_FEATURED} featured products allowed`);
+  }
+
   const newSlug = data.name ? slugify(data.name, { lower: true }) : undefined;
   return await prisma.product.update({
     where: { slug },
