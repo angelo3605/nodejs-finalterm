@@ -12,16 +12,32 @@ img {
     overflow-clip-margin: unset !important;
 }
 
+.badge {
+    @apply absolute right-0 top-0 -translate-y-1/3 translate-x-1/3 block px-1.5 text-sm text-white bg-red-600 rounded-full;
+}
+
 .floating-label {
   @apply block relative mt-2;
+
+    &:has([disabled]) {
+        @apply opacity-50 saturate-0 cursor-not-allowed;
+    }
 }
 
 .floating-label__label {
   @apply leading-none absolute -translate-y-1/2 top-1/2 left-4 bg-transparent text-gray-600 transition-all pointer-events-none;
+
+    textarea + & {
+        @apply top-6;
+    }
 }
 
 .floating-label__input {
-  @apply w-full h-12 px-4 outline-none inset-ring inset-ring-gray-300 rounded-lg;
+  @apply w-full min-h-12 px-4 outline-none inset-ring inset-ring-gray-300 rounded-lg;
+
+    textarea& {
+        @apply py-3;
+    }
 
   @variant focus {
     @apply inset-ring-3 inset-ring-emerald-700;
@@ -128,6 +144,14 @@ img {
 
 .checkbox__input:checked + .checkbox__icon {
   @apply bg-emerald-600 border-emerald-600;
+}
+
+.placeholder {
+    @apply min-w-4 h-4 rounded animate-pulse bg-gray-300;
+}
+
+.home-carousel {
+    @apply max-w-[300px] first:ml-5 mr-5 my-5;
 }
 
 /* ----------------------------------------------------------------------- */

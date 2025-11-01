@@ -23,7 +23,7 @@ export default function RootLayout() {
         <Outlet />
       </main>
       <Footer />
-      <button onClick={scrollUp} className={clsx("btn btn-secondary shadow-lg/10 fixed bottom-8 right-8 h-12! transition", show || "opacity-0")}>
+      <button onClick={scrollUp} className={clsx("btn btn-secondary shadow-lg/10 fixed bottom-8 right-8 h-12! transition z-50", show || "opacity-0")}>
         <FaArrowUp />
       </button>
     </div>

@@ -20,7 +20,9 @@ export default function Reset() {
   const { mutate, isPending } = useMutation({
     mutationFn: ({ password }) => api.post("/auth/reset", { token, password }),
     onSuccess: () => {
-      queryClient.invalidateQueries(["profile"]);
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      })
       navigate("/login");
     },
     onError: (err) => {

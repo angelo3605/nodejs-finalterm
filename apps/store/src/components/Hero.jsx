@@ -7,10 +7,11 @@ import { api } from "@mint-boutique/axios-client";
 import { Card } from "@/components/Card";
 
 export default function Hero() {
-  const { data: featuredProducts } = useQuery({
+  const { data: featured } = useQuery({
     queryKey: ["products", "featured"],
     queryFn: () => api.get("/products?isFeatured=1").then((res) => res.data?.data),
   });
+
   return (
     <section className="w-full bg-fancy text-white">
       <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20 mx-auto w-[min(1200px,92%)] py-10">
@@ -40,18 +41,28 @@ export default function Hero() {
             modules={[EffectCoverflow, Pagination, Autoplay]}
             effect="coverflow"
             pagination={true}
+            grabCursor={true}
             centeredSlides={true}
-            autoplay={{ delay: 5000 }}
+            autoplay={{
+              delay: 5000,
+              disableOnInteraction: true,
+            }}
             className="max-w-screen lg:mask-x-from-90% lg:mask-x-to-100% lg:w-[450px]"
             coverflowEffect={{
               slideShadows: false,
             }}
           >
-            {featuredProducts?.map((product) => (
-              <SwiperSlide className="max-w-[300px] my-5">
-                <Card product={product} />
-              </SwiperSlide>
-            ))}
+            {featured
+              ? featured.map((product, i) => (
+                  <SwiperSlide key={i} className="max-w-[300px] my-5">
+                    <Card product={product} />
+                  </SwiperSlide>
+                ))
+              : Array.from({ length: 3 }, (_, i) => (
+                  <SwiperSlide key={i} className="max-w-[300px] my-5">
+                    <Card />
+                  </SwiperSlide>
+                ))}
           </Swiper>
         </div>
       </div>

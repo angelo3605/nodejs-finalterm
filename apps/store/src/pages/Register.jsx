@@ -19,7 +19,9 @@ export default function Register() {
         password,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries(["profile"]);
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      })
       navigate("/login");
     },
     onError: (err) => {

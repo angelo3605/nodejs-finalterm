@@ -3,27 +3,17 @@ import { FaArrowRightFromBracket, FaArrowRightToBracket, FaCartShopping, FaCircl
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@mint-boutique/axios-client";
 import { useSelect } from "downshift";
-import { useMemo } from "react";
 import Logo from "@mint-boutique/assets/logo.svg?react";
 import { Image } from "@/components/Image";
 
-function UserMenu() {
-  const {
-    isError,
-    isPending,
-    data: user,
-  } = useQuery({
-    queryKey: ["profile"],
-    queryFn: () => api.get("/profile").then((res) => res.data?.data),
-    retry: false,
-  });
-
+function UserMenu({ user }) {
   const queryClient = useQueryClient();
   const { mutate: logout } = useMutation({
     mutationFn: () => api.post("/auth/logout"),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["profile"]);
-    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      }),
     onError: (err) => {
       alert(err);
     },
@@ -31,25 +21,23 @@ function UserMenu() {
 
   const navigate = useNavigate();
 
-  const items = useMemo(() =>
-    [
-      {
-        label: "View profile",
-        icon: <FaCircleUser />,
-        action: () => navigate("/profile"),
-      },
-      user?.role === "ADMIN" && {
-        label: "Go to dashboard",
-        icon: <FaGaugeHigh />,
-        action: () => (window.location.href = import.meta.env.VITE_ADMIN_URL),
-      },
-      {
-        label: "Logout",
-        icon: <FaArrowRightFromBracket />,
-        action: () => logout(),
-      },
-    ].filter(Boolean),
-  );
+  const items = [
+    {
+      label: "View profile",
+      icon: <FaCircleUser />,
+      action: () => navigate("/profile"),
+    },
+    user?.role === "ADMIN" && {
+      label: "Go to dashboard",
+      icon: <FaGaugeHigh />,
+      action: () => (window.location.href = import.meta.env.VITE_ADMIN_URL),
+    },
+    {
+      label: "Logout",
+      icon: <FaArrowRightFromBracket />,
+      action: () => logout(),
+    },
+  ].filter(Boolean);
 
   const { closeMenu, getToggleButtonProps, getMenuProps, getItemProps } = useSelect({
     items,
@@ -64,27 +52,17 @@ function UserMenu() {
 
   return (
     <>
-      {isPending ||
-        (isError ? (
-          <Link to="/login" className="btn btn-outline-light btn-jump">
-            <FaArrowRightToBracket className="size-5 text-green-200" />
-            Login
-          </Link>
-        ) : (
-          <>
-            <button {...getToggleButtonProps()} className="btn btn-outline-light btn-jump">
-              <FaUser className="size-5 text-blue-200" />
-              {user.fullName}
-            </button>
-            <ul {...getMenuProps()} className="popover origin-[75%_0%]! menu absolute top-12 right-0 min-w-50">
-              {items.map((item, index) => (
-                <li {...getItemProps({ item, index })} className="menu-item">
-                  {item.icon} {item.label}
-                </li>
-              ))}
-            </ul>
-          </>
+      <button className="btn btn-outline-light btn-jump" {...getToggleButtonProps()}>
+        <FaUser className="size-5 text-blue-200" />
+        {user?.fullName ?? <div className="placeholder w-20"></div>}
+      </button>
+      <ul className="popover origin-[75%_0%]! menu absolute top-12 right-0 min-w-50" {...getMenuProps()}>
+        {items.map((item, index) => (
+          <li key={index} className="menu-item" {...getItemProps({ item, index })}>
+            {item.icon} {item.label}
+          </li>
         ))}
+      </ul>
     </>
   );
 }
@@ -96,7 +74,7 @@ function CatalogMenu() {
   });
 
   const { getToggleButtonProps, getMenuProps, getItemProps } = useSelect({
-    items,
+    items: items ?? [],
   });
 
   return (
@@ -120,6 +98,17 @@ function CatalogMenu() {
 }
 
 export default function Header() {
+  const { data: cart } = useQuery({
+    queryKey: ["cart"],
+    queryFn: () => api.get("/cart").then((res) => res.data?.data),
+  });
+
+  const { isError, data: user } = useQuery({
+    queryKey: ["profile"],
+    queryFn: () => api.get("/profile").then((res) => res.data?.data),
+    retry: false,
+  });
+
   return (
     <>
       <header className="sticky top-0 bg-emerald-800 text-white shadow-xl/10 z-50">
@@ -138,10 +127,18 @@ export default function Header() {
             <button className="btn btn-outline-light btn-jump">
               <FaMagnifyingGlass className="size-5 text-yellow-200" />
             </button>
-            <button className="btn btn-outline-light btn-jump">
+            <button className="relative btn btn-outline-light btn-jump">
               <FaCartShopping className="size-5 text-purple-200" />
+              {cart?.cartItems?.length && <span className="badge">{cart?.cartItems?.length}</span>}
             </button>
-            <UserMenu />
+            {isError ? (
+              <Link to="/login" className="btn btn-outline-light btn-jump">
+                <FaArrowRightToBracket className="size-5 text-green-200" />
+                Login
+              </Link>
+            ) : (
+              <UserMenu user={user} />
+            )}
           </div>
         </div>
       </header>

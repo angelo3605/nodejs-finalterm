@@ -1,3 +1,13 @@
+import { Link } from "react-router";
+
 export default function NotFound() {
-  return <div className="h-[1200px]"></div>;
+  return (
+    <div className="flex flex-col items-center gap-4 py-10">
+      <h1 className="font-bold text-5xl">404</h1>
+      <p className="text-xl">Not found</p>
+      <Link to="/" className="btn btn-outline-dark">
+        Return to home
+      </Link>
+    </div>
+  );
 }

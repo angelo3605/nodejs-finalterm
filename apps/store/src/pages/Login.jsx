@@ -21,7 +21,9 @@ export default function Login() {
         rememberMe,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries(["profile"]);
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      })
       navigate("/");
     },
     onError: (err) => {
@@ -35,7 +37,7 @@ export default function Login() {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(loginSchema),
-    defauktValues: {
+    defaultValues: {
       email: "",
       password: "",
       rememberMe: false,
