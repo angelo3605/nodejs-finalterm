@@ -144,6 +144,8 @@ model Product {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  OrderItem OrderItem[]
 }
 
 model ProductVariant {
@@ -156,7 +158,8 @@ model ProductVariant {
   productSlug String
   product     Product @relation(fields: [productSlug], references: [slug])
 
-  cartItems CartItem[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -241,11 +244,13 @@ model Order {
   totalAmount Float
   status      OrderStatus @default(PENDING)
 
-  userId       String      @db.ObjectId
-  user         User        @relation(fields: [userId], references: [id])
-  orderItems   OrderItem[]
-  payments     Payment[]
-  discountCode String?
+  userId            String      @db.ObjectId
+  user              User        @relation(fields: [userId], references: [id])
+  orderItems        OrderItem[]
+  payments          Payment[]
+  discountCode      String?
+  discountValue     Int
+  loyaltyPointsUsed Int
 
   shippingAddress ShippingInfo
 
@@ -261,6 +266,12 @@ model OrderItem {
 
   orderId String @db.ObjectId
   order   Order  @relation(fields: [orderId], references: [id])
+
+  variantId String         @db.ObjectId
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  productSlug String
+  product     Product @relation(fields: [productSlug], references: [slug])
 
   productName String
   variantName String

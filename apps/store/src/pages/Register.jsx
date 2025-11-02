@@ -6,6 +6,8 @@ import { useNavigate } from "react-router";
 import { api } from "@mint-boutique/axios-client";
 import { FaSpinner } from "react-icons/fa6";
 import AuthLayout from "../layouts/AuthLayout";
+import { handleError } from "@/utils/errorHandler";
+import toast from "react-hot-toast";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -18,15 +20,14 @@ export default function Register() {
         email,
         password,
       }),
-    onSuccess: () => {
+    onSuccess: () =>
       queryClient.invalidateQueries({
         queryKey: ["profile"],
-      })
-      navigate("/login");
-    },
-    onError: (err) => {
-      alert(err);
-    },
+      }).then(() => {
+        toast.success("Register successfully! You can now login to your account");
+        navigate("/login")
+      }),
+    onError: handleError,
   });
 
   const {

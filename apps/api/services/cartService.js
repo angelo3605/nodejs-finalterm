@@ -1,29 +1,28 @@
 import prisma from "../prisma/client.js";
 import { getVariantByIdService } from "./variantService.js";
 
-const cartItemSelect = {
-  id: true,
-  quantity: true,
-  variant: {
-    select: {
-      id: true,
-      name: true,
-      price: true,
-      stockQuantity: true,
-      product: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-    },
-  },
-};
 const cartSelect = {
   id: true,
   sumAmount: true,
   cartItems: {
-    select: cartItemSelect,
+    select: {
+      id: true,
+      quantity: true,
+      variant: {
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          stockQuantity: true,
+          product: {
+            select: {
+              slug: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
   },
   createdAt: true,
   updatedAt: true,
@@ -39,7 +38,7 @@ export const getOrCreateCartService = async ({ userId, guestId }) => {
     select: cartSelect,
   });
   if (!cart) {
-    return await prisma.cart.create({
+    return prisma.cart.create({
       data: {
         ...identifier,
         status: "ACTIVE",
@@ -102,7 +101,7 @@ export const addOrSubtractToCartService = async ({ userId, guestId }, data) => {
   });
   const sumAmount = newCart.cartItems.reduce((sum, item) => sum + item.quantity * item.variant.price, 0);
 
-  return await prisma.cart.update({
+  return prisma.cart.update({
     where: { id: newCart.id },
     data: { sumAmount },
     select: cartSelect,
@@ -111,7 +110,7 @@ export const addOrSubtractToCartService = async ({ userId, guestId }, data) => {
 
 export const markCartAsCheckedOutService = async ({ userId, guestId }) => {
   const identifier = userId ? { userId } : { guestId };
-  return await prisma.cart.updateMany({
+  return prisma.cart.updateMany({
     where: {
       ...identifier,
       status: "ACTIVE",

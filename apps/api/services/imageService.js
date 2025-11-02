@@ -12,7 +12,7 @@ export const addImageService = async (files) => {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  const images = await Promise.all(
+  return await Promise.all(
     files.map(async (file) => {
       const newImage = await prisma.image.create({
         data: {
@@ -28,18 +28,16 @@ export const addImageService = async (files) => {
 
       const imageUrl = `/uploads/${filename}`;
 
-      return await prisma.image.update({
+      return prisma.image.update({
         where: { id: newImage.id },
         data: { url: imageUrl },
       });
     }),
   );
-
-  return images;
 };
 
 export const updateImageAltTextService = async (id, altText) => {
-  return await prisma.image.update({
+  return prisma.image.update({
     where: { id },
     data: { altText },
   });
@@ -57,7 +55,7 @@ export const deleteImageService = async (id) => {
     fs.unlinkSync(filepath);
   }
 
-  return await prisma.image.delete({
+  return prisma.image.delete({
     where: { id },
   });
 };
@@ -74,7 +72,7 @@ export const getAllImagesService = async ({ page, pageSize }) => {
 };
 
 export const getImageByIdService = async (id) => {
-  return await prisma.image.findUnique({
+  return prisma.image.findUnique({
     where: { id },
   });
 };

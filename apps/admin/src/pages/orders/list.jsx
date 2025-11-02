@@ -140,12 +140,13 @@ export function ListOrders() {
           </span>
         ))}
       </div>
-      <Table>
+      <Table className="border">
         <TableHeader className="border-b">
           <TableRow>
             <TableHead>Product</TableHead>
             <TableHead>Variant</TableHead>
             <TableHead className="text-right">Quantity</TableHead>
+            <TableHead className="text-right">Unit price</TableHead>
             <TableHead className="text-right">Sum</TableHead>
           </TableRow>
         </TableHeader>
@@ -156,6 +157,9 @@ export function ListOrders() {
               <TableCell>{item.variantName}</TableCell>
               <TableCell className="text-right">{item.quantity}</TableCell>
               <TableCell className="text-right">
+                {longCurrencyFormatter.format(item.unitPrice)}
+              </TableCell>
+              <TableCell className="text-right">
                 {longCurrencyFormatter.format(item.sumAmount)}
               </TableCell>
             </TableRow>
@@ -163,22 +167,31 @@ export function ListOrders() {
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">{order.sumAmount}</TableCell>
+            <TableCell colSpan={4}>Total</TableCell>
+            <TableCell className="text-right">
+              {longCurrencyFormatter.format(order.sumAmount)}
+            </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell colSpan={3}>
+            <TableCell colSpan={4}>
               Discount code ({order.discountCode || "none"})
             </TableCell>
-            <TableCell className="text-right">0</TableCell>
+            <TableCell className="text-right">
+              {longCurrencyFormatter.format(order.discountValue * -1)}
+            </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell colSpan={3}>Loyalty points</TableCell>
-            <TableCell className="text-right">0</TableCell>
+            <TableCell colSpan={4}>Loyalty points</TableCell>
+            <TableCell className="text-right">
+              {order.loyaltyPointsUsed} &times;{" "}
+              {longCurrencyFormatter.format(-1000)}
+            </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell colSpan={3}>Final</TableCell>
-            <TableCell className="text-right">{order.totalAmount}</TableCell>
+            <TableCell colSpan={4}>Final</TableCell>
+            <TableCell className="text-right text-red-700 dark:text-red-400">
+              {longCurrencyFormatter.format(order.totalAmount)}
+            </TableCell>
           </TableRow>
         </TableFooter>
       </Table>

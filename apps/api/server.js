@@ -6,7 +6,7 @@ import express from "express";
 import { createServer } from "http";
 import router from "./routes/index.js";
 import passport from "./utils/passport.js";
-import { initSocket } from "./utils/socket.js";
+import { getIo, initSocket } from "./utils/socket.js";
 
 const __filename__ = fileURLToPath(import.meta.url);
 const __dirname__ = path.dirname(__filename__);
@@ -37,6 +37,20 @@ app.use(passport.initialize());
 app.use(express.static(path.join(__dirname__, "public")));
 
 app.use("/", router);
+
+getIo()
+  .of("/comments")
+  .on("connection", (socket) => {
+    socket.on("join", (slug) => socket.join(slug));
+    socket.on("leave", (slug) => socket.leave(slug));
+  });
+
+getIo()
+  .of("/ratings")
+  .on("connection", (socket) => {
+    socket.on("join", (slug) => socket.join(slug));
+    socket.on("leave", (slug) => socket.leave(slug));
+  });
 
 const PORT = process.env.PORT || 5000;
 

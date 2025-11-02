@@ -1,19 +1,19 @@
 import prisma from "../prisma/client.js";
 
 export const createDiscountCodeService = async (data) => {
-  return await prisma.discountCode.create({
+  return prisma.discountCode.create({
     data,
   });
 };
 
 export const getDiscountCodeByCodeService = async (code) => {
-  return await prisma.discountCode.findUnique({
+  return prisma.discountCode.findUnique({
     where: { code },
   });
 };
 
 export const updateDiscountCodeService = async (code, data) => {
-  return await prisma.discountCode.update({
+  return prisma.discountCode.update({
     where: { code },
     data,
   });
@@ -34,7 +34,7 @@ export const getAllDiscountCodesService = async ({ page, pageSize }) => {
 };
 
 export const getDeletedDiscountCodeService = async () => {
-  return await prisma.discountCode.findMany({
+  return prisma.discountCode.findMany({
     where: { isDeleted: true },
   });
 };

@@ -1,14 +1,14 @@
 import prisma from "../prisma/client.js";
 
 export const getAllShippingAddressesService = async ({ userId }) => {
-  return await prisma.shippingAddress.findMany({
+  return prisma.shippingAddress.findMany({
     where: { userId },
     orderBy: { isDefault: "desc" },
   });
 };
 
 export const getShippingAddressByIdService = async (id, { userId }) => {
-  return await prisma.shippingAddress.findUnique({
+  return prisma.shippingAddress.findUnique({
     where: {
       id_userId: { id, userId },
     },

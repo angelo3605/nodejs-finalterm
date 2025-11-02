@@ -16,13 +16,14 @@ const ratingSelect = {
     },
   },
   createdAt: true,
+  updatedAt: true,
 };
 
 export const getAllRatingsService = async ({ productSlug }) => {
-  return await prisma.rating.findMany({
+  return prisma.rating.findMany({
     where: { productSlug },
     select: ratingSelect,
-    orderBy: { createdAt: "desc" },
+    orderBy: { updatedAt: "desc" },
   });
 };
 
@@ -39,7 +40,7 @@ export const getAverageRatingService = async ({ productSlug }) => {
 };
 
 export const upsertRatingService = async ({ productSlug }, { userId }, data) => {
-  return await prisma.rating.upsert({
+  return prisma.rating.upsert({
     where: {
       userId_productSlug: { userId, productSlug },
     },

@@ -11,16 +11,10 @@ export const orderSchema = z.object({
     quantity: z.coerce.number().int().min(0),
     unitPrice: z.coerce.number().int().min(0),
     sumAmount: z.coerce.number().int().min(0),
-    productName: z
-      .string()
-      .trim()
-      .nonempty()
-      .regex(/^[a-z-0-9]+$/),
-    variantName: z
-      .string()
-      .trim()
-      .nonempty()
-      .regex(/^[a-z-0-9]+$/),
+    variantId: z.string().trim().nonempty(),
+    productSlug: z.string().trim().nonempty(),
+    productName: z.string().trim().nonempty(),
+    variantName: z.string().trim().nonempty(),
   }),
 });
 

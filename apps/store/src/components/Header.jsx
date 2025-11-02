@@ -5,18 +5,20 @@ import { api } from "@mint-boutique/axios-client";
 import { useSelect } from "downshift";
 import Logo from "@mint-boutique/assets/logo.svg?react";
 import { Image } from "@/components/Image";
+import toast from "react-hot-toast";
+import { handleError } from "@/utils/errorHandler";
 
 function UserMenu({ user }) {
   const queryClient = useQueryClient();
   const { mutate: logout } = useMutation({
     mutationFn: () => api.post("/auth/logout"),
     onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: ["profile"],
-      }),
-    onError: (err) => {
-      alert(err);
-    },
+      queryClient
+        .invalidateQueries({
+          queryKey: ["profile"],
+        })
+        .then(() => toast.success("Logout successfully")),
+    onError: handleError,
   });
 
   const navigate = useNavigate();
@@ -129,7 +131,7 @@ export default function Header() {
             </button>
             <button className="relative btn btn-outline-light btn-jump">
               <FaCartShopping className="size-5 text-purple-200" />
-              {cart?.cartItems?.length && <span className="badge">{cart?.cartItems?.length}</span>}
+              {cart?.cartItems?.length > 0 && <span className="badge">{cart?.cartItems?.length}</span>}
             </button>
             {isError ? (
               <Link to="/login" className="btn btn-outline-light btn-jump">

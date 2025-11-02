@@ -1,15 +1,19 @@
-import { getAverageRatingService, getAllRatingsService, upsertRatingService } from "../services/ratingService.js";
+import { getAllRatingsService, getAverageRatingService, upsertRatingService } from "../services/ratingService.js";
+import { getIo } from "../utils/socket.js";
 
 export const rateProduct = async (req, res) => {
   const rating = await upsertRatingService(
     {
-      userId: req.user.id,
+      productSlug: req.params.slug,
     },
     {
-      productSlug: req.params.slug,
+      userId: req.user.id,
     },
     req.body,
   );
+
+  getIo().of("/ratings").to(req.params.slug).emit("rating:new", rating);
+
   return res.json({
     data: rating,
   });

@@ -1,8 +1,6 @@
 import { createCommentService, deleteCommentService, getAllCommentsService, getCommentByIdService } from "../services/commentService.js";
 import { getIo } from "../utils/socket.js";
 
-// TODO: Fix WebSocket
-
 export const createComment = async (req, res) => {
   const comment = await createCommentService(
     {
@@ -15,7 +13,7 @@ export const createComment = async (req, res) => {
     req.body,
   );
 
-  // getIo().of("/comments").to(req.params.slug).emit("comment:new", comment);
+  getIo().of("/comments").to(req.params.slug).emit("comment:new", comment);
 
   return res.json({
     data: comment,
@@ -50,7 +48,7 @@ export const deleteComment = async (req, res) => {
     },
   );
 
-  // getIo().of("/comments").to(req.params.slug).emit("comment:delete", comment);
+  getIo().of("/comments").to(comment.product.slug).emit("comment:delete", comment);
 
   return res.json({
     data: comment,

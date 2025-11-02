@@ -10,6 +10,8 @@ import { commentSchema, ratingSchema } from "@mint-boutique/zod-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { Swiper, SwiperSlide } from "swiper/react";
+import toast from "react-hot-toast";
+import { handleError } from "@/utils/errorHandler";
 
 const commentSocket = io(`${import.meta.env.VITE_API_URL}/comments`);
 const ratingSocket = io(`${import.meta.env.VITE_API_URL}/ratings`);
@@ -17,6 +19,8 @@ const ratingSocket = io(`${import.meta.env.VITE_API_URL}/ratings`);
 function Comment({ comment }) {
   const { mutate, isPending } = useMutation({
     mutationFn: () => api.delete(`/comments/${comment.id}`),
+    onSuccess: () => toast.success("Comment has been deleted"),
+    onError: handleError,
   });
 
   return (
@@ -65,7 +69,11 @@ function CommentForm({ parentId, disabled }) {
         message,
         parentId,
       }),
-    onSuccess: () => reset(),
+    onSuccess: () => {
+      reset();
+      toast.success("Comment has been posted!");
+    },
+    onError: handleError,
   });
 
   return (
@@ -94,7 +102,7 @@ function CommentForm({ parentId, disabled }) {
 function RatingForm() {
   const { slug } = useParams();
 
-  const { register, handleSubmit, watch, setValue } = useForm({
+  const { register, handleSubmit, watch, setValue, reset } = useForm({
     resolver: zodResolver(ratingSchema),
     defaultValues: {
       stars: 0,
@@ -110,10 +118,16 @@ function RatingForm() {
         stars,
         review,
       }),
-    onSuccess: () => reset(),
+    onSuccess: () => {
+      reset();
+      toast.success("Thank you for rating out product!");
+    },
+    onError: handleError,
   });
 
   const stars = watch("stars") || 0;
+
+  const sortByDate = (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt);
 
   useEffect(() => {
     ratingSocket.emit("join", slug);
@@ -125,7 +139,7 @@ function RatingForm() {
         }
         return {
           ...old,
-          ratings: [newRating].concat(old.ratings?.filter((rating) => rating.id !== newRating.id) ?? []),
+          ratings: [newRating].concat(old.ratings?.filter((rating) => rating.id !== newRating.id) ?? []).sort(sortByDate),
         };
       });
     });
@@ -264,13 +278,22 @@ export default function Product() {
     };
   }, [slug, queryClient]);
 
+  const { data: user } = useQuery({
+    queryKey: ["profile"],
+    queryFn: () => api.get("/profile").then((res) => res.data?.data),
+    retry: false,
+  });
+
   return (
     <div className="mx-auto w-[min(1200px,92%)] py-10 space-y-5">
+      <button className="btn btn-primary" onClick={() => toast.success("Hello, world!")}>
+        Toast test
+      </button>
       <div>
         <Swiper slidesPerView="auto" spaceBetween={20} className="mask-x-from-99% mask-x-to-100%">
-          <SwiperSlide className="home-carousel">
+          {user && <SwiperSlide className="home-carousel">
             <RatingForm />
-          </SwiperSlide>
+          </SwiperSlide>}
           {product
             ? product.ratings.map((rating, i) => (
                 <SwiperSlide className="home-carousel">

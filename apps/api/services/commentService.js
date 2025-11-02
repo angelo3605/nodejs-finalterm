@@ -6,6 +6,7 @@ const commentSelect = {
   message: true,
   senderName: true,
   createdAt: true,
+  parentId: true,
   product: {
     select: {
       slug: true,
@@ -14,15 +15,17 @@ const commentSelect = {
   },
   replies: {
     select: {
+      id: true,
       message: true,
       senderName: true,
       createdAt: true,
     },
+    orderBy: { createdAt: "desc" },
   },
 };
 
 export const getAllCommentsService = async ({ productSlug }) => {
-  return await prisma.comment.findMany({
+  return prisma.comment.findMany({
     where: {
       productSlug,
       parent: null,
@@ -33,11 +36,10 @@ export const getAllCommentsService = async ({ productSlug }) => {
 };
 
 export const getCommentByIdService = async (id) => {
-  const comment = await prisma.comment.findUnique({
+  return prisma.comment.findUnique({
     where: { id },
     select: commentSelect,
   });
-  return comment;
 };
 
 export const createCommentService = async ({ productSlug }, { userId, guestId }, data) => {
@@ -59,7 +61,7 @@ export const createCommentService = async ({ productSlug }, { userId, guestId },
     }
   }
 
-  return await prisma.comment.create({
+  return prisma.comment.create({
     data: {
       product: {
         connect: { slug: productSlug },
@@ -86,10 +88,11 @@ export const deleteCommentService = async (id, { userId, guestId }, { forceDelet
       ...(forceDelete || identifier),
     },
   });
-  return await prisma.comment.delete({
+  return prisma.comment.delete({
     where: {
       id,
       ...(forceDelete || identifier),
     },
+    select: commentSelect,
   });
 };

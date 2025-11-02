@@ -7,12 +7,15 @@ const orderSelect = {
   totalAmount: true,
   status: true,
   discountCode: true,
+  discountValue: true,
   shippingAddress: true,
+  loyaltyPointsUsed: true,
   user: {
     select: {
       id: true,
       fullName: true,
       email: true,
+      loyaltyPoints: true,
     },
   },
   orderItems: {
@@ -53,13 +56,25 @@ export const getOrderByIdService = async (id) => {
 };
 
 export const createOrderService = async ({ userId }, data) => {
-  return await prisma.order.create({
+  return prisma.order.create({
     data: {
       userId,
       ...data,
       status: "PENDING",
       orderItems: {
-        create: data.orderItems,
+        create: data.orderItems.map((item) => ({
+          variant: {
+            connect: { id: item.variantId },
+          },
+          product: {
+            connect: { slug: item.productSlug },
+          },
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          sumAmount: item.sumAmount,
+          productName: item.productName,
+          variantName: item.variantName,
+        })),
       },
     },
     select: orderSelect,
@@ -67,7 +82,7 @@ export const createOrderService = async ({ userId }, data) => {
 };
 
 export const updateOrderStatusService = async (id, { status }) => {
-  return await prisma.order.update({
+  return prisma.order.update({
     where: { id },
     data: { status },
     select: orderSelect,

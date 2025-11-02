@@ -6,8 +6,10 @@ export const vnpayIpn = async (req, res) => {
 };
 
 export const vnpayCallback = async (req, res) => {
-  const redirectUrl = handleVnpayCallback(req.query, {
-    redirectUrl: process.env.STORE_URL,
+  const redirectUrl = await handleVnpayCallback(req.query, {
+    redirectUrl: `${process.env.STORE_URL}/checkout/result`,
+    userId: req.user?.id,
+    guestId: req.guestId,
   });
   return res.redirect(redirectUrl);
 };

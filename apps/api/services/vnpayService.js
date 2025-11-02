@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import crypto from "crypto";
 import { updateOrderStatusService } from "./orderService.js";
-import { longCurrencyFormatter } from "@mint-boutique/formatters";
+import { postCheckoutService } from "./checkoutService.js";
 
 const sortObject = (o) =>
   Object.keys(o)
@@ -65,25 +65,18 @@ export const handleVnpayIpn = async (vnpParams) => {
     return { RspCode: "97", Message: "Checksum failed" };
   }
 
-  try {
-    await updateOrderStatusService(vnpParams.vnp_TxnRef, {
-      status: vnpParams.vnp_ResponseCode === "00" ? "PROCESSING" : "CANCELLED",
-    });
-  } catch (err) {
-    return { RspCode: "01", Message: err.message ?? "Something went wrong" };
-  }
-
   return { RspCode: "00", Message: "Success" };
 };
 
-export const handleVnpayCallback = (vnpParams, { redirectUrl }) => {
+export const handleVnpayCallback = async (vnpParams, { userId, guestId, redirectUrl }) => {
   if (!checkHash(vnpParams)) {
     throw new Error(`VNPay responded with code '${vnpParams.vnp_ResponseCode}'`);
   }
 
-  if (![process.env.STORE_URL, process.env.ADMIN_URL].includes(redirectUrl)) {
-    throw new Error("Blocked by whitelist");
-  }
+  await updateOrderStatusService(vnpParams.vnp_TxnRef, {
+    status: vnpParams.vnp_ResponseCode === "00" ? "PROCESSING" : "CANCELLED",
+  });
+  await postCheckoutService({ userId, guestId, orderId: vnpParams.vnp_TxnRef });
 
   const newRedirectUrl = new URL(redirectUrl);
   for (const [key, value] of [

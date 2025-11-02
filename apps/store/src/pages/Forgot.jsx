@@ -5,13 +5,13 @@ import { useMutation } from "@tanstack/react-query";
 import { api } from "@mint-boutique/axios-client";
 import { FaSpinner } from "react-icons/fa6";
 import AuthLayout from "../layouts/AuthLayout";
+import { handleError } from "@/utils/errorHandler";
+import toast from "react-hot-toast";
 
 export default function Forgot() {
   const { mutate, isPending } = useMutation({
-    mutationFn: ({ email }) => api.post("/auth/forgot", { email }),
-    onError: (err) => {
-      alert(err);
-    },
+    mutationFn: ({ email }) => api.post("/auth/forgot", { email }).then(() => toast.success("Reset link has been sent to your email")),
+    onError: handleError,
   });
 
   const {

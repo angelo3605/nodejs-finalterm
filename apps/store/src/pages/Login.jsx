@@ -8,6 +8,8 @@ import { FaCheck, FaSpinner } from "react-icons/fa6";
 import FacebookLogo from "@mint-boutique/assets/oauth-icons/facebook.svg?react";
 import GoogleLogo from "@mint-boutique/assets/oauth-icons/google.svg?react";
 import AuthLayout from "../layouts/AuthLayout";
+import toast from "react-hot-toast";
+import { handleError } from "@/utils/errorHandler";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,15 +22,16 @@ export default function Login() {
         password,
         rememberMe,
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["profile"],
-      })
-      navigate("/");
-    },
-    onError: (err) => {
-      alert(err);
-    },
+    onSuccess: () =>
+      queryClient
+        .invalidateQueries({
+          queryKey: ["profile"],
+        })
+        .then(() => {
+          navigate("/");
+          toast.success("Login successfully");
+        }),
+    onError: handleError,
   });
 
   const {

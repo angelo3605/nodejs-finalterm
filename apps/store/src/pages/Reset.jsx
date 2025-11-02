@@ -6,6 +6,8 @@ import { api } from "@mint-boutique/axios-client";
 import { FaSpinner } from "react-icons/fa6";
 import AuthLayout from "../layouts/AuthLayout";
 import { useNavigate, useSearchParams } from "react-router";
+import { handleError } from "@/utils/errorHandler";
+import toast from "react-hot-toast";
 
 export default function Reset() {
   const [searchParams] = useSearchParams();
@@ -19,15 +21,16 @@ export default function Reset() {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationFn: ({ password }) => api.post("/auth/reset", { token, password }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["profile"],
-      })
-      navigate("/login");
-    },
-    onError: (err) => {
-      alert(err);
-    },
+    onSuccess: () =>
+      queryClient
+        .invalidateQueries({
+          queryKey: ["profile"],
+        })
+        .then(() => {
+          navigate("/login");
+          toast.success("Reset successfully! Please login again");
+        }),
+    onError: handleError,
   });
 
   const {

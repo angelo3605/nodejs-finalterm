@@ -11,7 +11,7 @@ export const productSchema = z.object({
 
 export const productSortingSchema = z
   .object({
-    sortBy: z.enum(["name", "price", "createdAt", "updatedAt"]),
+    sortBy: z.enum(["name", "price", "createdAt", "updatedAt", "mostOrders"]),
     sortInAsc: z.coerce.number().int().min(0).max(1).transform(Boolean).default(true),
   })
   .partial();
@@ -24,5 +24,6 @@ export const productFilteringSchema = z
     maxPrice: z.coerce.number().min(0),
     category: z.string().trim().nonempty(),
     brands: z.string().transform((value) => (value ? value.replace(/ /g, "").split(",") : [])),
+    isDeleted: z.coerce.number().int().min(0).max(1).transform(Boolean).default(false),
   })
   .partial();

@@ -1,11 +1,11 @@
 import prisma from "../prisma/client.js";
 
 export const createVariantService = async (data) => {
-  return await prisma.productVariant.create({ data });
+  return prisma.productVariant.create({ data });
 };
 
 export const updateVariantService = async (id, data) => {
-  return await prisma.productVariant.update({
+  return prisma.productVariant.update({
     where: { id },
     data,
   });
@@ -26,8 +26,7 @@ export const getAllVariantsService = async ({ productSlug }, { page, pageSize })
 };
 
 export const getVariantByIdService = async (id) => {
-  const variant = await prisma.productVariant.findUnique({
+  return await prisma.productVariant.findUnique({
     where: { id },
   });
-  return variant;
 };
