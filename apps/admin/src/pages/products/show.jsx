@@ -24,6 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { useMemo } from "react";
+import { longCurrencyFormatter } from "@mint-boutique/formatters";
 
 export function ShowProduct() {
   const { slug } = useParams();
@@ -35,16 +36,6 @@ export function ShowProduct() {
     id: slug,
   });
   const product = data?.data;
-
-  const formatter = useMemo(
-    () =>
-      new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-        maximumFractionDigits: 2,
-      }),
-    [],
-  );
 
   return (
     <ShowView>
@@ -83,7 +74,9 @@ export function ShowProduct() {
                   {product?.variants.map((variant) => (
                     <TableRow key={variant.id}>
                       <TableCell>{variant.name}</TableCell>
-                      <TableCell>{formatter.format(variant.price)}</TableCell>
+                      <TableCell>
+                        {longCurrencyFormatter.format(variant.price)}
+                      </TableCell>
                       <TableCell>{variant.stockQuantity}</TableCell>
                     </TableRow>
                   ))}

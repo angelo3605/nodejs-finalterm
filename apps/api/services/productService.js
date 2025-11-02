@@ -1,6 +1,8 @@
 import slugify from "slugify";
 import prisma from "../prisma/client.js";
 
+const MAX_FEATURED = 5;
+
 const productSelect = {
   id: true,
   slug: true,
@@ -9,8 +11,9 @@ const productSelect = {
   imageUrls: true,
   createdAt: true,
   updatedAt: true,
-  brand: { where: { isDeleted: false } },
-  category: { where: { isDeleted: false } },
+  brand: true,
+  category: true,
+  isFeatured: true,
   variants: {
     where: { isDeleted: false },
     select: {
@@ -22,77 +25,192 @@ const productSelect = {
       updatedAt: true,
     },
   },
+  ratings: {
+    select: {
+      id: true,
+      stars: true,
+      review: true,
+      user: {
+        select: {
+          fullName: true,
+        },
+      },
+      createdAt: true,
+      updatedAt: true,
+    },
+  },
+  comments: {
+    select: {
+      id: true,
+      senderName: true,
+      message: true,
+      createdAt: true,
+      replies: {
+        select: {
+          id: true,
+          senderName: true,
+          message: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+      },
+    },
+    where: {
+      parent: null,
+    },
+    orderBy: { createdAt: "desc" },
+  },
 };
 
-export const createProductService = async ({ name, desc, imageUrls, brand, category }) => {
-  const slug = slugify(name, { lower: true });
+export const createProductService = async (data) => {
   if (
-    await prisma.product.findUnique({
-      where: { slug },
-    })
+    data.isFeatured &&
+    (await prisma.product.count({
+      where: { isFeatured: true },
+    })) > MAX_FEATURED
   ) {
-    throw new Error("Product already exists");
+    throw new Error(`Only ${MAX_FEATURED} featured products allowed`);
   }
-  return await prisma.product.create({
+
+  const slug = slugify(data.name, { lower: true });
+  return prisma.product.create({
     data: {
+      ...data,
       slug,
-      name,
-      desc,
-      imageUrls,
-      brand: brand ? { connect: { slug: brand } } : undefined,
-      category: category ? { connect: { slug: category } } : undefined,
+      brand: data.brand
+        ? {
+          connect: { slug: data.brand },
+        }
+        : undefined,
+      category: data.category
+        ? {
+          connect: { slug: data.category },
+        }
+        : undefined,
     },
     select: productSelect,
   });
 };
 
-export const getAllProductsService = async (page = 1, pageSize = 10) => {
-  const count = await prisma.product.count();
-  const products = await prisma.product.findMany({
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-    where: { isDeleted: false },
-    select: productSelect,
-  });
-  return { products, count };
+export const getAllProductsService = async (sorting, filtering, { page, pageSize }) => {
+  const { sortBy, sortInAsc } = sorting;
+  const { name, minPrice, maxPrice, category, brands, isFeatured } = filtering;
+
+  const where = {
+    isFeatured: isFeatured || undefined,
+    isDeleted: false,
+    name: name
+      ? {
+          contains: name,
+          mode: "insensitive",
+        }
+      : undefined,
+    variants:
+      minPrice || maxPrice
+        ? {
+            some: {
+              price: {
+                gte: minPrice,
+                lte: maxPrice,
+              },
+            },
+          }
+        : undefined,
+    brand: brands?.length
+      ? {
+          slug: { in: brands },
+        }
+      : undefined,
+    category: category
+      ? {
+          slug: category,
+        }
+      : undefined,
+  };
+
+  const sortOrder = sortInAsc ? "asc" : "desc";
+
+  const [total, data] = await Promise.all([
+    prisma.product.count({ where }),
+    prisma.product.findMany({
+      where,
+      select: productSelect,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      orderBy:
+        sortBy && sortBy !== "mostOrders"
+          ? sortBy === "price"
+            ? {
+                variants: {
+                  _min: { price: sortOrder },
+                },
+              }
+            : {
+                [sortBy]: sortOrder,
+              }
+          : { createdAt: "desc" },
+    }),
+  ]);
+
+  if (sortBy === "mostOrders") {
+    const orderCounts = await prisma.orderItem.groupBy({
+      by: ["productSlug"],
+      _sum: { quantity: true },
+    });
+    data.sort((a, b) => {
+      const getSumQuantity = (slug) => orderCounts.find(({ productSlug }) => productSlug === slug)?._sum.quantity ?? 0;
+      const _a = getSumQuantity(a.slug);
+      const _b = getSumQuantity(b.slug);
+      return sortInAsc ? _b - _a : _a - _b;
+    });
+  }
+
+  return { data, total };
 };
 
 export const getDeletedProductsService = async () => {
-  return await prisma.product.findMany({
+  return prisma.product.findMany({
     where: { isDeleted: true },
     select: productSelect,
   });
 };
 
 export const getProductBySlugService = async (slug) => {
-  const product = await prisma.product.findUnique({
+  return prisma.product.findUnique({
     where: { slug },
     select: productSelect,
   });
-  if (!product) {
-    throw new Error("Product not found");
-  }
-  return product;
 };
 
-export const updateProductService = async (slug, { name, desc, imageUrls, brand, category, isDeleted }) => {
+export const updateProductService = async (slug, data) => {
   if (
-    !(await prisma.product.count({
-      where: { slug },
-    }))
+    data.isFeatured &&
+    (await prisma.product.count({
+      where: {
+        isFeatured: true,
+        NOT: { slug },
+      },
+    })) > MAX_FEATURED
   ) {
-    throw new Error("Product not found");
+    throw new Error(`Only ${MAX_FEATURED} featured products allowed`);
   }
-  return await prisma.product.update({
+
+  const newSlug = data.name ? slugify(data.name, { lower: true }) : undefined;
+  return prisma.product.update({
     where: { slug },
     data: {
-      slug: name ? slugify(name, { lower: true }) : undefined,
-      name,
-      desc,
-      imageUrls,
-      isDeleted,
-      brand: brand ? { connect: { slug: brand } } : undefined,
-      category: category ? { connect: { slug: category } } : undefined,
+      ...data,
+      slug: newSlug,
+      brand: data.brand
+        ? {
+          connect: { slug: data.brand },
+        }
+        : undefined,
+      category: data.category
+        ? {
+          connect: { slug: data.category },
+        }
+        : undefined,
     },
     select: productSelect,
   });

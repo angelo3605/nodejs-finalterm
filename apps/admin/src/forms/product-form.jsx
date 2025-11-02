@@ -10,11 +10,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
 import { useSelect } from "@refinedev/core";
 import { useEffect } from "react";
 import { TiptapEditor } from "@/components/tiptap-editor";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export function ProductForm({ refineForm }) {
   const {
@@ -26,14 +27,14 @@ export function ProductForm({ refineForm }) {
     resource: "brands",
     optionLabel: "name",
     optionValue: "slug",
-    defaultValue: query?.data?.data.brand.slug,
+    defaultValue: query?.data?.data.brand?.slug,
   });
 
   const { options: categories } = useSelect({
     resource: "categories",
     optionLabel: "name",
     optionValue: "slug",
-    defaultValue: query?.data?.data.category.slug,
+    defaultValue: query?.data?.data.category?.slug,
   });
 
   useEffect(() => {
@@ -53,6 +54,20 @@ export function ProductForm({ refineForm }) {
         </Button>
         <div className="grid md:grid-cols-[2fr_3fr] gap-4">
           <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="isFeatured"
+              render={({ field }) => (
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="isFeatured"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                  <Label htmlFor="isFeatured">Featured</Label>
+                </div>
+              )}
+            />
             <FormField
               control={form.control}
               name="name"

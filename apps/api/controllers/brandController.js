@@ -2,31 +2,46 @@ import { createBrandService, getAllBrandsService, getBrandBySlugService, updateB
 
 export const getAllBrands = async (req, res) => {
   const brands = await getAllBrandsService();
-  return res.json({ brands });
+  return res.json({
+    data: brands,
+  });
 };
 
 export const getBrandBySlug = async (req, res) => {
   const brand = await getBrandBySlugService(req.params.slug);
-  return res.json({ brand });
+  return res.json({
+    data: brand,
+  });
 };
 
 export const createBrand = async (req, res) => {
   const brand = await createBrandService(req.body);
-  return res.json({ brand });
+  return res.json({
+    data: brand,
+  });
 };
 
 export const updateBrand = async (req, res) => {
-  const { isDeleted, ...data } = req.body;
-  const brand = await updateBrandService(req.params.slug, data);
-  return res.json({ brand });
+  const brand = await updateBrandService(req.params.slug, req.body);
+  return res.json({
+    data: brand,
+  });
 };
 
 export const deleteBrand = async (req, res) => {
-  const brand = await updateBrandService(req.params.slug, { isDeleted: true });
-  return res.json({ brand });
+  const brand = await updateBrandService(req.params.slug, {
+    isDeleted: true,
+  });
+  return res.json({
+    data: brand,
+  });
 };
 
 export const restoreBrand = async (req, res) => {
-  const brand = await updateBrandService(req.params.slug, { isDeleted: false });
-  return res.json({ brand });
+  const brand = await updateBrandService(req.params.slug, {
+    isDeleted: false,
+  });
+  return res.json({
+    data: brand,
+  });
 };

@@ -52,19 +52,22 @@ function ImagePreviews({ imageUrls, onClick }) {
       <>
         <div className="flex gap-2 p-2 h-40">
           {imageUrls || (Array.isArray(imageUrls) && imageUrls.length > 0) ? (
-            (Array.isArray(imageUrls) ? imageUrls : [imageUrls]).map((url) => (
-              <button
-                onClick={() => onClick(url)}
-                className="group cursor-pointer relative"
-              >
-                <img
-                  key={url}
-                  src={url}
-                  className="rounded-sm object-contain h-full"
-                />
-                <X className="box-content size-5 p-1 absolute top-2 right-2 text-white bg-black/33 rounded-full group-[:not(:hover)]:opacity-0 transition" />
-              </button>
-            ))
+            (Array.isArray(imageUrls) ? imageUrls : [imageUrls]).map(
+              (url, i) => (
+                <button
+                  key={i}
+                  onClick={() => onClick(url)}
+                  className="group flex justify-end p-2 cursor-pointer aspect-square rounded-sm"
+                  style={{
+                    background: `url(${url})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                >
+                  <X className="box-content size-5 p-1 text-white bg-black/33 rounded-full group-[:not(:hover)]:opacity-0 transition" />
+                </button>
+              ),
+            )
           ) : (
             <Empty>
               <EmptyHeader>
@@ -172,7 +175,7 @@ export function ImagePicker({ control, name, maxFiles, label }) {
                               <img
                                 src={imageUrl}
                                 alttext={image.altText ?? image.id}
-                                className="shrink-0 size-[40px] object-cover rounded-sm"
+                                className="shrink-0 size-10 object-cover rounded-sm"
                               />
                               <p className="truncate">
                                 {image.altText ?? (

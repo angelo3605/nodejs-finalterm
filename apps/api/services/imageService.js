@@ -12,7 +12,7 @@ export const addImageService = async (files) => {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  const images = await Promise.all(
+  return await Promise.all(
     files.map(async (file) => {
       const newImage = await prisma.image.create({
         data: {
@@ -28,34 +28,25 @@ export const addImageService = async (files) => {
 
       const imageUrl = `/uploads/${filename}`;
 
-      return await prisma.image.update({
+      return prisma.image.update({
         where: { id: newImage.id },
         data: { url: imageUrl },
       });
     }),
   );
-
-  return images;
 };
 
 export const updateImageAltTextService = async (id, altText) => {
-  const updatedImage = await prisma.image.update({
+  return prisma.image.update({
     where: { id },
     data: { altText },
   });
-  if (!updatedImage) {
-    throw new Error("Cannot find image");
-  }
-  return updatedImage;
 };
 
 export const deleteImageService = async (id) => {
   const image = await prisma.image.findUnique({
     where: { id },
   });
-  if (!image) {
-    throw new Error("Cannot find image");
-  }
 
   const uploadDir = path.resolve("public/uploads");
   const filepath = path.join(uploadDir, `${id}${path.extname(image.url)}`);
@@ -64,27 +55,24 @@ export const deleteImageService = async (id) => {
     fs.unlinkSync(filepath);
   }
 
-  await prisma.image.delete({ where: { id } });
-
-  return image;
+  return prisma.image.delete({
+    where: { id },
+  });
 };
 
-export const getAllImagesService = async (page, pageSize) => {
-  const count = await prisma.image.count();
-  const images = await prisma.image.findMany({
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-  });
-
-  return { images, count };
+export const getAllImagesService = async ({ page, pageSize }) => {
+  const [total, data] = await Promise.all([
+    prisma.image.count(),
+    prisma.image.findMany({
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+  ]);
+  return { data, total };
 };
 
 export const getImageByIdService = async (id) => {
-  const image = await prisma.image.findUnique({
+  return prisma.image.findUnique({
     where: { id },
   });
-  if (!image) {
-    throw new Error("Cannot find image");
-  }
-  return image;
 };

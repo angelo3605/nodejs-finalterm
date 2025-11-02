@@ -4,6 +4,11 @@ import { EditButton } from "@/components/refine-ui/buttons/edit";
 import { ShowButton } from "@/components/refine-ui/buttons/show";
 import { DataTable } from "@/components/refine-ui/data-table/data-table";
 import {
+  DataTableFilterCombobox,
+  DataTableFilterDropdownText,
+} from "@/components/refine-ui/data-table/data-table-filter";
+import { DataTableSorter } from "@/components/refine-ui/data-table/data-table-sorter";
+import {
   ListView,
   ListViewHeader,
 } from "@/components/refine-ui/views/list-view";
@@ -23,10 +28,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { longCurrencyFormatter } from "@mint-boutique/formatters";
+import { useSelect } from "@refinedev/core";
 import { useTable } from "@refinedev/react-table";
 import {
   ChevronDown,
   ChevronUp,
+  Crown,
   Package,
   Pencil,
   Trash,
@@ -35,6 +43,18 @@ import {
 import { useMemo } from "react";
 
 export function ListProducts() {
+  const { options: brands } = useSelect({
+    resource: "brands",
+    optionLabel: "name",
+    optionValue: "slug",
+  });
+
+  const { options: categories } = useSelect({
+    resource: "categories",
+    optionLabel: "name",
+    optionValue: "slug",
+  });
+
   const columns = useMemo(() => [
     {
       id: "expander",
@@ -52,8 +72,19 @@ export function ListProducts() {
     },
     {
       id: "name",
-      header: "Name",
       size: 300,
+      header: ({ column, table }) => (
+        <div className="flex items-center gap-1">
+          <span>Name</span>
+          <DataTableFilterDropdownText
+            operators={["contains"]}
+            column={column}
+            table={table}
+            placeholder="Search for products"
+          />
+          <DataTableSorter column={column} />
+        </div>
+      ),
       cell: ({ row: { original: product } }) => (
         <div className="flex items-center gap-4">
           {product.imageUrls.length > 0 ? (
@@ -66,9 +97,17 @@ export function ListProducts() {
               <Package className="opacity-33" />
             </div>
           )}
+          {product.isFeatured && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Crown className="size-5 text-yellow-500" />
+              </TooltipTrigger>
+              <TooltipContent>Featured</TooltipContent>
+            </Tooltip>
+          )}
           <ShowButton
             variant="link"
-            className="text-foreground"
+            className="text-foreground p-0"
             recordItemId={product.slug}
             meta={{ slug: product.slug }}
           >
@@ -80,13 +119,33 @@ export function ListProducts() {
     {
       id: "category",
       accessorKey: "category.name",
-      header: "Category",
+      header: ({ column }) => (
+        <div className="flex items-center gap-1">
+          <span>Category</span>
+          <DataTableFilterCombobox
+            column={column}
+            operators={["in"]}
+            multiple={false}
+            options={categories}
+          />
+        </div>
+      ),
       size: 120,
     },
     {
-      id: "brand",
+      id: "brands",
       accessorKey: "brand.name",
-      header: "Brand",
+      header: ({ column }) => (
+        <div className="flex items-center gap-1">
+          <span>Brand</span>
+          <DataTableFilterCombobox
+            column={column}
+            operators={["in"]}
+            multiple={true}
+            options={brands}
+          />
+        </div>
+      ),
       size: 120,
     },
     {
@@ -126,16 +185,6 @@ export function ListProducts() {
     },
   } = table;
 
-  const formatter = useMemo(
-    () =>
-      new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-        maximumFractionDigits: 2,
-      }),
-    [],
-  );
-
   const renderSubComponent = ({ row: { original: product } }) => (
     <Table>
       <TableHeader className={cn(product.variants?.length > 0 && "border-b")}>
@@ -150,7 +199,7 @@ export function ListProducts() {
         {product.variants?.map((variant) => (
           <TableRow key={variant.id}>
             <TableCell>{variant.name}</TableCell>
-            <TableCell>{formatter.format(variant.price)}</TableCell>
+            <TableCell>{longCurrencyFormatter.format(variant.price)}</TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
                 {variant.stockQuantity}{" "}

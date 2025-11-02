@@ -1,30 +1,35 @@
-import { rateProductService, getProductRatingsService, updateProductRatingsService } from "../services/ratingService.js";
+import { getAllRatingsService, getAverageRatingService, upsertRatingService } from "../services/ratingService.js";
+import { getIo } from "../utils/socket.js";
 
-export const createRatingController = async (req, res) => {
-  const userId = req.user.id;
-  const { productId, stars } = req.body;
+export const rateProduct = async (req, res) => {
+  const rating = await upsertRatingService(
+    {
+      productSlug: req.params.slug,
+    },
+    {
+      userId: req.user.id,
+    },
+    req.body,
+  );
 
-  const rating = await rateProductService(userId, productId, stars);
+  getIo().of("/ratings").to(req.params.slug).emit("rating:new", rating);
 
-  req.io.emit("newRating", productId);
-
-  return res.status(201).json(rating);
+  return res.json({
+    data: rating,
+  });
 };
 
-export const getRatingsByProductController = async (req, res) => {
-  const { productId } = req.params;
-
-  const ratings = await getProductRatingsService(productId);
-  return res.status(200).json(ratings);
-};
-
-export const upsertRatingController = async (req, res) => {
-  const userId = req.user.id;
-  const { productId, stars } = req.body;
-
-  const rating = await updateProductRatingsService(userId, productId, stars);
-
-  req.io.emit("newRating", productId);
-
-  return res.status(200).json(rating);
+export const getAllRatings = async (req, res) => {
+  const ratings = await getAllRatingsService({
+    productSlug: req.params.slug,
+  });
+  const avgRating = await getAverageRatingService({
+    productSlug: req.params.slug,
+  });
+  return res.json({
+    data: {
+      ...avgRating,
+      ratings,
+    },
+  });
 };

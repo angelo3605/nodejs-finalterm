@@ -1,6 +1,6 @@
-import Logo from "@/assets/logo.svg?react";
-import FacebookLogo from "@/assets/oauth-icons/facebook.svg?react";
-import GoogleLogo from "@/assets/oauth-icons/google.svg?react";
+import Logo from "@mint-boutique/assets/logo.svg?react";
+import FacebookLogo from "@mint-boutique/assets/oauth-icons/facebook.svg?react";
+import GoogleLogo from "@mint-boutique/assets/oauth-icons/google.svg?react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,10 +27,20 @@ import { useForm } from "react-hook-form";
 import { loginSchema } from "@mint-boutique/zod-schemas";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { api } from "@mint-boutique/axios-client";
 
-function OauthButton({ provider, name, Icon, onCallback }) {
+function OauthButton({ provider, name, Icon }) {
+  const handleClick = () => {
+    window.location.href = `${api.defaults.baseURL}/auth/${provider}?redirectTo=admin`;
+  };
+
   return (
-    <Button variant="outline" className="w-full">
+    <Button
+      type="button"
+      variant="outline"
+      className="w-full"
+      onClick={handleClick}
+    >
       <Icon /> Login with {name}
     </Button>
   );

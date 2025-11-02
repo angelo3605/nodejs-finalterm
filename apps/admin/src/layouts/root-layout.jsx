@@ -4,7 +4,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { AppSidebar } from "@/components/app-sidebar";
 
-import Logo from "@/assets/logo.svg?react";
+import Logo from "@mint-boutique/assets/logo.svg?react";
 
 export function RootLayout() {
   return (
