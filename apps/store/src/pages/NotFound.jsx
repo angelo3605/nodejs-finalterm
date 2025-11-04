@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { Game } from "@/components/Game";
 
 export default function NotFound() {
   return (
@@ -8,6 +9,7 @@ export default function NotFound() {
       <Link to="/" className="btn btn-outline-dark">
         Return to home
       </Link>
+      <Game />
     </div>
   );
 }
