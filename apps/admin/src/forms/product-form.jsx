@@ -23,24 +23,34 @@ export function ProductForm({ refineForm }) {
     ...form
   } = refineForm;
 
-  const { options: brands } = useSelect({
+  const { brand, category } = query?.data?.data ?? {};
+
+  const {
+    options: brands,
+    query: { isLoading: isBrandLoading },
+  } = useSelect({
     resource: "brands",
     optionLabel: "name",
     optionValue: "slug",
-    defaultValue: query?.data?.data.brand?.slug,
+    defaultValue: brand?.slug,
   });
 
-  const { options: categories } = useSelect({
+  const {
+    options: categories,
+    query: { isLoading: isCategoryLoading },
+  } = useSelect({
     resource: "categories",
     optionLabel: "name",
     optionValue: "slug",
-    defaultValue: query?.data?.data.category?.slug,
+    defaultValue: category?.slug,
   });
 
   useEffect(() => {
-    form.setValue("brand", query?.data?.data.brand.slug);
-    form.setValue("category", query?.data?.data.category.slug);
+    form.setValue("brand", brand?.slug);
+    form.setValue("category", category?.slug);
   }, [brands, categories]);
+
+  const isLoading = formLoading || isBrandLoading || isCategoryLoading;
 
   return (
     <Form {...form}>
@@ -48,66 +58,71 @@ export function ProductForm({ refineForm }) {
         onSubmit={form.handleSubmit((values) => onFinish(values))}
         className="space-y-4"
       >
-        <Button type="submit" disabled={formLoading}>
-          {formLoading && <Spinner />}
+        <Button type="submit" disabled={isLoading}>
+          {isLoading && <Spinner />}
           Confirm
         </Button>
-        <div className="grid md:grid-cols-[2fr_3fr] gap-4">
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="isFeatured"
-              render={({ field }) => (
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="isFeatured"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                  <Label htmlFor="isFeatured">Featured</Label>
-                </div>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Product name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter product name..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <ComboBox
-              control={form.control}
-              name="category"
-              options={categories}
-              label="Category"
-            />
-            <ComboBox
-              control={form.control}
-              name="brand"
-              options={brands}
-              label="Brand"
-            />
-            <ImagePicker
-              control={form.control}
-              name="imageUrls"
-              maxFiles={10}
-              label="Images"
-            />
-          </div>
-          <div className="space-y-4">
-            <TiptapEditor
-              control={form.control}
-              name="desc"
-              label="Description"
-              height={428}
-            />
-          </div>
+        <div className="grid @xl:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="isFeatured"
+            disabled={isLoading}
+            render={({ field }) => (
+              <div className="flex items-center space-x-2 @xl:col-span-2">
+                <Switch
+                  id="isFeatured"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+                <Label htmlFor="isFeatured">Featured</Label>
+              </div>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="name"
+            disabled={isLoading}
+            render={({ field }) => (
+              <FormItem className="@xl:col-span-2">
+                <FormLabel>Product name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter product name..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <ComboBox
+            control={form.control}
+            name="category"
+            options={categories}
+            label="Category"
+            disabled={isLoading}
+          />
+          <ComboBox
+            control={form.control}
+            name="brand"
+            options={brands}
+            label="Brand"
+            disabled={isLoading}
+          />
+          <ImagePicker
+            control={form.control}
+            name="imageUrls"
+            maxFiles={10}
+            label="Images"
+            className="@xl:col-span-2"
+            disabled={isLoading}
+          />
+          <TiptapEditor
+            control={form.control}
+            name="desc"
+            label="Description"
+            height={428}
+            className="@xl:col-span-2"
+            disabled={isLoading}
+            placeholder={"Write something!"}
+          />
         </div>
       </form>
     </Form>

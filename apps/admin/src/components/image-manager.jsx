@@ -23,6 +23,8 @@ import {
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
 import { DeleteButton } from "./refine-ui/buttons/delete";
+import { Image } from "@/components/image.jsx";
+import { formatDate } from "date-fns";
 
 function AltTextPopover({ id, defaultValue, onSuccess }) {
   const [open, setOpen] = useState(false);
@@ -87,9 +89,9 @@ export function ImageManager({ onRefresh }) {
         cell: ({ row }) => {
           return (
             <div className="flex items-center gap-2">
-              <img
+              <Image
                 src={`${api.defaults.baseURL}${row.original.url}`}
-                className="shrink-0 size-[40px] object-cover rounded-sm"
+                className="shrink-0 size-[40px] object-cover rounded-sm border"
               />
               <span
                 className={cn(
@@ -107,6 +109,8 @@ export function ImageManager({ onRefresh }) {
         id: "createdAt",
         accessorKey: "createdAt",
         header: "Upload date",
+        cell: ({ getValue }) =>
+          formatDate(new Date(getValue()), "dd/MM/yyyy HH:mm:ss"),
       },
       {
         id: "actions",

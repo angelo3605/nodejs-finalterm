@@ -25,6 +25,7 @@ import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { useMemo } from "react";
 import { longCurrencyFormatter } from "@mint-boutique/formatters";
+import { Image } from "@/components/image.jsx";
 
 export function ShowProduct() {
   const { slug } = useParams();
@@ -47,7 +48,7 @@ export function ShowProduct() {
               <CarouselContent>
                 {product?.imageUrls.map((url) => (
                   <CarouselItem key={url} className="aspect-4/5">
-                    <img
+                    <Image
                       src={url}
                       className="size-full object-cover bg-muted rounded-xl"
                     />

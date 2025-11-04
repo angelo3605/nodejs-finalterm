@@ -29,12 +29,12 @@ export function DiscountCodeForm({ refineForm }) {
           {formLoading && <Spinner />}
           Confirm
         </Button>
-        <div className="grid grid-cols-2 items-start gap-4">
+        <div className="grid @xl:grid-cols-2 items-start gap-4">
           <FormField
             control={form.control}
             name="code"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="@xl:col-span-2">
                 <FormLabel>Discount code</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter discount code..." {...field} />
@@ -67,22 +67,6 @@ export function DiscountCodeForm({ refineForm }) {
           />
           <FormField
             control={form.control}
-            name="desc"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Enter a short description..."
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="usageLimit"
             render={({ field }) => (
               <FormItem>
@@ -105,6 +89,22 @@ export function DiscountCodeForm({ refineForm }) {
                 <FormLabel>Number of usage</FormLabel>
                 <FormControl>
                   <Input placeholder="Only use when overriding!" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="desc"
+            render={({ field }) => (
+              <FormItem className="@xl:col-span-2">
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Enter a short description..."
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

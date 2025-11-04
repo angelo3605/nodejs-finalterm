@@ -75,7 +75,7 @@ const resources = [
     name: "products",
     list: "/products",
     create: "/products/create",
-    show: "/products/show/:slug",
+    // show: "/products/show/:slug",
     edit: "/products/edit/:slug",
     meta: {
       section: "Catalogue",
@@ -165,7 +165,7 @@ export function App() {
             <Route path="products">
               <Route index element={<ListProducts />} />
               <Route path="create" element={<CreateProduct />} />
-              <Route path="show/:slug" element={<ShowProduct />} />
+              {/*<Route path="show/:slug" element={<ShowProduct />} />*/}
               <Route path="edit/:slug" element={<EditProduct />} />
               <Route path=":slug/variants">
                 <Route

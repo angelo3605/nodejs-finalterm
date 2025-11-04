@@ -28,23 +28,26 @@ export function CategoryForm({ refineForm }) {
           {formLoading && <Spinner />}
           Confirm
         </Button>
-        <div className="grid grid-cols-2 items-start gap-4">
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter category name..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <ImagePicker control={form.control} name="imageUrl" maxFiles={1} />
-          </div>
+        <div className="grid items-start gap-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter category name..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <ImagePicker
+            control={form.control}
+            name="imageUrl"
+            label="Image"
+            maxFiles={1}
+          />
           <FormField
             control={form.control}
             name="desc"
@@ -52,11 +55,7 @@ export function CategoryForm({ refineForm }) {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Enter description..."
-                    className="h-[258px]"
-                    {...field}
-                  />
+                  <Textarea placeholder="Enter description..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

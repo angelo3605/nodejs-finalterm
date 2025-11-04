@@ -24,6 +24,7 @@
     "@refinedev/react-table": "^6.0.0",
     "@tailwindcss/vite": "^4.1.13",
     "@tanstack/react-table": "^8.21.3",
+    "@tiptap/extensions": "^3.10.1",
     "@tiptap/markdown": "^3.7.2",
     "@tiptap/pm": "^3.7.2",
     "@tiptap/react": "^3.7.2",

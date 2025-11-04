@@ -41,6 +41,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { useMemo } from "react";
+import { Image } from "@/components/image.jsx";
 
 export function ListProducts() {
   const { options: brands } = useSelect({
@@ -87,16 +88,10 @@ export function ListProducts() {
       ),
       cell: ({ row: { original: product } }) => (
         <div className="flex items-center gap-4">
-          {product.imageUrls.length > 0 ? (
-            <img
-              src={product.imageUrls[0]}
-              className="shrink-0 size-12 object-cover rounded-sm"
-            />
-          ) : (
-            <div className="flex justify-center items-center shrink-0 size-12 bg-muted text-muted-foreground rounded-sm">
-              <Package className="opacity-33" />
-            </div>
-          )}
+          <Image
+            src={product.imageUrls?.[0]}
+            className="shrink-0 size-12 object-cover rounded-sm"
+          />
           {product.isFeatured && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -105,20 +100,25 @@ export function ListProducts() {
               <TooltipContent>Featured</TooltipContent>
             </Tooltip>
           )}
-          <ShowButton
-            variant="link"
-            className="text-foreground p-0"
-            recordItemId={product.slug}
-            meta={{ slug: product.slug }}
-          >
-            {product.name}
-          </ShowButton>
+          <span className="font-medium">{product.name}</span>
+          {/*<ShowButton*/}
+          {/*  variant="link"*/}
+          {/*  className="text-foreground p-0"*/}
+          {/*  recordItemId={product.slug}*/}
+          {/*  meta={{ slug: product.slug }}*/}
+          {/*>*/}
+          {/*  {product.name}*/}
+          {/*</ShowButton>*/}
         </div>
       ),
     },
     {
       id: "category",
-      accessorKey: "category.name",
+      cell: ({ row: { original: product } }) => (
+        <span className={cn(product.category?.name || "opacity-75")}>
+          {product.category?.name || "No category"}
+        </span>
+      ),
       header: ({ column }) => (
         <div className="flex items-center gap-1">
           <span>Category</span>
@@ -133,8 +133,12 @@ export function ListProducts() {
       size: 120,
     },
     {
-      id: "brands",
-      accessorKey: "brand.name",
+      id: "brand",
+      cell: ({ row: { original: product } }) => (
+        <span className={cn(product.brand?.name || "opacity-75")}>
+          {product.brand?.name || "No brand"}
+        </span>
+      ),
       header: ({ column }) => (
         <div className="flex items-center gap-1">
           <span>Brand</span>

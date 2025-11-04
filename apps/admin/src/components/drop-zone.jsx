@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { Button } from "./ui/button";
 import { FormField, FormItem, FormLabel } from "./ui/form";
 import { Trash, Upload } from "lucide-react";
+import { Image } from "@/components/image.jsx";
 
 const constructKey = (file) => file.name + file.lastModified;
 
@@ -41,7 +42,7 @@ export function FilePreviews({ files, onRemove }) {
             className="grid grid-cols-[auto_1fr_auto] items-center gap-4 border rounded-md overflow-hidden pr-1.5"
           >
             {url ? (
-              <img src={url} alt={file.name} className="size-12 object-cover" />
+              <Image src={url} alt={file.name} className="size-12 object-cover" />
             ) : (
               <div></div>
             )}

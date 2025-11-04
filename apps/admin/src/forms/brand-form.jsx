@@ -28,7 +28,7 @@ export function BrandForm({ refineForm }) {
           {formLoading && <Spinner />}
           Confirm
         </Button>
-        <div className="grid grid-cols-2 items-start gap-4">
+        <div className="grid items-start gap-4">
           <FormField
             control={form.control}
             name="name"

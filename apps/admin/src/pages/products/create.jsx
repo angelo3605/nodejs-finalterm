@@ -16,6 +16,7 @@ export function CreateProduct() {
       imageUrls: [],
       brand: "",
       category: "",
+      isFeatured: false,
     },
     refineCoreProps: {
       resource: "products",

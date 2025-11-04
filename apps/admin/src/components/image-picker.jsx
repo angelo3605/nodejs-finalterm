@@ -43,31 +43,41 @@ import {
   X,
 } from "lucide-react";
 import { ImageManager } from "./image-manager";
+import { Image } from "@/components/image.jsx";
+import { formatDate } from "date-fns";
+import { LoadingOverlay } from "@/components/refine-ui/layout/loading-overlay.jsx";
+import { Spinner } from "@/components/ui/spinner.jsx";
 
 // TODO: Array checking is rudimentary. Will improve later
 
-function ImagePreviews({ imageUrls, onClick }) {
+function ImagePreviews({ imageUrls, onClick, disabled, isLoading }) {
+  const urls = [].concat(imageUrls).filter(Boolean);
   return (
-    <ScrollArea className="w-full rounded-md border">
+    <ScrollArea
+      className={cn(
+        "min-w-1 w-full rounded-md border",
+        disabled && "opacity-75",
+      )}
+    >
       <>
         <div className="flex gap-2 p-2 h-40">
-          {imageUrls || (Array.isArray(imageUrls) && imageUrls.length > 0) ? (
-            (Array.isArray(imageUrls) ? imageUrls : [imageUrls]).map(
-              (url, i) => (
-                <button
-                  key={i}
-                  onClick={() => onClick(url)}
-                  className="group flex justify-end p-2 cursor-pointer aspect-square rounded-sm"
-                  style={{
-                    background: `url(${url})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                >
-                  <X className="box-content size-5 p-1 text-white bg-black/33 rounded-full group-[:not(:hover)]:opacity-0 transition" />
-                </button>
-              ),
-            )
+          {isLoading ? (
+            <Spinner className="size-8 opacity-50 self-center mx-auto" />
+          ) : urls.length ? (
+            urls.map((url, i) => (
+              <button
+                key={i}
+                onClick={() => onClick(url)}
+                disabled={disabled}
+                className="group relative flex justify-end p-2 cursor-pointer aspect-square rounded-sm overflow-hidden disabled:cursor-not-allowed border"
+              >
+                <Image
+                  src={url}
+                  className="absolute w-full h-full top-0 left-0 object-cover pointer-events-none"
+                />
+                <X className="box-content size-5 p-1 text-white bg-black/33 rounded-full opacity-100 group-[:not(:hover),:disabled]:opacity-0 transition z-10" />
+              </button>
+            ))
           ) : (
             <Empty>
               <EmptyHeader>
@@ -110,7 +120,14 @@ function ImageManagerDialog({ onRefresh }) {
   );
 }
 
-export function ImagePicker({ control, name, maxFiles, label }) {
+export function ImagePicker({
+  control,
+  name,
+  maxFiles,
+  label,
+  className,
+  disabled,
+}) {
   const {
     query: { isLoading, refetch },
     result: { data },
@@ -129,13 +146,17 @@ export function ImagePicker({ control, name, maxFiles, label }) {
       name={name}
       defaultValues={[]}
       render={({ field }) => (
-        <FormItem>
+        <FormItem className={className}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
-            <div className="space-y-2">
+            <div className="space-y-2 min-w-0 ">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-60">
+                  <Button
+                    variant="outline"
+                    className="w-full max-w-60"
+                    disabled={disabled}
+                  >
                     <ImagePlus />
                     Add {maxFiles} images...
                     <ChevronsUpDown className="ml-auto" />
@@ -172,10 +193,10 @@ export function ImagePicker({ control, name, maxFiles, label }) {
                               value={image.altText ?? image.id}
                               onSelect={handleSelect}
                             >
-                              <img
+                              <Image
                                 src={imageUrl}
                                 alttext={image.altText ?? image.id}
-                                className="shrink-0 size-10 object-cover rounded-sm"
+                                className="shrink-0 size-10 object-cover rounded-sm border"
                               />
                               <p className="truncate">
                                 {image.altText ?? (
@@ -185,7 +206,10 @@ export function ImagePicker({ control, name, maxFiles, label }) {
                                 )}
                                 <br />
                                 <span className="text-sm opacity-75">
-                                  {image.createdAt}
+                                  {formatDate(
+                                    new Date(image.createdAt),
+                                    "dd/MM/yyyy HH:mm:ss",
+                                  )}
                                 </span>
                               </p>
                               <Check
@@ -209,6 +233,8 @@ export function ImagePicker({ control, name, maxFiles, label }) {
               </Popover>
               <ImagePreviews
                 imageUrls={field.value}
+                disabled={disabled}
+                isLoading={isLoading}
                 onClick={(imageUrl) =>
                   field.onChange(
                     Array.isArray(field.value)

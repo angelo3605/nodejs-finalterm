@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUpdate } from "@refinedev/core";
+import { useNotification, useUpdate } from "@refinedev/core";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -28,6 +28,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { longCurrencyFormatter } from "@mint-boutique/formatters";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const statusColors = {
   PENDING: "bg-chart-5/10! *:text-chart-5!",
@@ -38,6 +43,8 @@ const statusColors = {
 };
 
 export function ListOrders() {
+  const { open } = useNotification();
+
   const columns = useMemo(() => [
     {
       id: "expander",
@@ -55,8 +62,30 @@ export function ListOrders() {
     },
     {
       id: "id",
-      header: "Confirmation ID",
-      cell: ({ row: { original: order } }) => <pre>{order.id}</pre>,
+      header: "Order ID",
+      size: 80,
+      cell: ({ row: { original: order } }) => (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="cursor-pointer hover:underline"
+              onClick={async () => {
+                await navigator.clipboard.writeText(order.id);
+                open?.({
+                  type: "success",
+                  message: "Success",
+                  description: "Copied to clipboard",
+                });
+              }}
+            >
+              <pre>{order.id.slice(-6)}</pre>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <pre>{order.id}</pre>
+          </TooltipContent>
+        </Tooltip>
+      ),
     },
     {
       id: "createdAt",

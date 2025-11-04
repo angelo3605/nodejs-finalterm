@@ -69,7 +69,7 @@ export function LoginPage() {
     <div className="min-h-screen flex justify-center items-center bg-leaves">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <Logo className="size-20 -mt-16 mx-auto" />
+          <Logo className="size-20 -mt-16 mx-auto hover:animate-spin" />
           <CardTitle>Welcome back!</CardTitle>
           <CardDescription>
             Please login with an account to continue

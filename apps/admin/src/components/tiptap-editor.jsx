@@ -14,6 +14,7 @@ import {
   FormControl,
 } from "./ui/form";
 import { useEffect } from "react";
+import { Placeholder } from "@tiptap/extensions";
 
 const menuItems = [
   {
@@ -111,14 +112,26 @@ function MenuBar({ editor }) {
   });
 }
 
-export function TiptapEditor({ control, name, label, height }) {
+export function TiptapEditor({
+  control,
+  name,
+  label,
+  height,
+  className,
+  disabled,
+  placeholder,
+}) {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => {
         const editor = useEditor({
-          extensions: [StarterKit, Markdown],
+          extensions: [
+            StarterKit,
+            Markdown,
+            Placeholder.configure({ placeholder }),
+          ],
           content: "",
           contentType: "markdown",
           onUpdate: ({ editor }) => field.onChange(editor.getMarkdown()),
@@ -135,8 +148,12 @@ export function TiptapEditor({ control, name, label, height }) {
           }
         }, [field.value, editor]);
 
+        useEffect(() => {
+          editor.setEditable(!disabled);
+        }, [disabled]);
+
         return (
-          <FormItem>
+          <FormItem className={className}>
             {label && <FormLabel>{label}</FormLabel>}
             <FormControl>
               <div>
@@ -146,13 +163,11 @@ export function TiptapEditor({ control, name, label, height }) {
                 >
                   <MenuBar editor={editor} />
                 </BubbleMenu>
-                <ScrollArea
-                  className="w-full dark:bg-input/30 border rounded-md shadow-xs focus-within:ring-3 focus-within:border-primary ring-primary/40 transition"
-                  style={{ height: height ?? 300 }}
-                >
+                <ScrollArea className="w-full dark:bg-input/30 border rounded-md shadow-xs focus-within:ring-3 focus-within:border-primary ring-primary/40 transition">
                   <EditorContent
                     editor={editor}
-                    className="prose-sm whitespace-pre-wrap wrap-break-word m-4"
+                    className="prose-sm whitespace-pre-wrap wrap-break-word m-4 flex-1 after:content-[''] after:block after:h-5"
+                    style={{ height: height ?? 300 }}
                   />
                 </ScrollArea>
               </div>

@@ -24,12 +24,17 @@ export function VariantForm({ refineForm }) {
     ...form
   } = refineForm;
 
-  const { options: products } = useSelect({
+  const {
+    options: products,
+    query: { isLoading: isProductLoading },
+  } = useSelect({
     resource: "products",
     optionLabel: "name",
     optionValue: "slug",
     defaultValue: query?.data?.data.productSlug,
   });
+
+  const isLoading = formLoading || isProductLoading;
 
   return (
     <Form {...form}>
@@ -37,11 +42,11 @@ export function VariantForm({ refineForm }) {
         onSubmit={form.handleSubmit((values) => onFinish(values))}
         className="space-y-4"
       >
-        <Button type="submit" disabled={formLoading}>
-          {formLoading && <Spinner />}
+        <Button type="submit" disabled={isLoading}>
+          {isLoading && <Spinner />}
           Confirm
         </Button>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid @xl:grid-cols-2 gap-2">
           <ComboBox
             control={form.control}
             name="productSlug"
@@ -52,6 +57,7 @@ export function VariantForm({ refineForm }) {
           <FormField
             control={form.control}
             name="name"
+            disabled={isLoading}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Variant name</FormLabel>
@@ -65,6 +71,7 @@ export function VariantForm({ refineForm }) {
           <FormField
             control={form.control}
             name="price"
+            disabled={isLoading}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Price</FormLabel>
@@ -86,6 +93,7 @@ export function VariantForm({ refineForm }) {
           <FormField
             control={form.control}
             name="stockQuantity"
+            disabled={isLoading}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Stock quantity</FormLabel>

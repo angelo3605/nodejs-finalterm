@@ -9,7 +9,7 @@ import Logo from "@mint-boutique/assets/logo.svg?react";
 export function RootLayout() {
   return (
     <SidebarProvider className="flex-col">
-      <SiteHeader appName="Mint Boutique" logo={<Logo className="size-7" />} />
+      <SiteHeader appName="Mint Boutique" Logo={Logo} />
       <div className="justify-center flex flex-1">
         <AppSidebar />
         <SidebarInset className="@container max-w-6xl flex-1 p-8">
