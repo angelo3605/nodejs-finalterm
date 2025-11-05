@@ -1,177 +1,123 @@
 import dayjs from "dayjs";
-import isoWeek from "dayjs/plugin/isoWeek.js";
+import quarterOfYear from "dayjs/plugin/quarterOfYear.js";
+import isBetween from "dayjs/plugin/isBetween.js";
 import prisma from "../prisma/client.js";
 
-dayjs.extend(isoWeek);
+dayjs.extend(quarterOfYear);
+dayjs.extend(isBetween);
 
-// function formatPeriod(date, interval) {
-//   switch (interval) {
-//     case "year":
-//       return dayjs(date).format("YYYY");
-//     case "quarter":
-//       return `Q${Math.ceil((dayjs(date).month() + 1) / 3)}-${dayjs(date).year()}`;
-//     case "month":
-//       return dayjs(date).format("YYYY-MM");
-//     case "week":
-//       return `${dayjs(date).year()}-W${dayjs(date).isoWeek()}`;
-//     default:
-//       return dayjs(date).format("YYYY-MM-DD");
-//   }
-// }
+const getDefaultDateRange = (interval) => {
+  const now = dayjs();
+  let start, end;
 
-const getSumAmountPerCategory = async ({ interval, rangeStart, rangeEnd, groupBy = "product" }) => {
-  const orderItems = await prisma.orderItem.findMany({
+  switch (interval) {
+    case "day":
+      start = now.startOf("week").add(1, "day");
+      return [start, start.add(6, "day")];
+    case "week":
+      return [now.startOf("month"), now.endOf("month")];
+    case "month":
+      end = now.startOf("month");
+      return [end.subtract(5, "month"), end];
+    case "quarter":
+      end = now.startOf("month");
+      return [end.subtract(2, "year"), end];
+    case "year":
+      end = now.startOf("year");
+      return [end.subtract(5, "year"), end];
+  }
+};
+
+const getIntervalDateRange = (startDate, endDate, interval) => {
+  const [start, end] = startDate && endDate ? [dayjs(startDate), dayjs(endDate)] : getDefaultDateRange(interval);
+
+  const ranges = [];
+  let current = start;
+
+  while (current.isBefore(end) || current.isSame(end, "day")) {
+    ranges.push(current);
+    switch (interval) {
+      case "day":
+        current = current.add(1, "day");
+        break;
+      case "week":
+        current = current.add(1, "week");
+        break;
+      case "month":
+        current = current.add(1, "month");
+        break;
+      case "quarter":
+        current = current.add(3, "month");
+        break;
+      case "year":
+        current = current.add(1, "year");
+        break;
+    }
+  }
+
+  return ranges;
+};
+
+export const getChartStatsService = async ({ startDate, endDate, interval = "month", groupBy = "product" }) => {
+  const dateRange = getIntervalDateRange(startDate, endDate, interval);
+
+  const rangeStart = dateRange[0].toDate();
+  const rangeEnd = dateRange.at(-1).toDate();
+
+  const items = await prisma.orderItem.findMany({
     where: {
       order: {
         createdAt: { gte: rangeStart, lte: rangeEnd },
         status: { notIn: ["PENDING", "CANCELLED"] },
       },
     },
-    select: {
-      productName: true,
-      variantName: true,
-      unitPrice: true,
-      quantity: true,
-      product: { select: { category: true } },
-    },
+    include: { product: { include: { category: true } }, order: true },
   });
-  console.log(orderItems);
+
+  const productsSet = new Set();
+  const chartData = dateRange.map((d) => ({ interval: d }));
+
+  items.forEach((item) => {
+    const name = groupBy === "category" ? item.product.category.name : item.productName;
+    productsSet.add(name);
+
+    const itemDate = dayjs(item.order.createdAt).startOf(interval);
+    const value = {
+      revenue: item.quantity * item.unitPrice,
+      purchasedQuantity: item.quantity,
+    };
+
+    chartData.forEach((row, idx) => {
+      const intervalStart = dayjs(row.interval);
+      const intervalEnd = dateRange[idx + 1] ? dayjs(dateRange[idx + 1]) : intervalStart.add(1, interval);
+
+      if (itemDate.isBetween(intervalStart, intervalEnd, "day", "[)")) {
+        row[name] = row[name] || {
+          revenue: 0,
+          purchasedQuantity: 0,
+        };
+        row[name].revenue += value.revenue;
+        row[name].purchasedQuantity += value.purchasedQuantity;
+      }
+    });
+  });
+
+  return {
+    intervals: dateRange,
+    items: Array.from(productsSet),
+    chartData,
+  };
 };
 
-export const getDashboardDataService = async ({ interval, startDate, endDate }) => {
-  const getRange = (date) => (date ? dayjs(date) : dayjs().startOf("year")).toDate();
-
-  const rangeStart = getRange(startDate);
-  const rangeEnd = getRange(endDate);
-
-  await getSumAmountPerCategory(rangeStart, rangeEnd);
-
-  return {};
-  // const rangeStart = startDate ? dayjs(startDate).toDate() : dayjs().startOf("year").toDate();
-  // const rangeEnd = endDate ? dayjs(endDate).toDate() : dayjs().endOf("year").toDate();
-  //
-  // const orders = await prisma.order.findMany({
-  //   where: {
-  //     createdAt: { gte: rangeStart, lte: rangeEnd },
-  //     status: { notIn: ["PENDING", "CANCELLED"] },
-  //   },
-  //   select: {
-  //     id: true,
-  //     createdAt: true,
-  //     totalAmount: true,
-  //   },
-  // });
-  //
-  // const grouped = {};
-  // for (const o of orders) {
-  //   const key = formatPeriod(o.createdAt, interval);
-  //   if (!grouped[key]) grouped[key] = { orders: 0, revenue: 0, profit: 0 };
-  //   grouped[key].orders++;
-  //   grouped[key].revenue += o.totalAmount;
-  // }
-  //
-  // const breakdown = Object.entries(grouped).map(([period, val]) => ({
-  //   period,
-  //   ...val,
-  // }));
-  //
-  // const totalOrders = breakdown.reduce((a, b) => a + b.orders, 0);
-  // const totalRevenue = breakdown.reduce((a, b) => a + b.revenue, 0);
-  // const totalProfit = breakdown.reduce((a, b) => a + b.profit, 0);
-  //
-  // const items = await prisma.orderItem.findMany({
-  //   where: {
-  //     order: { createdAt: { gte: rangeStart, lte: rangeEnd }, status: { notIn: ["PENDING", "CANCELLED"] } },
-  //   },
-  //   select: {
-  //     quantity: true,
-  //     product: { select: { category: { select: { name: true } } } },
-  //   },
-  // });
-  //
-  // const productStats = {};
-  // for (const item of items) {
-  //   const name = item.product.category.name;
-  //   if (!productStats[name]) productStats[name] = 0;
-  //   productStats[name] += item.quantity;
-  // }
-  //
-  // const productTypes = Object.entries(productStats).map(([name, value]) => ({ name, value }));
-  //
-  // const comparison = {
-  //   revenue: [{ period: "current", value: totalRevenue }],
-  //   profit: [{ period: "current", value: totalProfit }],
-  //   productsSold: [{ period: "current", value: totalOrders }],
-  //   productTypes,
-  // };
-  //
-  // return {
-  //   interval,
-  //   range: { start: rangeStart, end: rangeEnd },
-  //   summary: { totalOrders, totalRevenue, totalProfit },
-  //   breakdown,
-  //   comparison,
-  // };
-};
-
-// import prisma from "../prisma/client.js";
-// import dayjs from "dayjs";
-//
-// export const getDashboardDataService = async () => {
-//   const [userCount, orderCount, revenueSum] = await Promise.all([prisma.user.count(), prisma.order.count(), prisma.order.aggregate({ _sum: { totalAmount: true } })]);
-//
-//   const totalRevenue = revenueSum._sum.totalAmount || 0;
-//   const avgOrderValue = orderCount ? Math.round(totalRevenue / orderCount) : 0;
-//
-//   const orderStatuses = await prisma.order.groupBy({
-//     by: ["status"],
-//     _count: { status: true },
-//   });
-//
-//   const startDate = dayjs().subtract(29, "day");
-//   const orders = await prisma.order.findMany({
-//     where: { createdAt: { gte: startDate } },
-//     select: { createdAt: true },
-//   });
-//   const dailyOrdersRaw = orders.reduce((acc, o) => {
-//     const date = dayjs(o.createdAt).format("YYYY-MM-DD");
-//     acc[date] = (acc[date] || 0) + 1;
-//     return acc;
-//   }, {});
-//   const dailyOrders = Array.from({ length: 30 }, (_, i) => {
-//     const date = startDate.add(i, "day").format("YYYY-MM-DD");
-//     return { date, count: dailyOrdersRaw[date] || 0 };
-//   });
-//
-//   const monthStart = dayjs().subtract(11, "month").startOf("month").toDate();
-//   const monthlyRaw = await prisma.order.findMany({
-//     where: { createdAt: { gte: monthStart } },
-//     select: { totalAmount: true, createdAt: true },
-//   });
-//
-//   const monthlyRevenue = Array.from({ length: 12 }, (_, i) => {
-//     const monthDate = dayjs().subtract(11 - i, "month");
-//     const monthSum = monthlyRaw.filter((o) => dayjs(o.createdAt).isSame(monthDate, "month")).reduce((acc, o) => acc + o.totalAmount, 0);
-//     return {
-//       date: monthDate.startOf("month").format("YYYY-MM-DD"),
-//       amount: Math.round(monthSum),
-//     };
-//   });
-//
-//   return {
-//     totals: {
-//       users: userCount,
-//       orders: orderCount,
-//       revenue: totalRevenue,
-//       averageOrderValue: avgOrderValue,
-//     },
-//     orders: {
-//       statusBreakdown: orderStatuses.map((s) => ({
-//         status: s.status,
-//         count: s._count.status,
-//       })),
-//       daily: dailyOrders,
-//     },
-//     revenue: { monthly: monthlyRevenue },
-//   };
-// };
+export const getOrderStatusesService = () =>
+  prisma.order
+    .groupBy({
+      by: ["status"],
+      _count: { id: true },
+    })
+    .then((data) =>
+      data.map((item) => ({
+        status: item.status,
+        count: item._count.id,
+      })),
+    );

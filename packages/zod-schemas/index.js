@@ -11,7 +11,7 @@ import { ratingSchema } from "./schemas/ratingSchema.js";
 import { shippingAddressSchema } from "./schemas/shippingAddressSchema.js";
 import { changePasswordSchema, forgotSchema, loginSchema, registerSchema, resetSchema, userSchema } from "./schemas/userSchema.js";
 import { variantSchema } from "./schemas/variantSchema.js";
-import { dashboardSchema } from "./schemas/dashboardSchema.js";
+import { dashboardChartSchema } from "./schemas/dashboardChartSchema.js";
 
 export {
   brandSchema,
@@ -35,5 +35,5 @@ export {
   variantSchema,
   forgotSchema,
   resetSchema,
-  dashboardSchema,
+  dashboardChartSchema,
 };

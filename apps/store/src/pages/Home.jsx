@@ -69,7 +69,7 @@ export default function Home() {
         {/*</Section>*/}
         <Promo
           title="Free Shipping Service"
-          desc="All orders will be shipping free of charge nationwide&mdash;fresh plants guaranteed!"
+          desc="All orders will be shipped free of charge nationwide&mdash;fresh plants guaranteed!"
           Icon={FaTruckFast}
           btnTitle="Learn more"
           btnUrl="/about"
