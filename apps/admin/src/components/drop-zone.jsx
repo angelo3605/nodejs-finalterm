@@ -4,10 +4,11 @@ import { Button } from "./ui/button";
 import { FormField, FormItem, FormLabel } from "./ui/form";
 import { Trash, Upload } from "lucide-react";
 import { Image } from "@/components/image.jsx";
+import { cn } from "@/lib/utils.js";
 
 const constructKey = (file) => file.name + file.lastModified;
 
-export function FilePreviews({ files, onRemove }) {
+export function FilePreviews({ files, onRemove, disabled }) {
   const [urlMap, setUrlMap] = useState(new Map());
 
   useEffect(() => {
@@ -39,15 +40,27 @@ export function FilePreviews({ files, onRemove }) {
         return (
           <div
             key={key}
-            className="grid grid-cols-[auto_1fr_auto] items-center gap-4 border rounded-md overflow-hidden pr-1.5"
+            className={cn(
+              "grid grid-cols-[auto_1fr_auto] items-center gap-4 border rounded-md overflow-hidden pr-1.5",
+              disabled && "opacity-75",
+            )}
           >
             {url ? (
-              <Image src={url} alt={file.name} className="size-12 object-cover" />
+              <Image
+                src={url}
+                alt={file.name}
+                className="size-12 object-cover"
+              />
             ) : (
               <div></div>
             )}
             <p className="text-sm truncate">{file.name}</p>
-            <Button variant="ghost" size="icon" onClick={() => onRemove(file)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onRemove(file)}
+              disabled={disabled}
+            >
               <Trash />
             </Button>
           </div>
@@ -57,7 +70,15 @@ export function FilePreviews({ files, onRemove }) {
   );
 }
 
-export function DropZone({ control, name, label, maxSize, accepts, maxFiles }) {
+export function DropZone({
+  control,
+  name,
+  label,
+  maxSize,
+  accepts,
+  maxFiles,
+  disabled,
+}) {
   return (
     <FormField
       control={control}
@@ -83,6 +104,7 @@ export function DropZone({ control, name, label, maxSize, accepts, maxFiles }) {
           maxSize,
           accepts,
           maxFiles,
+          disabled,
         });
 
         return (
@@ -90,7 +112,10 @@ export function DropZone({ control, name, label, maxSize, accepts, maxFiles }) {
             {label && <FormLabel>{label}</FormLabel>}
             <div
               {...getRootProps()}
-              className="flex flex-col items-center gap-4 p-4 border-2 border-dashed rounded-md cursor-pointer"
+              className={cn(
+                "flex flex-col items-center gap-4 p-4 border-2 border-dashed rounded-md cursor-pointer",
+                disabled && "opacity-50 cursor-not-allowed",
+              )}
             >
               <input {...getInputProps()} />
               <Upload />
@@ -103,7 +128,11 @@ export function DropZone({ control, name, label, maxSize, accepts, maxFiles }) {
                 </span>
               </p>
             </div>
-            <FilePreviews files={value || []} onRemove={onRemove} />
+            <FilePreviews
+              files={value || []}
+              onRemove={onRemove}
+              disabled={disabled}
+            />
             {/* <FormMessage /> */}
           </FormItem>
         );

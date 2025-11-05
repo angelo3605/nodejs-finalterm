@@ -21,11 +21,11 @@ import {
 } from "./ui/dialog";
 import {
   Command,
-  CommandInput,
-  CommandList,
-  CommandItem,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
 } from "./ui/command";
 import {
   Empty,
@@ -45,7 +45,6 @@ import {
 import { ImageManager } from "./image-manager";
 import { Image } from "@/components/image.jsx";
 import { formatDate } from "date-fns";
-import { LoadingOverlay } from "@/components/refine-ui/layout/loading-overlay.jsx";
 import { Spinner } from "@/components/ui/spinner.jsx";
 
 // TODO: Array checking is rudimentary. Will improve later
@@ -107,7 +106,7 @@ function ImageManagerDialog({ onRefresh }) {
           Manage images
         </Button>
       </DialogTrigger>
-      <DialogContent className="@container w-[calc(100%-2rem)] sm:max-w-[1200px]">
+      <DialogContent className="@container md:w-[calc(100%-2rem)] max-w-full sm:max-w-[1200px]">
         <DialogHeader>
           <DialogTitle>Manage images</DialogTitle>
           <DialogDescription>

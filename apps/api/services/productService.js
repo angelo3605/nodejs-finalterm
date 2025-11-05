@@ -79,13 +79,13 @@ export const createProductService = async (data) => {
       slug,
       brand: data.brand
         ? {
-          connect: { slug: data.brand },
-        }
+            connect: { slug: data.brand },
+          }
         : undefined,
       category: data.category
         ? {
-          connect: { slug: data.category },
-        }
+            connect: { slug: data.category },
+          }
         : undefined,
     },
     select: productSelect,
@@ -130,6 +130,19 @@ export const getAllProductsService = async (sorting, filtering, { page, pageSize
 
   const sortOrder = sortInAsc ? "asc" : "desc";
 
+  let orderBy = { createdAt: "desc" };
+  if (sortBy && sortBy !== "mostOrders") {
+    if (sortBy === "price") {
+      orderBy = {
+        variants: {
+          _min: { price: sortOrder },
+        },
+      };
+    } else {
+      orderBy = { [sortBy]: sortOrder }
+    }
+  }
+
   const [total, data] = await Promise.all([
     prisma.product.count({ where }),
     prisma.product.findMany({
@@ -137,18 +150,7 @@ export const getAllProductsService = async (sorting, filtering, { page, pageSize
       select: productSelect,
       skip: (page - 1) * pageSize,
       take: pageSize,
-      orderBy:
-        sortBy && sortBy !== "mostOrders"
-          ? sortBy === "price"
-            ? {
-                variants: {
-                  _min: { price: sortOrder },
-                },
-              }
-            : {
-                [sortBy]: sortOrder,
-              }
-          : { createdAt: "desc" },
+      orderBy,
     }),
   ]);
 
@@ -158,7 +160,7 @@ export const getAllProductsService = async (sorting, filtering, { page, pageSize
       _sum: { quantity: true },
     });
     data.sort((a, b) => {
-      const getSumQuantity = (slug) => orderCounts.find(({ productSlug }) => productSlug === slug)?._sum.quantity ?? 0;
+      const getSumQuantity = (slug) => orderCounts.find((item) => item.productSlug === slug)?._sum.quantity ?? 0;
       const _a = getSumQuantity(a.slug);
       const _b = getSumQuantity(b.slug);
       return sortInAsc ? _b - _a : _a - _b;
@@ -203,13 +205,13 @@ export const updateProductService = async (slug, data) => {
       slug: newSlug,
       brand: data.brand
         ? {
-          connect: { slug: data.brand },
-        }
+            connect: { slug: data.brand },
+          }
         : undefined,
       category: data.category
         ? {
-          connect: { slug: data.category },
-        }
+            connect: { slug: data.category },
+          }
         : undefined,
     },
     select: productSelect,

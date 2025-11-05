@@ -28,13 +28,11 @@ export function ComboBox({
   emptyLabel,
   options,
   disabled,
-  defaultValue,
 }) {
   return (
     <FormField
       control={control}
       name={name}
-      defaultValue={defaultValue}
       render={({ field }) => {
         const [open, setOpen] = useState(false);
 

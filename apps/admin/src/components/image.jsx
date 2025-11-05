@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils.js";
 import { ImageIcon } from "lucide-react";
 
 export function Image({ ...props }) {
-  const [error, setError] = useState(true);
+  const [error, setError] = useState(false);
 
   if (!props.src || error) {
     return (
@@ -31,7 +31,7 @@ export function Image({ ...props }) {
         ...props.style,
       }}
       {...props}
-      onLoad={() => setError(false)}
+      onError={() => setError(true)}
     />
   );
 }

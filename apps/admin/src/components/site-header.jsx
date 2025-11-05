@@ -7,7 +7,10 @@ export function SiteHeader({ appName, Logo }) {
       <SidebarTrigger />
 
       <div className="group hidden sm:flex items-center gap-4">
-        <Logo className="size-7 group-hover:animate-spin" /> <h3 className="font-brand text-[1.375rem]">{appName}</h3>
+        <Logo className="size-7 group-hover:animate-spin" />
+        <h3 className="font-brand text-[1.375rem]">{appName}</h3>
+        <span className="text-muted-foreground">&bull;</span>
+        Admin Console
       </div>
 
       <ThemeToggle className="ml-auto" />

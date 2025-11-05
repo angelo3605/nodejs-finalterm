@@ -8,14 +8,14 @@ export function Image({ ...props }) {
   if (!props.src || error) {
     return (
       <div
-        className={clsx("flex justify-center items-center bg-gray-200", props.className)}
+        className={clsx("flex justify-center items-center bg-gray-200 dark:bg-gray-700", props.className)}
         style={{
           width: props.width,
           height: props.height,
           ...props.style,
         }}
       >
-        <FaImage className="size-1/3 text-gray-400" />
+        <FaImage className="size-1/3 text-gray-400 dark:text-gray-500" />
       </div>
     );
   }

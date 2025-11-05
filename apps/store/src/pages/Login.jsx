@@ -62,9 +62,9 @@ export default function Login() {
         Login with Facebook
       </button>
       <div className="flex items-center gap-2">
-        <hr className="flex-1 border-gray-300" />
+        <hr className="flex-1 border-gray-300 dark:border-gray-700" />
         or
-        <hr className="flex-1 border-gray-300" />
+        <hr className="flex-1 border-gray-300 dark:border-gray-700" />
       </div>
       <form onSubmit={handleSubmit((values) => mutate(values))} className="space-y-4">
         <div className="space-y-2">

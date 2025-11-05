@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import crypto from "crypto";
-import { updateOrderStatusService } from "./orderService.js";
+import { getOrderByIdService, updateOrderStatusService } from "./orderService.js";
 import { postCheckoutService } from "./checkoutService.js";
 
 const sortObject = (o) =>
@@ -73,10 +73,18 @@ export const handleVnpayCallback = async (vnpParams, { userId, guestId, redirect
     throw new Error(`VNPay responded with code '${vnpParams.vnp_ResponseCode}'`);
   }
 
-  await updateOrderStatusService(vnpParams.vnp_TxnRef, {
-    status: vnpParams.vnp_ResponseCode === "00" ? "PROCESSING" : "CANCELLED",
-  });
-  await postCheckoutService({ userId, guestId, orderId: vnpParams.vnp_TxnRef });
+  const order = await getOrderByIdService(vnpParams.vnp_TxnRef);
+  if (order.status === "PENDING") {
+    const newStatus = vnpParams.vnp_ResponseCode === "00" ? "PROCESSING" : "CANCELLED";
+    await updateOrderStatusService(
+      order.id,
+      {
+        status: newStatus,
+      },
+      {},
+    );
+    await postCheckoutService({ guestId, order });
+  }
 
   const newRedirectUrl = new URL(redirectUrl);
   for (const [key, value] of [

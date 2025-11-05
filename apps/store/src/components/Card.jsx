@@ -67,14 +67,17 @@ export function Card({ product }) {
   };
 
   return (
-    <div className="relative w-[300px] rounded-lg shadow-lg bg-white text-black cursor-pointer hover:-translate-y-1 transition" onClick={() => navigate(`/product/${product.slug}`)}>
+    <div
+      className="relative w-[300px] rounded-lg shadow-lg bg-white text-black dark:bg-gray-800 dark:text-white cursor-pointer hover:-translate-y-1 transition"
+      onClick={() => navigate(`/product/${product.slug}`)}
+    >
       <Image src={product?.imageUrls?.[0]} className="aspect-video w-full rounded-tl-lg rounded-tr-lg" />
       <div className="text-start p-4">
         <div className="grid grid-cols-[1fr_auto] mb-2">
           {product ? (
             <>
               <span className="text-sm">{product.category?.name ?? "Other"}</span>
-              <span className="row-span-2 font-medium text-emerald-800">{minPriceStr}</span>
+              <span className="row-span-2 font-medium text-emerald-800 dark:text-emerald-400">{minPriceStr}</span>
               <span className="font-bold">{product.name}</span>
             </>
           ) : (
@@ -86,14 +89,14 @@ export function Card({ product }) {
           )}
         </div>
         <div className="flex items-center gap-1">
-          <div className="flex gap-0.5 text-yellow-600">
+          <div className="flex gap-0.5 text-yellow-600 dark:text-yellow-400">
             {[1, 2, 3, 4, 5].map((i) => (
               <Fragment key={i}>{i <= avgStars ? <FaStar /> : i - 0.5 === avgStars ? <FaRegStarHalfStroke /> : <FaRegStar />}</Fragment>
             ))}
           </div>
           <span className="text-sm ml-1">{product ? `(${product?.ratings.length ?? 0})` : <div className="placeholder w-6"></div>}</span>
           <span className="flex items-center gap-2 text-sm ml-auto">
-            <FaRegComment className="text-sky-600" /> {product ? (product?.comments.length ?? 0) : <div className="placeholder w-6"></div>}
+            <FaRegComment className="text-sky-600 dark:text-sky-400" /> {product ? (product?.comments.length ?? 0) : <div className="placeholder w-6"></div>}
           </span>
         </div>
         <button ref={ref} className="btn btn-secondary h-9! w-full mt-4" onClick={(e) => handleClick(e, product)} disabled={isPending || !product}>

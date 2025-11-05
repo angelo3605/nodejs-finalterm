@@ -3,7 +3,7 @@ import { FaClock, FaStore } from "react-icons/fa6";
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-emerald-50 text-emerald-900 mt-auto">
+    <footer className="w-full bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100 mt-auto">
       <div className="mx-auto w-[min(1200px,92%)] *:h-[200px] flex flex-col-reverse md:flex-row gap-8 justify-between items-center py-8">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-4 group text-xl mb-4">

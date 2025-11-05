@@ -256,6 +256,8 @@ model Order {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  OrderLog OrderLog[]
 }
 
 model OrderItem {
@@ -278,6 +280,18 @@ model OrderItem {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model OrderLog {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?
+  oldStatus OrderStatus?
+  newStatus OrderStatus
+
+  orderId String @db.ObjectId
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
 model Payment {

@@ -56,7 +56,7 @@ export const getOrderByIdService = async (id) => {
 };
 
 export const createOrderService = async ({ userId }, data) => {
-  return prisma.order.create({
+  const order = await prisma.order.create({
     data: {
       userId,
       ...data,
@@ -79,12 +79,29 @@ export const createOrderService = async ({ userId }, data) => {
     },
     select: orderSelect,
   });
+  await prisma.orderLog.create({
+    data: {
+      orderId: order.id,
+      newStatus: order.status,
+    },
+  });
+  return order;
 };
 
-export const updateOrderStatusService = async (id, { status }) => {
-  return prisma.order.update({
+export const updateOrderStatusService = async (id, { status }, { adminUserId }) => {
+  const oldOrder = await getOrderByIdService(id);
+  const order = await prisma.order.update({
     where: { id },
     data: { status },
     select: orderSelect,
   });
+  await prisma.orderLog.create({
+    data: {
+      orderId: order.id,
+      oldStatus: oldOrder.status,
+      newStatus: status,
+      userId: adminUserId,
+    },
+  });
+  return order;
 };

@@ -15,6 +15,8 @@ import {
 import { useUpdate } from "@refinedev/core";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { format } from "date-fns";
 
 const roleColors = {
   CUSTOMER: "bg-chart-4/10! *:text-chart-4!",
@@ -26,13 +28,31 @@ export function ListUsers() {
   const columns = useMemo(() => [
     {
       id: "fullName",
-      accessorKey: "fullName",
-      header: "Full Name",
+      header: "Name",
+      size: 240,
+      cell: ({ row: { original: user } }) => (
+        <div className="flex items-center gap-2">
+          <Avatar>
+            <AvatarFallback>
+              {user.fullName.replace(" ", "").slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          {user.fullName}
+        </div>
+      ),
     },
     {
       id: "email",
       accessorKey: "email",
-      header: "Email Address",
+      header: "Email",
+      size: 240,
+    },
+    {
+      id: "createdAt",
+      header: "Created at",
+      size: 200,
+      cell: ({ row: { original: order } }) =>
+        format(new Date(order.createdAt), "dd/MM/yyyy HH:mm"),
     },
     {
       id: "role",

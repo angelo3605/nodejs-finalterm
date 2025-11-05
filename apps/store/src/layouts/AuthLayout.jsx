@@ -6,7 +6,7 @@ export default function AuthLayout({ title, desc, children, backTitle, backUrl }
     <div className="grid lg:grid-cols-[auto_500px]">
       <div className="relative max-lg:aspect-video size-full lg:h-screen">
         <img src={`${import.meta.env.VITE_API_URL}/images/bg-cover.jpg`} className="size-full object-cover" />
-        <p className="flex flex-col sm:flex-row sm:gap-2 *:flex *:gap-2 absolute right-4 bottom-4 px-4 py-2 rounded-lg shadow-lg/50 overflow-hidden backdrop-blur-sm bg-white/75 font-bold">
+        <p className="flex flex-col sm:flex-row sm:gap-2 *:flex *:gap-2 absolute right-4 bottom-4 px-4 py-2 rounded-lg shadow-lg/50 overflow-hidden backdrop-blur-sm bg-white/75 dark:bg-gray-900/75 font-bold">
           <span>
             Photo by
             <a className="link" href="https://unsplash.com/@ceydaciftci?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">

@@ -24,9 +24,9 @@ function Comment({ comment }) {
   });
 
   return (
-    <div className="space-y-4 p-4 bg-white rounded-lg shadow">
+    <div className="space-y-4 p-4 bg-white dark:bg-gray-700 rounded-lg shadow">
       <div className="flex items-center gap-4">
-        <div className="shrink-0 flex justify-center items-center size-10 rounded-full font-bold bg-sky-200 text-sky-800">{comment.senderName[0]}</div>
+        <div className="shrink-0 flex justify-center items-center size-10 rounded-full font-bold bg-sky-200 text-sky-800 dark:bg-sky-700 dark:text-sky-100">{comment.senderName[0]}</div>
         <div className="*:block *:leading-none space-y-1.5 w-full">
           <span className="font-bold">{comment.senderName}</span>
           <span className="text-sm">
@@ -88,7 +88,7 @@ function CommentForm({ parentId, disabled }) {
       <div className="flex items-end gap-2">
         <label className="floating-label w-full">
           <input {...register("message")} placeholder="" className="floating-label__input" disabled={disabled} />
-          <span className={clsx("floating-label__label", parentId && "bg-gray-100!")}>{parentId ? "Reply" : "Comment"}</span>
+          <span className={clsx("floating-label__label", parentId && "bg-gray-100! dark:bg-gray-800!")}>{parentId ? "Reply" : "Comment"}</span>
         </label>
         <button type="submit" className="btn btn-primary h-12!" disabled={isPending || disabled}>
           {isPending ? <FaSpinner className="animate-spin" /> : <FaPaperPlane />}
@@ -158,7 +158,12 @@ function RatingForm() {
           {Array.from({ length: 5 }, (_, i) => {
             const s = i + 1;
             return (
-              <button type="button" key={i} onClick={() => setValue("stars", s)} className="*:box-content *:size-7 *:p-0.5 text-yellow-600 [&>:hover]:brightness-125 *:cursor-pointer">
+              <button
+                type="button"
+                key={i}
+                onClick={() => setValue("stars", s)}
+                className="*:box-content *:size-7 *:p-0.5 text-yellow-600 dark:text-yellow-500 [&>:hover]:brightness-125 *:cursor-pointer"
+              >
                 {i < stars ? <FaStar /> : <FaRegStar />}
               </button>
             );
@@ -178,9 +183,9 @@ function RatingForm() {
 
 function Rating({ rating }) {
   return (
-    <div className="w-[300px] min-h-[300px] h-full p-4 bg-gray-100 rounded-lg space-y-4">
+    <div className="w-[300px] min-h-[300px] h-full p-4 bg-gray-100 dark:bg-gray-800 rounded-lg space-y-4">
       <div className="flex justify-between gap-2">
-        <div className="flex gap-1 *:size-5 text-yellow-600">
+        <div className="flex gap-1 *:size-5 text-yellow-600 dark:text-yellow-500">
           {Array.from({ length: 5 }, (_, i) => (
             <Fragment key={i}>{i + 1 <= rating?.stars ? <FaStar /> : <FaRegStar />}</Fragment>
           ))}
@@ -291,9 +296,11 @@ export default function Product() {
       </button>
       <div>
         <Swiper slidesPerView="auto" spaceBetween={20} className="mask-x-from-99% mask-x-to-100%">
-          {user && <SwiperSlide className="home-carousel">
-            <RatingForm />
-          </SwiperSlide>}
+          {user && (
+            <SwiperSlide className="home-carousel">
+              <RatingForm />
+            </SwiperSlide>
+          )}
           {product
             ? product.ratings.map((rating, i) => (
                 <SwiperSlide className="home-carousel">
@@ -309,14 +316,14 @@ export default function Product() {
       </div>
       <div className="space-y-4">
         <CommentForm disabled={!product} />
-        <div className="p-4 bg-gray-100 rounded-lg space-y-4">
+        <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg space-y-4">
           {product ? (
             <>
               <p className="font-bold">{product.comments.length} comments</p>
               {product.comments.map((comment, i) => (
                 <div key={i}>
                   <Comment comment={comment} />
-                  <div className="space-y-4 pt-4 pl-4 ml-4 border-l border-gray-300">
+                  <div className="space-y-4 pt-4 pl-4 ml-4 border-l border-gray-300 dark:border-gray-700">
                     <CommentForm parentId={comment.id} />
                     <div className="space-y-2">
                       {comment.replies.map((reply, i) => (

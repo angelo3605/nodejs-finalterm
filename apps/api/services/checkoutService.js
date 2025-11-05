@@ -1,7 +1,7 @@
 import { registerService } from "./authService.js";
 import { getOrCreateCartService, markCartAsCheckedOutService } from "./cartService.js";
 import { getDiscountCodeByCodeService, updateDiscountCodeService } from "./discountCodeService.js";
-import { createOrderService, getOrderByIdService } from "./orderService.js";
+import { createOrderService } from "./orderService.js";
 import { createShippingAddressService, getShippingAddressByIdService } from "./shippingAddressService.js";
 import { getUserByIdService, updateUserService } from "./userService.js";
 import { customAlphabet } from "nanoid";
@@ -58,7 +58,7 @@ export const checkoutService = async ({ userId, guestId, shippingAddressId, disc
 
   const total = Math.max(subTotal - discountValue - loyaltyPointsToUse, 0.0);
 
-  return await createOrderService(
+  const order = await createOrderService(
     {
       userId: user.id,
     },
@@ -76,43 +76,40 @@ export const checkoutService = async ({ userId, guestId, shippingAddressId, disc
       orderItems,
     },
   );
+  return order;
 };
 
-export const postCheckoutService = async ({ guestId, orderId }) => {
-  const order = await getOrderByIdService(orderId);
+export const postCheckoutService = async ({ guestId, order }) => {
+  const cart = await getOrCreateCartService(guestId ? { guestId } : { userId: order.user.id });
+  const discountRecord = await getDiscountCodeByCodeService(order.discountCode);
 
-  if (order.status === "PENDING") {
-    const cart = await getOrCreateCartService(guestId ? { guestId } : { userId: order.user.id });
-    const discountRecord = await getDiscountCodeByCodeService(order.discountCode);
-
-    await Promise.all([
-      updateUserService(order.user.id, {
-        loyaltyPoints: order.user.loyaltyPoints - order.loyaltyPointsUsed + Math.floor(order.totalAmount / 1000.0),
+  await Promise.all([
+    updateUserService(order.user.id, {
+      loyaltyPoints: order.user.loyaltyPoints - order.loyaltyPointsUsed + Math.floor(order.totalAmount / 1000.0),
+    }),
+    markCartAsCheckedOutService({ userId: order.user.id, guestId }),
+    discountRecord &&
+      updateDiscountCodeService(order.discountCode, {
+        numOfUsage: discountRecord.numOfUsage + 1,
       }),
-      markCartAsCheckedOutService({ userId: order.user.id, guestId }),
-      discountRecord &&
-        updateDiscountCodeService(order.discountCode, {
-          numOfUsage: discountRecord.numOfUsage + 1,
-        }),
-      cart.cartItems.map((item) =>
-        updateVariantService(item.variant.id, {
-          stockQuantity: item.variant.stockQuantity - item.quantity,
-        }),
-      ),
-    ]);
-
-    transporter.sendMail({
-      from: '"Mint Boutique" <no-reply@mint.boutique>',
-      to: order.user.email,
-      subject: "Your order is confirmed!",
-      html: await getEmailTemplate("orderConfirmation", {
-        fullName: order.user.fullName,
-        orderId: order.id,
-        date: order.createdAt.toLocaleDateString("vi-VN"),
-        total: longCurrencyFormatter.format(order.totalAmount),
+    cart.cartItems.map((item) =>
+      updateVariantService(item.variant.id, {
+        stockQuantity: item.variant.stockQuantity - item.quantity,
       }),
-    });
-  }
+    ),
+  ]);
+
+  transporter.sendMail({
+    from: '"Mint Boutique" <no-reply@mint.boutique>',
+    to: order.user.email,
+    subject: "Your order is confirmed!",
+    html: await getEmailTemplate("orderConfirmation", {
+      fullName: order.user.fullName,
+      orderId: order.id,
+      date: order.createdAt.toLocaleDateString("vi-VN"),
+      total: longCurrencyFormatter.format(order.totalAmount),
+    }),
+  });
 };
 
 export const guestCheckoutService = async ({ guestId, email, fullName, address, phoneNumber, discountCode }) => {

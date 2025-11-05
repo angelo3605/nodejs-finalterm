@@ -16,9 +16,15 @@ export const getMyOrders = async (req, res) => {
 };
 
 export const updateOrderStatus = async (req, res) => {
-  const order = await updateOrderStatusService(req.params.id, {
-    status: req.body.status,
-  });
+  const order = await updateOrderStatusService(
+    req.params.id,
+    {
+      status: req.body.status,
+    },
+    {
+      adminUserId: req.user.id,
+    },
+  );
   return res.json({
     data: order,
   });

@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
 import { DropZone } from "./drop-zone";
-import { Trash, Pencil } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
 import { useMemo, useState } from "react";
 import { DataTable } from "./refine-ui/data-table/data-table";
 import { useTable } from "@refinedev/react-table";
@@ -11,20 +11,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useDelete, useUpdate } from "@refinedev/core";
+import { useUpdate } from "@refinedev/core";
 import {
   Form,
+  FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
-  FormDescription,
 } from "./ui/form";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
 import { DeleteButton } from "./refine-ui/buttons/delete";
 import { Image } from "@/components/image.jsx";
-import { formatDate } from "date-fns";
+import { Spinner } from "@/components/ui/spinner.jsx";
 
 function AltTextPopover({ id, defaultValue, onSuccess }) {
   const [open, setOpen] = useState(false);
@@ -81,11 +81,14 @@ function AltTextPopover({ id, defaultValue, onSuccess }) {
 }
 
 export function ImageManager({ onRefresh }) {
+  const [loading, setLoading] = useState(false);
+
   const columns = useMemo(
     () => [
       {
         id: "altText",
         header: "Image",
+        size: 240,
         cell: ({ row }) => {
           return (
             <div className="flex items-center gap-2">
@@ -106,15 +109,9 @@ export function ImageManager({ onRefresh }) {
         },
       },
       {
-        id: "createdAt",
-        accessorKey: "createdAt",
-        header: "Upload date",
-        cell: ({ getValue }) =>
-          formatDate(new Date(getValue()), "dd/MM/yyyy HH:mm:ss"),
-      },
-      {
         id: "actions",
         header: "Actions",
+        size: 120,
         cell: ({ row }) => (
           <>
             <AltTextPopover
@@ -142,6 +139,7 @@ export function ImageManager({ onRefresh }) {
     columns,
     refineCoreProps: {
       resource: "images",
+      pagination: { pageSize: 5 },
     },
   });
   const {
@@ -155,6 +153,8 @@ export function ImageManager({ onRefresh }) {
   });
 
   const onSubmit = async ({ images }) => {
+    setLoading(true);
+
     if (images.length > 0) {
       const formData = new FormData();
       images.forEach((image) => formData.append("images", image));
@@ -168,10 +168,12 @@ export function ImageManager({ onRefresh }) {
       await refetch();
       await onRefresh();
     }
+
+    setLoading(false);
   };
 
   return (
-    <div className="grid @2xl:grid-cols-[40%_60%] gap-4">
+    <div className="grid @2xl:grid-cols-[40%_auto] gap-4">
       <div className="flex flex-col justify-between gap-2">
         <DropZone
           control={uploadForm.control}
@@ -179,9 +181,14 @@ export function ImageManager({ onRefresh }) {
           maxFiles={5}
           maxSize={5_000_000}
           accepts={{ "images/*": [] }}
+          disabled={loading}
         />
-        <Button onClick={uploadForm.handleSubmit(onSubmit)} className="w-full">
-          Submit
+        <Button
+          onClick={uploadForm.handleSubmit(onSubmit)}
+          className="w-full"
+          disabled={loading}
+        >
+          {loading && <Spinner />} Submit
         </Button>
       </div>
       <div>

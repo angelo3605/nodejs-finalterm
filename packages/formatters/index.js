@@ -1,3 +1,3 @@
-import { shortCurrencyFormatter, longCurrencyFormatter } from "./formatters/currencies.js";
+import { longCurrencyFormatter, shortCurrencyFormatter } from "./formatters/currencies.js";
 
 export { shortCurrencyFormatter, longCurrencyFormatter };

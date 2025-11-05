@@ -5,12 +5,12 @@ import {
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChevronsUpDown, Store, LogOut, CircleUserRound } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ChevronsUpDown, CircleUserRound, LogOut, Store } from "lucide-react";
 import { useGetIdentity, useLogout } from "@refinedev/core";
 
 export function NavUser() {
@@ -24,10 +24,9 @@ export function NavUser() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton size="lg">
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src="" alt={user?.fullName} />
-                <AvatarFallback className="rounded-lg">
-                  {user?.fullName.slice(0, 2).toUpperCase()}
+              <Avatar>
+                <AvatarFallback>
+                  {user?.fullName.replace(" ", "").slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">

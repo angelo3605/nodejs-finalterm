@@ -1,7 +1,6 @@
 import { CreateButton } from "@/components/refine-ui/buttons/create";
 import { DeleteButton } from "@/components/refine-ui/buttons/delete";
 import { EditButton } from "@/components/refine-ui/buttons/edit";
-import { ShowButton } from "@/components/refine-ui/buttons/show";
 import { DataTable } from "@/components/refine-ui/data-table/data-table";
 import {
   DataTableFilterCombobox,
@@ -35,7 +34,6 @@ import {
   ChevronDown,
   ChevronUp,
   Crown,
-  Package,
   Pencil,
   Trash,
   TriangleAlert,
@@ -90,7 +88,7 @@ export function ListProducts() {
         <div className="flex items-center gap-4">
           <Image
             src={product.imageUrls?.[0]}
-            className="shrink-0 size-12 object-cover rounded-sm"
+            className="shrink-0 size-12 object-cover rounded-sm border"
           />
           {product.isFeatured && (
             <Tooltip>
