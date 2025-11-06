@@ -148,7 +148,7 @@ export function ImagePicker({
         <FormItem className={className}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
-            <div className="space-y-2 min-w-0 ">
+            <div className="space-y-2 min-w-0">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button

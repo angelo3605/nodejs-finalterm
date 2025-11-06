@@ -17,7 +17,7 @@ const getDefaultDateRange = (interval) => {
     case "week":
       return [now.startOf("month"), now.endOf("month")];
     case "month":
-      end = now.startOf("month");
+      end = now.endOf("month");
       return [end.subtract(5, "month"), end];
     case "quarter":
       end = now.startOf("month");
@@ -82,22 +82,22 @@ export const getChartStatsService = async ({ startDate, endDate, interval = "mon
     productsSet.add(name);
 
     const itemDate = dayjs(item.order.createdAt).startOf(interval);
-    const value = {
+    const values = {
       revenue: item.quantity * item.unitPrice,
       purchasedQuantity: item.quantity,
     };
 
-    chartData.forEach((row, idx) => {
+    chartData.forEach((row, i) => {
       const intervalStart = dayjs(row.interval);
-      const intervalEnd = dateRange[idx + 1] ? dayjs(dateRange[idx + 1]) : intervalStart.add(1, interval);
+      const intervalEnd = dateRange.at(i + 1) ?? intervalStart.add(1, "day");
 
-      if (itemDate.isBetween(intervalStart, intervalEnd, "day", "[)")) {
-        row[name] = row[name] || {
-          revenue: 0,
-          purchasedQuantity: 0,
-        };
-        row[name].revenue += value.revenue;
-        row[name].purchasedQuantity += value.purchasedQuantity;
+      if (itemDate.isBetween(intervalStart, intervalEnd, interval, "[)")) {
+        if (!row[name]) {
+          row[name] = { ...values };
+        } else {
+          row[name].revenue += values.revenue;
+          row[name].purchasedQuantity += values.purchasedQuantity;
+        }
       }
     });
   });
@@ -115,9 +115,5 @@ export const getOrderStatusesService = () =>
       by: ["status"],
       _count: { id: true },
     })
-    .then((data) =>
-      data.map((item) => ({
-        status: item.status,
-        count: item._count.id,
-      })),
-    );
+    .then((data) => data.reduce((acc, item) => ({
+      ...acc, [item.status]: item._count.id }), {}));

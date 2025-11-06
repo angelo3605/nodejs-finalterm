@@ -49,7 +49,9 @@ export const dataProvider = {
 
   getApiUrl: () => api.defaults.baseURL,
 
-  custom: ({ url, method }) => {
-    return api[method](url).then((res) => res.data);
+  custom: ({ url, method, query }) => {
+    return api[method](url, {
+      params: query ? Object.fromEntries(Object.entries(query).filter(([_, value]) => value)) : {},
+    }).then((res) => res.data);
   },
 };
