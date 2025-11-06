@@ -7,13 +7,14 @@ import routerProvider, {
   NavigateToResource,
 } from "@refinedev/react-router";
 import {
-  Blocks,
   CircleUserRound,
-  LayoutDashboard,
+  LayoutGrid,
   Package,
+  Package2,
   ShoppingBag,
   Sparkles,
-  TicketPercent,
+  Ticket,
+  ToolCase,
 } from "lucide-react";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router";
 import { Toaster } from "./components/refine-ui/notification/toaster";
@@ -24,7 +25,6 @@ import { Dashboard } from "./pages/dashboard";
 import { CreateProduct } from "./pages/products/create";
 import { EditProduct } from "./pages/products/edit";
 import { ListProducts } from "./pages/products/list";
-import { ShowProduct } from "./pages/products/show";
 import { CreateVariant } from "./pages/variants/create";
 import { authProvider } from "./providers/auth-provider";
 import { dataProvider } from "./providers/data-provider";
@@ -48,7 +48,7 @@ const resources = [
     meta: {
       section: "Main",
       label: "Dashboard",
-      icon: <LayoutDashboard className="size-4" />,
+      icon: <LayoutGrid className="size-4" />,
     },
   },
   {
@@ -68,7 +68,7 @@ const resources = [
     meta: {
       section: "Sales & Discounts",
       label: "Discount codes",
-      icon: <TicketPercent />,
+      icon: <Ticket />,
     },
   },
   {
@@ -80,7 +80,7 @@ const resources = [
     meta: {
       section: "Catalogue",
       label: "Products",
-      icon: <Package />,
+      icon: <Package2 />,
     },
   },
   {
@@ -102,7 +102,7 @@ const resources = [
     meta: {
       section: "Catalogue",
       label: "Categories",
-      icon: <Blocks />,
+      icon: <ToolCase />,
     },
   },
   {

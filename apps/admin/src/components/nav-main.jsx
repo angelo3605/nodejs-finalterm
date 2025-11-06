@@ -32,7 +32,7 @@ export function NavMain() {
     <SidebarGroup key={section}>
       <SidebarGroupContent>
         {section !== "Other" && (
-          <SidebarGroupLabel>{section}</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-primary">{section}</SidebarGroupLabel>
         )}
         <SidebarMenu>
           {items.map((item) => (

@@ -1,58 +1,20 @@
-import {
-  ListView,
-  ListViewHeader,
-} from "@/components/refine-ui/views/list-view";
-// import { OrderStatusPieChart } from "@/components/charts/order-status";
-// import { DailyOrdersBarChart } from "@/components/charts/daily-orders";
-// import { NumericCard } from "@/components/charts/numeric-card";
-// import { ReceiptText, ShoppingBag, TrendingUp, Users } from "lucide-react";
-// import { longCurrencyFormatter } from "@mint-boutique/formatters";
-// import { MonthlyRevnueLineChart } from "@/components/charts/monthly-revenue";
+import { ListView, ListViewHeader } from "@/components/refine-ui/views/list-view";
 import { useCustom, useGetIdentity } from "@refinedev/core";
 import { LoadingOverlay } from "@/components/refine-ui/layout/loading-overlay";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart.jsx";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  LabelList,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart.jsx";
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts";
 import { useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { dashboardChartSchema } from "@mint-boutique/zod-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DatePicker } from "@/components/date-picker.jsx";
 import { Button } from "@/components/ui/button.jsx";
-import {
-  CircleUserRound,
-  Eraser,
-  Minus,
-  Package,
-  ShoppingBag,
-  WalletCards,
-} from "lucide-react";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { CircleUserRound, Eraser, Minus, Package2, ShoppingBag, WalletCards } from "lucide-react";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { longCurrencyFormatter } from "@mint-boutique/formatters";
+import { Separator } from "@/components/ui/separator.jsx";
 
 function strToOkLchHue(str) {
   let hash = 0;
@@ -95,7 +57,7 @@ function DashboardBarChart({ chartData, items, metric }) {
           tickLine={false}
           tickMargin={10}
           axisLine={false}
-          tickFormatter={(tick) => format(tick, "MMMM")}
+          tickFormatter={(tick) => format(tick, "yy-MM-dd")}
         />
         <YAxis tickLine={false} tickMargin={10} axisLine={false} />
         <ChartTooltip content={<ChartTooltipContent hideLabel />} />
@@ -204,10 +166,12 @@ function SummaryCard({ color, value, title, Icon }) {
         style={{ borderColor: color }}
       >
         <CardHeader>
-          <CardTitle className="text-xl font-normal" style={{ color }}>
+          <CardTitle className="text-xl font-normal truncate" style={{ color }}>
             {value}
           </CardTitle>
-          <CardDescription className="text-foreground">{title}</CardDescription>
+          <CardDescription className="text-foreground truncate">
+            {title}
+          </CardDescription>
         </CardHeader>
         <CardFooter
           className="h-min p-3! rounded"
@@ -223,6 +187,7 @@ function SummaryCard({ color, value, title, Icon }) {
 export function Dashboard() {
   const [groupBy, setGroupBy] = useState("product");
   const [metric, setMetric] = useState("revenue");
+  const [interval, setInterval] = useState("month");
 
   const { control, watch, reset } = useForm({
     resolver: zodResolver(
@@ -247,7 +212,7 @@ export function Dashboard() {
     url: "/dashboard/chart",
     method: "get",
     config: {
-      query: { groupBy, startDate, endDate },
+      query: { groupBy, interval, startDate, endDate },
     },
   });
 
@@ -266,59 +231,49 @@ export function Dashboard() {
       <LoadingOverlay loading={isLoading} className="h-[300px]">
         {isLoading || (
           <div className="space-y-8">
-            <div className="grid grid-cols-[max-content_auto] items-center gap-12">
-              <OrderStatusBarChart
-                data={{
-                  PENDING: 18,
-                  PROCESSING: 32,
-                  DELIVERING: 24,
-                  DELIVERED: 96,
-                  CANCELLED: 7,
-                }}
-              />
-              <div>
-                <h1 className="text-3xl mb-4">
-                  ✨&ensp;Good to see you again,{" "}
-                  <span className="text-primary">{user?.fullName}</span>!
-                </h1>
-                <p className="text-muted-foreground mb-8">
-                  A quick glance at your store's performance and order activity.
-                </p>
-                <div className="grid grid-cols-2 gap-2 h-max">
-                  <SummaryCard
-                    color="var(--chart-1)"
-                    title="Revenue"
-                    value={longCurrencyFormatter.format(42_000_000)}
-                    Icon={WalletCards}
-                  />
-                  <SummaryCard
-                    color="var(--chart-2)"
-                    title="Avg. order value"
-                    value={longCurrencyFormatter.format(420_000)}
-                    Icon={ShoppingBag}
-                  />
-                  <SummaryCard
-                    color="var(--chart-3)"
-                    title="Products"
-                    value={42}
-                    Icon={Package}
-                  />
-                  <SummaryCard
-                    color="var(--chart-4)"
-                    title="Customers"
-                    value={42}
-                    Icon={CircleUserRound}
-                  />
-                </div>
+            <h1 className="text-3xl mb-4">
+              ✨&ensp;Good to see you again,{" "}
+              <span className="text-primary">{user?.fullName}</span>!
+            </h1>
+            <p className="text-muted-foreground mb-8">
+              A quick glance at your store's performance and order activity.
+            </p>
+            <div className="flex flex-col @lg:flex-row justify-center items-center gap-12">
+              <OrderStatusBarChart data={orderStatuses} />
+              <div className="grid @3xl:grid-cols-2 gap-2 items-center w-full">
+                <SummaryCard
+                  color="var(--chart-1)"
+                  title="Revenue"
+                  value={longCurrencyFormatter.format(42_000_000)}
+                  Icon={WalletCards}
+                />
+                <SummaryCard
+                  color="var(--chart-2)"
+                  title="Avg. order value"
+                  value={longCurrencyFormatter.format(420_000)}
+                  Icon={ShoppingBag}
+                />
+                <SummaryCard
+                  color="var(--chart-3)"
+                  title="Products"
+                  value={42}
+                  Icon={Package2}
+                />
+                <SummaryCard
+                  color="var(--chart-4)"
+                  title="Customers"
+                  value={42}
+                  Icon={CircleUserRound}
+                />
               </div>
             </div>
             <div className="space-y-4">
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-2">
                 <Select
                   value={groupBy}
                   onValueChange={(value) => setGroupBy(value)}
                 >
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger>
                     <SelectValue placeholder="Group by" />
                   </SelectTrigger>
                   <SelectContent>
@@ -330,7 +285,7 @@ export function Dashboard() {
                   value={metric}
                   onValueChange={(value) => setMetric(value)}
                 >
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger>
                     <SelectValue placeholder="Metric" />
                   </SelectTrigger>
                   <SelectContent>
@@ -338,6 +293,22 @@ export function Dashboard() {
                     <SelectItem value="purchasedQuantity">Purchases</SelectItem>
                   </SelectContent>
                 </Select>
+                <Select
+                  value={interval}
+                  onValueChange={(value) => setInterval(value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Interval" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="day">Day</SelectItem>
+                    <SelectItem value="week">Week</SelectItem>
+                    <SelectItem value="month">Month</SelectItem>
+                    <SelectItem value="quarter">Quarter</SelectItem>
+                    <SelectItem value="year">Year</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Separator orientation="vertical" className="h-6! mx-2" />
                 <div className="flex items-center gap-2">
                   <DatePicker control={control} name="startDate" />
                   <Minus className="text-input" />

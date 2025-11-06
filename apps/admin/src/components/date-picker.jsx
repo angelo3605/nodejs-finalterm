@@ -23,7 +23,7 @@ export function DatePicker({ control, name, label }) {
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="w-48 justify-between font-normal"
+              className="w-40 justify-between font-normal"
             >
               {field.value || "Select date"}
               <ChevronDownIcon />

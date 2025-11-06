@@ -10,7 +10,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronsUpDown, CircleUserRound, LogOut, Store } from "lucide-react";
+import {
+  ChevronsUpDown,
+  CircleUserRound,
+  DoorOpen,
+  LogOut,
+  Store,
+} from "lucide-react";
 import { useGetIdentity, useLogout } from "@refinedev/core";
 
 export function NavUser() {
@@ -53,7 +59,7 @@ export function NavUser() {
               </a>
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => logout()}>
-              <LogOut className="text-inherit" />
+              <DoorOpen className="text-inherit" />
               <span>Log out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

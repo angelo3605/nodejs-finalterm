@@ -33,6 +33,7 @@ export function DiscountCodeForm({ refineForm }) {
           <FormField
             control={form.control}
             name="code"
+            disabled={formLoading}
             render={({ field }) => (
               <FormItem className="@xl:col-span-2">
                 <FormLabel>Discount code</FormLabel>
@@ -47,6 +48,7 @@ export function DiscountCodeForm({ refineForm }) {
             control={form.control}
             name="type"
             label="Discount type"
+            disabled={formLoading}
             options={[
               { label: "Percentage", value: "PERCENTAGE" },
               { label: "Fixed", value: "FIXED" },
@@ -55,6 +57,7 @@ export function DiscountCodeForm({ refineForm }) {
           <FormField
             control={form.control}
             name="value"
+            disabled={formLoading}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Value</FormLabel>
@@ -68,6 +71,7 @@ export function DiscountCodeForm({ refineForm }) {
           <FormField
             control={form.control}
             name="usageLimit"
+            disabled={formLoading}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Usage limit</FormLabel>
@@ -84,6 +88,7 @@ export function DiscountCodeForm({ refineForm }) {
           <FormField
             control={form.control}
             name="numOfUsage"
+            disabled={formLoading}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Number of usage</FormLabel>
@@ -97,6 +102,7 @@ export function DiscountCodeForm({ refineForm }) {
           <FormField
             control={form.control}
             name="desc"
+            disabled={formLoading}
             render={({ field }) => (
               <FormItem className="@xl:col-span-2">
                 <FormLabel>Description</FormLabel>
