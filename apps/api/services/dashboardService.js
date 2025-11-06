@@ -1,10 +1,10 @@
 import dayjs from "dayjs";
 import quarterOfYear from "dayjs/plugin/quarterOfYear.js";
-import isBetween from "dayjs/plugin/isBetween.js";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter.js";
 import prisma from "../prisma/client.js";
 
 dayjs.extend(quarterOfYear);
-dayjs.extend(isBetween);
+dayjs.extend(isSameOrAfter);
 
 const getDefaultDateRange = (interval) => {
   const now = dayjs();
@@ -17,14 +17,14 @@ const getDefaultDateRange = (interval) => {
     case "week":
       return [now.startOf("month"), now.endOf("month")];
     case "month":
-      end = now.endOf("month");
-      return [end.subtract(5, "month"), end];
+      const half = now.month() < 6 ? 0 : 6;
+      return [now.month(half).startOf("month"), now.month(half + 5).endOf("month")];
     case "quarter":
-      end = now.startOf("month");
-      return [end.subtract(2, "year"), end];
+      end = now.endOf("year");
+      return [end.subtract(1, "year").startOf("year"), end];
     case "year":
       end = now.startOf("year");
-      return [end.subtract(5, "year"), end];
+      return [end.subtract(4, "year"), end];
   }
 };
 
@@ -58,16 +58,40 @@ const getIntervalDateRange = (startDate, endDate, interval) => {
   return ranges;
 };
 
+export const getSummaryService = async () => {
+  const totalRevenueAndAVO = await prisma.order.aggregate({
+    where: {
+      status: { notIn: ["PENDING", "CANCELLED"] },
+    },
+    _sum: { totalAmount: true },
+    _avg : { totalAmount: true },
+  });
+  const totalProducts = await prisma.product.count({
+    where: { isDeleted: false },
+  });
+  const totalUsers = await prisma.user.count({
+    where: {
+      role: { not: "BLOCKED" },
+    }
+  });
+  return {
+    totalProducts,
+    totalUsers,
+    totalRevenue: totalRevenueAndAVO._sum.totalAmount,
+    averageOrderValue: totalRevenueAndAVO._avg.totalAmount,
+  };
+}
+
 export const getChartStatsService = async ({ startDate, endDate, interval = "month", groupBy = "product" }) => {
   const dateRange = getIntervalDateRange(startDate, endDate, interval);
 
   const rangeStart = dateRange[0].toDate();
-  const rangeEnd = dateRange.at(-1).toDate();
+  const rangeEnd = dateRange.at(-1).add(1, interval).toDate();
 
   const items = await prisma.orderItem.findMany({
     where: {
       order: {
-        createdAt: { gte: rangeStart, lte: rangeEnd },
+        createdAt: { gte: rangeStart, lt: rangeEnd },
         status: { notIn: ["PENDING", "CANCELLED"] },
       },
     },
@@ -81,25 +105,24 @@ export const getChartStatsService = async ({ startDate, endDate, interval = "mon
     const name = groupBy === "category" ? item.product.category.name : item.productName;
     productsSet.add(name);
 
-    const itemDate = dayjs(item.order.createdAt).startOf(interval);
     const values = {
       revenue: item.quantity * item.unitPrice,
       purchasedQuantity: item.quantity,
     };
 
-    chartData.forEach((row, i) => {
-      const intervalStart = dayjs(row.interval);
-      const intervalEnd = dateRange.at(i + 1) ?? intervalStart.add(1, "day");
+    for (let i = dateRange.length - 1; i >= 0; i--) {
+      const intervalStart = dayjs(dateRange[i]);
 
-      if (itemDate.isBetween(intervalStart, intervalEnd, interval, "[)")) {
-        if (!row[name]) {
-          row[name] = { ...values };
+      if (dayjs(item.order.createdAt).isSameOrAfter(intervalStart)) {
+        if (!chartData[i][name]) {
+          chartData[i][name] = { ...values };
         } else {
-          row[name].revenue += values.revenue;
-          row[name].purchasedQuantity += values.purchasedQuantity;
+          chartData[i][name].revenue += values.revenue;
+          chartData[i][name].purchasedQuantity += values.purchasedQuantity;
         }
+        break;
       }
-    });
+    }
   });
 
   return {
@@ -115,5 +138,12 @@ export const getOrderStatusesService = () =>
       by: ["status"],
       _count: { id: true },
     })
-    .then((data) => data.reduce((acc, item) => ({
-      ...acc, [item.status]: item._count.id }), {}));
+    .then((data) =>
+      data.reduce(
+        (acc, item) => ({
+          ...acc,
+          [item.status]: item._count.id,
+        }),
+        {},
+      ),
+    );

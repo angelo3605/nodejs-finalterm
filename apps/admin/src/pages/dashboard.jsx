@@ -1,18 +1,51 @@
-import { ListView, ListViewHeader } from "@/components/refine-ui/views/list-view";
+import {
+  ListView,
+  ListViewHeader,
+} from "@/components/refine-ui/views/list-view";
 import { useCustom, useGetIdentity } from "@refinedev/core";
 import { LoadingOverlay } from "@/components/refine-ui/layout/loading-overlay";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart.jsx";
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart.jsx";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { dashboardChartSchema } from "@mint-boutique/zod-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DatePicker } from "@/components/date-picker.jsx";
 import { Button } from "@/components/ui/button.jsx";
-import { CircleUserRound, Eraser, Minus, Package2, ShoppingBag, WalletCards } from "lucide-react";
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  CircleUserRound,
+  Eraser,
+  Minus,
+  Package2,
+  ShoppingBag,
+  WalletCards,
+} from "lucide-react";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { longCurrencyFormatter } from "@mint-boutique/formatters";
 import { Separator } from "@/components/ui/separator.jsx";
 
@@ -37,7 +70,7 @@ const getBarRadius = (index, length, amount) => {
   return [0, 0, 0, 0];
 };
 
-function DashboardBarChart({ chartData, items, metric }) {
+function DashboardBarChart({ chartData, items, metric, interval }) {
   const rechartsData = chartData?.map((row) => {
     const obj = { interval: row.interval };
     items.forEach((name) => {
@@ -57,7 +90,19 @@ function DashboardBarChart({ chartData, items, metric }) {
           tickLine={false}
           tickMargin={10}
           axisLine={false}
-          tickFormatter={(tick) => format(tick, "yy-MM-dd")}
+          tickFormatter={(tick) => {
+            switch (interval) {
+              case "day":
+              case "week":
+                return format(tick, "MMM dd");
+              case "month":
+                return format(tick, "MMM yyyy");
+              case "quarter":
+                return format(tick, "QQQ yyyy");
+              case "year":
+                return format(tick, "yyyy");
+            }
+          }}
         />
         <YAxis tickLine={false} tickMargin={10} axisLine={false} />
         <ChartTooltip content={<ChartTooltipContent hideLabel />} />
@@ -206,8 +251,8 @@ export function Dashboard() {
   const endDate = watch("endDate");
 
   const {
-    result: { data },
-    query: { isLoading },
+    result: { data: chartData },
+    query: { isLoading: isChartDataLoading },
   } = useCustom({
     url: "/dashboard/chart",
     method: "get",
@@ -217,19 +262,31 @@ export function Dashboard() {
   });
 
   const {
-    result: { data: orderStatuses },
+    result: { data: orderStatusData },
+    query: { isLoading: isOrderStatusDataLoading },
   } = useCustom({
     url: "/dashboard/order-statuses",
     method: "get",
   });
 
+  const {
+    result: { data: summaryData },
+    query: { isLoading: isSummaryDataLoading },
+  } = useCustom({
+    url: "/dashboard/summary",
+    method: "get",
+  });
+
   const { data: user } = useGetIdentity();
+
+  const loading =
+    isChartDataLoading || isOrderStatusDataLoading || isSummaryDataLoading;
 
   return (
     <ListView>
       <ListViewHeader title="Dashboard" />
-      <LoadingOverlay loading={isLoading} className="h-[300px]">
-        {isLoading || (
+      <LoadingOverlay loading={loading} className="h-[300px]">
+        {loading || (
           <div className="space-y-8">
             <h1 className="text-3xl mb-4">
               ✨&ensp;Good to see you again,{" "}
@@ -239,30 +296,32 @@ export function Dashboard() {
               A quick glance at your store's performance and order activity.
             </p>
             <div className="flex flex-col @lg:flex-row justify-center items-center gap-12">
-              <OrderStatusBarChart data={orderStatuses} />
+              <OrderStatusBarChart data={orderStatusData} />
               <div className="grid @3xl:grid-cols-2 gap-2 items-center w-full">
                 <SummaryCard
                   color="var(--chart-1)"
                   title="Revenue"
-                  value={longCurrencyFormatter.format(42_000_000)}
+                  value={longCurrencyFormatter.format(summaryData.totalRevenue)}
                   Icon={WalletCards}
                 />
                 <SummaryCard
                   color="var(--chart-2)"
                   title="Avg. order value"
-                  value={longCurrencyFormatter.format(420_000)}
+                  value={longCurrencyFormatter.format(
+                    summaryData.averageOrderValue,
+                  )}
                   Icon={ShoppingBag}
                 />
                 <SummaryCard
                   color="var(--chart-3)"
                   title="Products"
-                  value={42}
+                  value={summaryData.totalProducts}
                   Icon={Package2}
                 />
                 <SummaryCard
                   color="var(--chart-4)"
                   title="Customers"
-                  value={42}
+                  value={summaryData.totalUsers}
                   Icon={CircleUserRound}
                 />
               </div>
@@ -318,7 +377,11 @@ export function Dashboard() {
                   </Button>
                 </div>
               </div>
-              <DashboardBarChart {...data} metric={metric} />
+              <DashboardBarChart
+                {...chartData}
+                metric={metric}
+                interval={interval}
+              />
             </div>
           </div>
         )}
