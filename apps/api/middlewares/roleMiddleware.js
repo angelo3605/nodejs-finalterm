@@ -20,7 +20,7 @@ export function checkRole(role) {
 export function restrictRoute(req, res, next) {
   if (req.user?.id && req.user?.role === "BLOCKED") {
     return res.status(403).json({
-      message: "Permission denied",
+      message: "You have been blocked",
     });
   }
   next();

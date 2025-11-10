@@ -64,7 +64,7 @@ export const getSummaryService = async () => {
       status: { notIn: ["PENDING", "CANCELLED"] },
     },
     _sum: { totalAmount: true },
-    _avg : { totalAmount: true },
+    _avg: { totalAmount: true },
   });
   const totalProducts = await prisma.product.count({
     where: { isDeleted: false },
@@ -72,7 +72,7 @@ export const getSummaryService = async () => {
   const totalUsers = await prisma.user.count({
     where: {
       role: { not: "BLOCKED" },
-    }
+    },
   });
   return {
     totalProducts,
@@ -80,7 +80,7 @@ export const getSummaryService = async () => {
     totalRevenue: totalRevenueAndAVO._sum.totalAmount,
     averageOrderValue: totalRevenueAndAVO._avg.totalAmount,
   };
-}
+};
 
 export const getChartStatsService = async ({ startDate, endDate, interval = "month", groupBy = "product" }) => {
   const dateRange = getIntervalDateRange(startDate, endDate, interval);

@@ -1,18 +1,26 @@
 import { z } from "zod";
 
+const optionalString = z
+  .string()
+  .trim()
+  .nonempty()
+  .nullable()
+  .transform((value) => value || undefined)
+  .optional();
+
 export const productSchema = z.object({
   name: z.string().trim().nonempty(),
   desc: z.string().trim().optional(),
   imageUrls: z.array(z.string().trim()).optional(),
-  brand: z.string().trim().nonempty().optional(),
-  category: z.string().trim().nonempty().optional(),
+  brand: optionalString,
+  category: optionalString,
   isFeatured: z.coerce.boolean().default(false),
 });
 
 export const productSortingSchema = z
   .object({
     sortBy: z.enum(["name", "price", "createdAt", "updatedAt", "mostOrders"]),
-    sortInAsc: z.coerce.number().int().min(0).max(1).transform(Boolean).default(true),
+    sortInAsc: z.coerce.number().int().min(0).max(1).transform(Boolean).default(false),
   })
   .partial();
 

@@ -136,6 +136,44 @@ img {
   }
 }
 
+.toggle {
+    @apply flex items-center gap-4 cursor-pointer w-max;
+}
+
+.toggle__input {
+    @apply hidden;
+}
+
+.toggle__icon {
+    @apply aspect-2/1 h-7 bg-gray-400 dark:bg-gray-600 rounded-full transition inset-shadow-sm/20;
+
+    &:after {
+        @apply content-[''] block size-5 m-1 bg-white rounded-full transition-all shadow-md/20;
+    }
+
+    @variant dark {
+        &:after {
+            @apply bg-gray-800;
+        }
+    }
+}
+
+.toggle__input:checked + .toggle__icon {
+    @apply bg-emerald-600 border-emerald-600;
+
+    &:after {
+        @apply bg-white ml-8;
+    }
+}
+
+.toggle__input:hover + .toggle__icon:after {
+    @apply ring-8 ring-emerald-600/20;
+}
+
+.toggle__input:active + .toggle__icon:after {
+    @apply scale-125 ring-4;
+}
+
 .checkbox {
   @apply flex items-center gap-2 cursor-pointer w-max;
 }
@@ -162,6 +200,108 @@ img {
 
 .nav-item {
     @apply py-2 font-bold not-hover:opacity-75 cursor-pointer;
+}
+
+.chip {
+    @apply flex items-center gap-2 px-3 h-9 bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 rounded-lg cursor-pointer hover:brightness-90;
+}
+
+.chip--active {
+    @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200 font-bold;
+}
+
+.btn__group {
+    @apply flex;
+    
+    & > .btn {
+        @apply rounded-none w-max;
+
+        @variant first {
+            @apply rounded-tl-lg rounded-bl-lg;
+        }
+
+        @variant last {
+            @apply rounded-tr-lg rounded-br-lg;
+        }
+    }
+}
+
+.modal {
+    @apply animate-in slide-in-from-bottom-20 fade-in absolute top-1/2 left-1/2 -translate-1/2 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-[600px] w-full;
+}
+
+.modal__overlay {
+    @apply fixed inset-0 bg-black/50 z-200;
+}
+
+.ReactModal__Body--open {
+    @apply overflow-hidden;
+}
+
+.modal__title {
+    @apply text-xl font-bold truncate text-emerald-800 dark:text-emerald-400;
+}
+
+.modal__actions {
+    @apply flex items-center gap-2 *:w-full mt-4;
+}
+
+.modal__message {
+    @apply flex gap-4 mb-4;
+}
+
+.modal__message__icon {
+    @apply size-10 m-2 shrink-0;
+}
+
+.modal__desc {
+    @apply opacity-75 mt-1;
+}
+
+.modal__header {
+    @apply flex items-center gap-2 mb-2;
+}
+
+.modal__close {
+    @apply p-2 ml-auto hover:bg-black/5 dark:hover:bg-white/5 rounded-lg cursor-pointer;
+}
+
+.slider__overlay {
+    @apply h-3 bg-gray-200 dark:bg-gray-700 rounded-full my-2;
+}
+
+.slider {
+    @apply h-full rounded-full;
+}
+
+.slider__thumb {
+    @apply size-8 outline-none relative;
+
+    &:after {
+        @apply transition-all content-[''] block w-1.5 h-8 absolute top-0 left-1/2 -translate-x-1/2 rounded-sm bg-emerald-700 ring-6 ring-white;
+    }
+
+    @variant dark {
+        &:after {
+            @apply ring-gray-900 bg-emerald-300;
+        }
+    }
+
+    &:active:after {
+        @apply w-1 ring-3;
+    }
+}
+
+.slider__mark {
+    @apply size-1 rounded-full;
+}
+
+.pagination-btn {
+    @apply size-10 flex justify-center items-center rounded-full not-disabled:cursor-pointer disabled:opacity-75;
+
+    &:not(.btn-secondary):not(:disabled) {
+        @apply hover:bg-black/10 dark:hover:bg-white/10;
+    }
 }
 
 /* ----------------------------------------------------------------------- */

@@ -84,7 +84,7 @@ function CatalogMenu() {
   });
 
   return (
-    <div class="lg:relative">
+    <div className="lg:relative">
       <button {...getToggleButtonProps()} className="nav-item">
         Catalog
       </button>

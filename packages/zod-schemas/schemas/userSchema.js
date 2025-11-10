@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const passwordSchema = z.string().min(6);
+export const passwordSchema = z.string().min(6);
 
 export const userSchema = z.object({
   fullName: z.string().trim().nonempty(),

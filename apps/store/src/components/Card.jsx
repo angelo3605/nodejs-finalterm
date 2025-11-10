@@ -6,8 +6,10 @@ import confetti from "canvas-confetti";
 import { Fragment, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@mint-boutique/axios-client";
+import clsx from "clsx";
+import { handleError } from "@/utils/errorHandler";
 
-export function Card({ product }) {
+export function Card({ product, className }) {
   const minPrice = product?.variants.reduce((min, variant) => (min < variant.price ? variant.price : min), 0);
   const minPriceStr = product?.variants.length ? longCurrencyFormatter.format(minPrice) : "Not for sale";
 
@@ -36,6 +38,7 @@ export function Card({ product }) {
           fireConfetti();
           setTimeout(() => setAddedToCart(false), 2000);
         }),
+    onError: handleError,
   });
 
   const fireConfetti = () => {
@@ -68,10 +71,10 @@ export function Card({ product }) {
 
   return (
     <div
-      className="relative w-[300px] rounded-lg shadow-lg bg-white text-black dark:bg-gray-800 dark:text-white cursor-pointer hover:-translate-y-1 transition"
+      className={clsx("relative w-[300px] rounded-lg shadow-lg bg-white text-black dark:bg-gray-800 dark:text-white cursor-pointer hover:-translate-y-1 transition", className)}
       onClick={() => navigate(`/product/${product.slug}`)}
     >
-      <Image src={product?.imageUrls?.[0]} className="aspect-video w-full rounded-tl-lg rounded-tr-lg" />
+      <Image src={product?.imageUrls?.[0]} className="w-full h-40 rounded-tl-lg rounded-tr-lg" />
       <div className="text-start p-4">
         <div className="grid grid-cols-[1fr_auto] mb-2">
           {product ? (

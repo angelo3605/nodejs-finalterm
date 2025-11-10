@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { getUserByIdService, updateUserService } from "../services/userService.js";
+import prisma from "../prisma/client.js";
 
 export const getMe = async (req, res) => {
   const user = await getUserByIdService(req.user.id);
@@ -16,7 +17,10 @@ export const updateMyInfo = async (req, res) => {
 };
 
 export const changeMyPassword = async (req, res) => {
-  const oldUser = await getUserByIdService(req.user.id);
+  const oldUser = await prisma.user.findUnique({
+    where: { id: req.user.id },
+    select: { password: true },
+  });
   if (!(await bcrypt.compare(req.body.currentPassword, oldUser.password))) {
     return res.status(400).json({
       message: "Current password is incorrect",

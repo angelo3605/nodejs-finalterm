@@ -51,7 +51,11 @@ export const dataProvider = {
 
   custom: ({ url, method, query }) => {
     return api[method](url, {
-      params: query ? Object.fromEntries(Object.entries(query).filter(([_, value]) => value)) : {},
+      params: query
+        ? Object.fromEntries(
+            Object.entries(query).filter(([_, value]) => value),
+          )
+        : {},
     }).then((res) => res.data);
   },
 };

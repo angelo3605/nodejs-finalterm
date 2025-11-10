@@ -9,7 +9,6 @@ import routerProvider, {
 import {
   CircleUserRound,
   LayoutGrid,
-  Package,
   Package2,
   ShoppingBag,
   Sparkles,

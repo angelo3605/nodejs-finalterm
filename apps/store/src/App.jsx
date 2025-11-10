@@ -17,6 +17,10 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
 import { Toaster } from "react-hot-toast";
+import { ProfileLayout } from "@/layouts/ProfileLayout";
+import { Info } from "@/pages/Info";
+import { Addresses } from "@/pages/Addresses";
+import { Password } from "@/pages/Password";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +49,20 @@ export default function App() {
               }
             >
               <Route index element={<Home />} />
-              <Route path="all" element={<Home />} />
+              <Route
+                path="profile"
+                element={
+                  <ProfileLayout>
+                    <Outlet />
+                  </ProfileLayout>
+                }
+              >
+                <Route index element={<Info />} />
+                <Route path="addresses" element={<Addresses />} />
+                <Route path="password" element={<Password />} />
+                <Route path="*" element={<></>} />
+              </Route>
+              <Route path="all" element={<Catalog />} />
               <Route path="category/:slug" element={<Catalog />} />
               <Route path="product/:slug" element={<Product />} />
               <Route path="*" element={<NotFound />} />

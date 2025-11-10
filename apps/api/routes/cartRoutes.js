@@ -7,9 +7,9 @@ import { restrictRoute } from "../middlewares/roleMiddleware.js";
 
 const cartRouter = new Router();
 
-cartRouter.use(optionalAuth, restrictRoute);
+cartRouter.use(optionalAuth);
 
 cartRouter.get("/", getCart);
-cartRouter.post("/", validate(cartSchema), addOrSubtractToCart);
+cartRouter.post("/", restrictRoute, validate(cartSchema), addOrSubtractToCart);
 
 export default cartRouter;

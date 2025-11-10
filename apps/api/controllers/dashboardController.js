@@ -4,7 +4,7 @@ import { getChartStatsService, getOrderStatusesService, getSummaryService } from
 export const getSummary = async (req, res) => {
   const data = await getSummaryService();
   return res.json({ data });
-}
+};
 
 export const getChartStats = async (req, res) => {
   const options = dashboardChartSchema.parse(req.query);

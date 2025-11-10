@@ -96,6 +96,28 @@ export const getAllProductsService = async (sorting, filtering, { page, pageSize
   const { sortBy, sortInAsc } = sorting;
   const { name, minPrice, maxPrice, category, brands, isFeatured } = filtering;
 
+  const priceFilter = minPrice || maxPrice
+    ? {
+      OR: [
+        {
+          variants: {
+            some: {
+              price: {
+                gte: minPrice ?? 0,
+                lte: maxPrice ?? Number.MAX_SAFE_INTEGER,
+              },
+            },
+          },
+        },
+        {
+          variants: {
+            none: {},
+          }
+        }
+      ],
+    }
+    : {}
+
   const where = {
     isFeatured: isFeatured || undefined,
     isDeleted: false,
@@ -105,17 +127,7 @@ export const getAllProductsService = async (sorting, filtering, { page, pageSize
           mode: "insensitive",
         }
       : undefined,
-    variants:
-      minPrice || maxPrice
-        ? {
-            some: {
-              price: {
-                gte: minPrice,
-                lte: maxPrice,
-              },
-            },
-          }
-        : undefined,
+    ...priceFilter,
     brand: brands?.length
       ? {
           slug: { in: brands },
@@ -131,16 +143,8 @@ export const getAllProductsService = async (sorting, filtering, { page, pageSize
   const sortOrder = sortInAsc ? "asc" : "desc";
 
   let orderBy = { createdAt: "desc" };
-  if (sortBy && sortBy !== "mostOrders") {
-    if (sortBy === "price") {
-      orderBy = {
-        variants: {
-          _min: { price: sortOrder },
-        },
-      };
-    } else {
-      orderBy = { [sortBy]: sortOrder }
-    }
+  if (sortBy && !["mostOrders", "price"].includes(sortBy)) {
+    orderBy = { [sortBy]: sortOrder };
   }
 
   const [total, data] = await Promise.all([
@@ -164,6 +168,13 @@ export const getAllProductsService = async (sorting, filtering, { page, pageSize
       const _a = getSumQuantity(a.slug);
       const _b = getSumQuantity(b.slug);
       return sortInAsc ? _b - _a : _a - _b;
+    });
+  } else if (sortBy === "price") {
+    data.sort((a, b) => {
+      const getMinPrice = (product) => (product.variants.length ? Math.min(...product.variants.map((variant) => variant.price)) : 0);
+      const minA = getMinPrice(a);
+      const minB = getMinPrice(b);
+      return sortInAsc ? minB - minA : minA - minB;
     });
   }
 
