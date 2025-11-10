@@ -46,17 +46,36 @@ img {
   }
 }
 
-.floating-label__input:focus + .floating-label__label {
-  @apply text-emerald-700 dark:text-emerald-500;
+.floating-label[aria-expanded=true] > .floating-label__input {
+    @apply inset-ring-3 inset-ring-emerald-700 dark:inset-ring-emerald-500;
 }
 
 .floating-label__input:focus + .floating-label__label,
-.floating-label__input:not(:placeholder-shown) + .floating-label__label {
+.floating-label[aria-expanded=true] > .floating-label__label,
+.floating-label[aria-expanded=true] > .floating-label__icon {
+  @apply text-emerald-700 dark:text-emerald-500;
+}
+
+input.floating-label__input:focus + .floating-label__label,
+input.floating-label__input:not(:placeholder-shown) + .floating-label__label,
+button.floating-label__input:not(:empty) + .floating-label__label {
   @apply top-0 text-sm bg-white dark:bg-gray-900 px-1 left-3;
 }
 
+.floating-label__icon {
+    @apply absolute top-1/2 -translate-y-1/2;
+}
+
+.floating-label:has(.floating-label__icon--right) input.floating-label__input {
+    @apply pr-12;
+}
+
+.floating-label__icon--right {
+    @apply right-4;
+}
+
 .btn {
-  @apply flex justify-center items-center gap-2 h-11 px-4 rounded-lg cursor-pointer hover:not-disabled:not-focus:brightness-105 transition-all;
+  @apply flex justify-center items-center gap-2 h-11 px-4 rounded-lg cursor-pointer hover:not-disabled:not-focus:brightness-105 transition-all hover:bg-black/10 dark:hover:bg-white/10;
 
   @variant disabled {
     @apply saturate-0 opacity-50 cursor-not-allowed;
@@ -68,23 +87,23 @@ img {
 }
 
 .btn-primary {
-  @apply bg-emerald-600 text-white font-bold shadow-lg/10;
+  @apply bg-emerald-600! text-white font-bold shadow-lg/10;
 }
 
 .btn-secondary {
-  @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200 font-bold;
+  @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900! dark:text-emerald-200! font-bold;
 }
 
 @utility btn-outline-light {
-  @apply border border-white/50 hover:border-white;
+  @apply border border-white/50 hover:border-white bg-transparent!;
 }
 
 @utility btn-outline-dark {
-  @apply border border-black/50 hover:border-black;
+  @apply border border-black/50 hover:border-black bg-transparent!;
 }
 
 .btn-cta {
-  @apply bg-white text-black;
+  @apply bg-white! text-black;
 }
 
 .btn-jump:hover {
@@ -113,7 +132,7 @@ img {
 }
 
 .popover {
-    @apply fade-in zoom-in fade-out zoom-out fill-mode-forwards origin-top;
+    @apply fade-in zoom-in fade-out zoom-out fill-mode-forwards origin-top z-100;
 
     [aria-expanded=true] + & {
         @apply animate-in;

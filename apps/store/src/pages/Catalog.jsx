@@ -149,7 +149,7 @@ export function Catalog() {
           />
         )}
       </div>
-      <div className="grid lg:grid-cols-[3fr_1fr] gap-8 p-10 mx-auto">
+      <div className="grid lg:grid-cols-[3fr_1fr] gap-8 p-10 mx-auto max-w-400">
         <div className="flex flex-col gap-10">
           <div className={clsx("grid sm:grid-cols-2 xl:grid-cols-3 gap-4 *:w-auto *:min-w-[250px]", products?.length ? "h-max" : "h-full")}>
             {!products ? (

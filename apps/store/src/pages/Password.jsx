@@ -41,7 +41,7 @@ export function Password() {
 
   return (
     <>
-      <form className="space-y-4" onSubmit={handleSubmit((values) => onSubmit(values))}>
+      <form className="space-y-8" onSubmit={handleSubmit((values) => onSubmit(values))}>
         <div className="grid @xl:grid-cols-2 gap-4">
           <label className="floating-label @xl:col-span-2">
             <input {...register("currentPassword")} type="password" autoComplete="current-password" placeholder="" className="floating-label__input" />

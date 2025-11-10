@@ -117,7 +117,7 @@ function CatalogMenu() {
             </ul>
           </div>
           <div className="bg-gray-100 dark:bg-gray-700/50 flex flex-col">
-            <Image src={category?.imageUrl} className="w-full h-25 object-cover" />
+            <Image src={category?.imageUrl} className="w-full min-h-25 max-h-25 object-cover" />
             <div className="inset-0 p-6 flex flex-col gap-2 h-full">
               <h3 className="font-bold text-xl">{category?.name || "Select a category"}</h3>
               <p>{!category ? "Hover a category to view the details." : category?.desc || "No description provided"}</p>
@@ -165,13 +165,13 @@ export default function Header() {
             </Link>
           </nav>
           <div className="relative flex items-center gap-2">
-            <button className="btn btn-outline-light btn-jump">
+            <Link to="/all" className="btn btn-outline-light btn-jump">
               <FaMagnifyingGlass className="size-5 text-yellow-200" />
-            </button>
-            <button className="relative btn btn-outline-light btn-jump">
+            </Link>
+            <Link to="/cart" className="btn btn-outline-light btn-jump relative">
               <FaCartShopping className="size-5 text-purple-200" />
               {cart?.cartItems?.length > 0 && <span className="badge">{cart?.cartItems?.length}</span>}
-            </button>
+            </Link>
             {isError ? (
               <Link to="/login" className="btn btn-outline-light btn-jump">
                 <FaArrowRightToBracket className="size-5 text-green-200" />

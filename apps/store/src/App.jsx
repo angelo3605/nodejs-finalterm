@@ -21,6 +21,7 @@ import { ProfileLayout } from "@/layouts/ProfileLayout";
 import { Info } from "@/pages/Info";
 import { Addresses } from "@/pages/Addresses";
 import { Password } from "@/pages/Password";
+import { Cart } from "@/pages/Cart";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ export default function App() {
               }
             >
               <Route index element={<Home />} />
+              <Route path="cart" element={<Cart />} />
               <Route
                 path="profile"
                 element={
