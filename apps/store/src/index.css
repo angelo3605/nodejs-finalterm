@@ -58,6 +58,8 @@ img {
 
 input.floating-label__input:focus + .floating-label__label,
 input.floating-label__input:not(:placeholder-shown) + .floating-label__label,
+textarea.floating-label__input:focus + .floating-label__label,
+textarea.floating-label__input:not(:placeholder-shown) + .floating-label__label,
 button.floating-label__input:not(:empty) + .floating-label__label {
   @apply top-0 text-sm bg-white dark:bg-gray-900 px-1 left-3;
 }
@@ -90,8 +92,12 @@ button.floating-label__input:not(:empty) + .floating-label__label {
   @apply bg-emerald-600! text-white font-bold shadow-lg/10;
 }
 
+.btn-error {
+    @apply bg-rose-600! text-white font-bold shadow-lg/10;
+}
+
 .btn-secondary {
-  @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900! dark:text-emerald-200! font-bold;
+  @apply bg-emerald-100! text-emerald-800 dark:bg-emerald-900! dark:text-emerald-200 font-bold;
 }
 
 @utility btn-outline-light {

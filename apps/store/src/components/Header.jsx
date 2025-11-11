@@ -19,7 +19,10 @@ function UserMenu({ user }) {
         .invalidateQueries({
           queryKey: ["profile"],
         })
-        .then(() => toast.success("Logout successfully")),
+        .then(() => {
+          toast.success("Logout successfully");
+          navigate("/");
+        }),
     onError: handleError,
   });
 
