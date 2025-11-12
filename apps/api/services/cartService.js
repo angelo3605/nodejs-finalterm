@@ -18,6 +18,7 @@ const cartSelect = {
             select: {
               slug: true,
               name: true,
+              imageUrls: true,
             },
           },
         },
