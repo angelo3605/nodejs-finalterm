@@ -17,6 +17,7 @@ export function CreateProduct() {
       brand: "",
       category: "",
       isFeatured: false,
+      tags: [],
     },
     refineCoreProps: {
       resource: "products",

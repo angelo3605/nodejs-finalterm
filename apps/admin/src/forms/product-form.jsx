@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { TiptapEditor } from "@/components/tiptap-editor";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { TagsInput } from "@/components/tags-input.jsx";
 
 export function ProductForm({ refineForm }) {
   const {
@@ -104,6 +105,13 @@ export function ProductForm({ refineForm }) {
             name="brand"
             options={brands}
             label="Brand"
+            disabled={isLoading}
+          />
+          <TagsInput
+            control={form.control}
+            name="tags"
+            label="Tags"
+            className="@xl:col-span-2"
             disabled={isLoading}
           />
           <ImagePicker
