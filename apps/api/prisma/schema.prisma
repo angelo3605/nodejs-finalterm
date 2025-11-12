@@ -125,12 +125,13 @@ model Category {
 }
 
 model Product {
-  id         String  @id @default(auto()) @map("_id") @db.ObjectId
-  slug       String  @unique
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug       String   @unique
   name       String
   desc       String?
-  isFeatured Boolean @default(false)
-  isDeleted  Boolean @default(false)
+  tags       String[] @default([])
+  isFeatured Boolean  @default(false)
+  isDeleted  Boolean  @default(false)
 
   brandId    String?   @db.ObjectId
   brand      Brand?    @relation(fields: [brandId], references: [id])
@@ -283,7 +284,7 @@ model OrderItem {
 }
 
 model OrderLog {
-  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
   userId    String?
   oldStatus OrderStatus?
   newStatus OrderStatus

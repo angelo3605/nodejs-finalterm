@@ -8,10 +8,13 @@ const optionalString = z
   .transform((value) => value || undefined)
   .optional();
 
+const queryArray = z.string().transform((value) => (value ? value.replace(/ /g, "").split(",") : []));
+
 export const productSchema = z.object({
   name: z.string().trim().nonempty(),
   desc: z.string().trim().optional(),
   imageUrls: z.array(z.string().trim()).optional(),
+  tags: z.array(z.string().trim()).optional(),
   brand: optionalString,
   category: optionalString,
   isFeatured: z.coerce.boolean().default(false),
@@ -31,7 +34,8 @@ export const productFilteringSchema = z
     minPrice: z.coerce.number().min(0),
     maxPrice: z.coerce.number().min(0),
     category: z.string().trim().nonempty(),
-    brands: z.string().transform((value) => (value ? value.replace(/ /g, "").split(",") : [])),
+    brands: queryArray,
+    tags: queryArray,
     isDeleted: z.coerce.number().int().min(0).max(1).transform(Boolean).default(false),
   })
   .partial();
