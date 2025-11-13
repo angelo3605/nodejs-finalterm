@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -19,7 +20,7 @@ img {
 }
 
 .floating-label {
-  @apply block relative mt-2;
+    @apply block relative mt-2;
 
     &:has([disabled]) {
         @apply opacity-50 saturate-0 cursor-not-allowed;
@@ -27,7 +28,7 @@ img {
 }
 
 .floating-label__label {
-  @apply leading-none absolute -translate-y-1/2 top-1/2 left-4 bg-transparent text-gray-600 dark:text-gray-400 transition-all pointer-events-none;
+    @apply leading-none absolute -translate-y-1/2 top-1/2 left-4 bg-transparent text-gray-600 dark:text-gray-400 transition-all pointer-events-none;
 
     textarea + & {
         @apply top-6;
@@ -35,15 +36,15 @@ img {
 }
 
 .floating-label__input {
-  @apply w-full min-h-12 px-4 outline-none inset-ring inset-ring-gray-300 dark:inset-ring-gray-600 rounded-lg;
+    @apply w-full min-h-12 px-4 outline-none inset-ring inset-ring-gray-300 dark:inset-ring-gray-600 rounded-lg;
 
     textarea& {
         @apply py-3;
     }
 
-  @variant focus {
-    @apply inset-ring-3 inset-ring-emerald-700 dark:inset-ring-emerald-500;
-  }
+    @variant focus {
+        @apply inset-ring-3 inset-ring-emerald-700 dark:inset-ring-emerald-500;
+    }
 }
 
 .floating-label[aria-expanded=true] > .floating-label__input {
@@ -53,7 +54,7 @@ img {
 .floating-label__input:focus + .floating-label__label,
 .floating-label[aria-expanded=true] > .floating-label__label,
 .floating-label[aria-expanded=true] > .floating-label__icon {
-  @apply text-emerald-700 dark:text-emerald-500;
+    @apply text-emerald-700 dark:text-emerald-500;
 }
 
 input.floating-label__input:focus + .floating-label__label,
@@ -61,7 +62,7 @@ input.floating-label__input:not(:placeholder-shown) + .floating-label__label,
 textarea.floating-label__input:focus + .floating-label__label,
 textarea.floating-label__input:not(:placeholder-shown) + .floating-label__label,
 button.floating-label__input:not(:empty) + .floating-label__label {
-  @apply top-0 text-sm bg-white dark:bg-gray-900 px-1 left-3;
+    @apply top-0 text-sm bg-white dark:bg-gray-900 px-1 left-3;
 }
 
 .floating-label__icon {
@@ -77,19 +78,19 @@ button.floating-label__input:not(:empty) + .floating-label__label {
 }
 
 .btn {
-  @apply flex justify-center items-center gap-2 h-11 px-4 rounded-lg cursor-pointer hover:not-disabled:not-focus:brightness-105 transition-all hover:bg-black/10 dark:hover:bg-white/10;
+    @apply flex justify-center items-center gap-2 h-11 px-4 rounded-lg cursor-pointer hover:not-disabled:not-focus:brightness-105 transition-all hover:bg-black/10 dark:hover:bg-white/10;
 
-  @variant disabled {
-    @apply saturate-0 opacity-50 cursor-not-allowed;
-  }
+    @variant disabled {
+        @apply saturate-0 opacity-50 cursor-not-allowed;
+    }
 
-  @variant aria-disabled {
-    @apply saturate-0 opacity-50 cursor-not-allowed;
-  }
+    @variant aria-disabled {
+        @apply saturate-0 opacity-50 cursor-not-allowed;
+    }
 }
 
 .btn-primary {
-  @apply bg-emerald-600! text-white font-bold shadow-lg/10;
+    @apply bg-emerald-600! text-white font-bold shadow-lg/10;
 }
 
 .btn-error {
@@ -97,39 +98,38 @@ button.floating-label__input:not(:empty) + .floating-label__label {
 }
 
 .btn-secondary {
-  @apply bg-emerald-100! text-emerald-800 dark:bg-emerald-900! dark:text-emerald-200 font-bold;
+    @apply bg-emerald-100! text-emerald-800 dark:bg-emerald-900! dark:text-emerald-200 font-bold;
 }
 
 @utility btn-outline-light {
-  @apply border border-white/50 hover:border-white bg-transparent!;
+    @apply border border-white/50 hover:border-white bg-transparent!;
 }
 
 @utility btn-outline-dark {
-  @apply border border-black/50 hover:border-black bg-transparent!;
+    @apply border border-black/50 hover:border-black bg-transparent!;
 }
 
 .btn-cta {
-  @apply bg-white! text-black;
+    @apply bg-white! text-black;
 }
 
 .btn-jump:hover {
-  @apply -translate-y-0.5;
+    @apply -translate-y-0.5;
 }
 
 .link {
-  @apply text-emerald-700 dark:text-emerald-500 hover:underline w-max flex items-center gap-2;
+    @apply text-emerald-700 dark:text-emerald-500 hover:underline w-max flex items-center gap-2;
 }
 
 .bg-fancy {
-  --s: 80px; /* control the size*/
-  --c1: var(--color-emerald-700);
-  --c2: color-mix(in hsl, var(--color-emerald-600) 50%, transparent 50%);
+    --s: 80px; /* control the size*/
+    --c1: var(--color-emerald-700);
+    --c2: color-mix(in hsl, var(--color-emerald-600) 50%, transparent 50%);
 
-  --_s: calc(2 * var(--s)) calc(2 * var(--s));
-  --_g: 35.36% 35.36% at;
-  --_c: #0000 66%, var(--c2) 68% 70%, #0000 72%;
-  background:
-    radial-gradient(var(--_g) 100% 25%, var(--_c)) var(--s) var(--s) / var(--_s),
+    --_s: calc(2 * var(--s)) calc(2 * var(--s));
+    --_g: 35.36% 35.36% at;
+    --_c: #0000 66%, var(--c2) 68% 70%, #0000 72%;
+    background: radial-gradient(var(--_g) 100% 25%, var(--_c)) var(--s) var(--s) / var(--_s),
     radial-gradient(var(--_g) 0 75%, var(--_c)) var(--s) var(--s) / var(--_s),
     radial-gradient(var(--_g) 100% 25%, var(--_c)) 0 0 / var(--_s),
     radial-gradient(var(--_g) 0 75%, var(--_c)) 0 0 / var(--_s),
@@ -150,15 +150,15 @@ button.floating-label__input:not(:empty) + .floating-label__label {
 }
 
 .menu {
-  @apply bg-white text-black dark:bg-gray-800 dark:text-white py-2 shadow-lg rounded-lg flex flex-col;
+    @apply bg-white text-black dark:bg-gray-800 dark:text-white py-2 shadow-lg rounded-lg flex flex-col;
 }
 
 .menu-item {
-  @apply flex items-center h-10 gap-4 px-4 hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer not-last:border-b border-gray-200 dark:border-gray-700;
+    @apply flex items-center h-10 gap-4 px-4 hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer not-last:border-b border-gray-200 dark:border-gray-700;
 
-  svg {
-    @apply size-5;
-  }
+    svg {
+        @apply size-5;
+    }
 }
 
 .toggle {
@@ -200,19 +200,19 @@ button.floating-label__input:not(:empty) + .floating-label__label {
 }
 
 .checkbox {
-  @apply flex items-center gap-2 cursor-pointer w-max;
+    @apply flex items-center gap-2 cursor-pointer w-max;
 }
 
 .checkbox__input {
-  @apply hidden;
+    @apply hidden;
 }
 
 .checkbox__icon {
-  @apply box-content size-3 p-1 border-2 border-gray-400 dark:border-gray-600 rounded-lg text-white dark:text-gray-900;
+    @apply box-content size-3 p-1 border-2 border-gray-400 dark:border-gray-600 rounded-lg text-white dark:text-gray-900;
 }
 
 .checkbox__input:checked + .checkbox__icon {
-  @apply bg-emerald-600 border-emerald-600;
+    @apply bg-emerald-600 border-emerald-600;
 }
 
 .placeholder {
@@ -224,7 +224,17 @@ button.floating-label__input:not(:empty) + .floating-label__label {
 }
 
 .nav-item {
-    @apply py-2 font-bold not-hover:opacity-75 cursor-pointer;
+    @apply py-2 font-bold cursor-pointer flex items-center gap-2 not-hover:text-white/75 [&,&>*]:transition;
+
+    @variant not-last {
+        &:after {
+            @apply content-['\\'] block ml-2 text-white/50 cursor-default;
+        }
+    }
+
+    &:hover > svg {
+        @apply -translate-y-1;
+    }
 }
 
 .chip {
@@ -237,7 +247,7 @@ button.floating-label__input:not(:empty) + .floating-label__label {
 
 .btn__group {
     @apply flex;
-    
+
     & > .btn {
         @apply rounded-none w-max;
 

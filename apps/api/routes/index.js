@@ -20,6 +20,7 @@ import ratingRouter from "./ratingRoutes.js";
 import vnpayRouter from "./vnpayRoutes.js";
 import discountCodeRouter from "./discountCodeRoutes.js";
 import userRouter from "./userRoutes.js";
+import tagRouter from "./tagRoutes.js";
 
 const router = Router();
 
@@ -31,6 +32,7 @@ router.use("/images", imageRouter);
 router.use("/brands", brandRouter);
 router.use("/categories", categoryRouter);
 router.use("/products", productRouter);
+router.use("/tags", tagRouter);
 router.use("/variants", variantRouter);
 router.use("/profile", profileRouter);
 router.use("/cart", cartRouter);

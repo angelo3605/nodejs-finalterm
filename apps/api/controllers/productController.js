@@ -1,5 +1,5 @@
 import { productFilteringSchema, productSortingSchema } from "@mint-boutique/zod-schemas";
-import { createProductService, getAllProductsService, getProductBySlugService, updateProductService } from "../services/productService.js";
+import { createProductService, getAllProductsService, getAllProductTagsService, getProductBySlugService, updateProductService } from "../services/productService.js";
 
 export const getAllProducts = async (req, res) => {
   const sorting = productSortingSchema.parse(req.query);
@@ -7,6 +7,13 @@ export const getAllProducts = async (req, res) => {
 
   const data = await getAllProductsService(sorting, filtering, req.pagination);
   return res.json(data);
+};
+
+export const getAllTags = async (req, res) => {
+  const tags = await getAllProductTagsService();
+  return res.json({
+    data: tags,
+  });
 };
 
 export const getProductBySlug = async (req, res) => {

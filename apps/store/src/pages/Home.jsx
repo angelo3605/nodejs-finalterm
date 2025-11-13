@@ -46,7 +46,7 @@ export default function Home() {
     <>
       <Hero />
       <main className="mx-auto w-[min(1200px,92%)]">
-        <Section title="Best sellers">
+        <Section title="Best sellers" id="bestSellers">
           <ProductCarousel products={bestSellers} />
         </Section>
         {/*<Section title="Categories">*/}

@@ -4,7 +4,14 @@ import { requireAuth } from "../middlewares/authMiddleware.js";
 import { checkRole } from "../middlewares/roleMiddleware.js";
 import { validate } from "../middlewares/zodMiddleware.js";
 import { productSchema } from "@mint-boutique/zod-schemas";
-import { createProduct, deleteProduct, getAllProducts, getProductBySlug, restoreProduct, updateProduct } from "../controllers/productController.js";
+import {
+  createProduct,
+  deleteProduct,
+  getAllProducts,
+  getProductBySlug,
+  restoreProduct,
+  updateProduct
+} from "../controllers/productController.js";
 
 const productRouter = new Router();
 

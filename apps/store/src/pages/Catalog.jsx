@@ -1,6 +1,6 @@
 import { api } from "@mint-boutique/axios-client";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, useSearchParams } from "react-router";
+import { useLocation, useParams, useSearchParams } from "react-router";
 import { Image } from "@/components/Image";
 import { FaArrowDownWideShort, FaArrowUpShortWide, FaBoxOpen, FaCheck, FaChevronLeft, FaChevronRight, FaSliders } from "react-icons/fa6";
 import { useForm, useWatch } from "react-hook-form";
@@ -57,6 +57,7 @@ const schema = z.object({
 const defaultValues = {
   name: "",
   brands: [],
+  tags: [],
   sortBy: "mostOrders",
   sortInAsc: false,
   minPrice: absMinPrice,
@@ -66,11 +67,14 @@ const defaultValues = {
 };
 
 export function Catalog() {
+  const location = useLocation();
   const { slug: categorySlug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const searchFocus = searchParams.get("searchFocus") ?? "0";
+
   let paramValues = schema.safeParse(Object.fromEntries(searchParams));
-  const { register, control, setValue, reset } = useForm({
+  const { register, control, setValue, reset, setFocus } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       ...defaultValues,
@@ -79,21 +83,33 @@ export function Catalog() {
   });
 
   useEffect(() => {
+    if (searchFocus === "1") {
+      setFocus("name");
+    }
+  }, [searchFocus]);
+
+  useEffect(() => {
     reset({
       ...defaultValues,
       ...(paramValues.data ?? {}),
     });
-  }, [categorySlug]);
+  }, [location.pathname, location.search]);
 
   const values = useWatch({ control });
 
   const updateSearchParams = (values) => {
     const params = new URLSearchParams();
+    if (searchFocus === "1") {
+      params.set("searchFocus", searchFocus);
+    }
     if (values.name) {
       params.set("name", values.name);
     }
     if (values.brands.length) {
       params.set("brands", values.brands.join(","));
+    }
+    if (values.tags.length) {
+      params.set("tags", values.tags.join(","));
     }
     if (values.sortInAsc) {
       params.set("sortInAsc", values.sortInAsc ? "1" : "0");
@@ -117,6 +133,11 @@ export function Catalog() {
   const { data: allBrands } = useQuery({
     queryKey: ["brands"],
     queryFn: () => api.get("/brands").then((res) => res.data?.data),
+  });
+
+  const { data: tags } = useQuery({
+    queryKey: ["tags"],
+    queryFn: () => api.get("/tags").then((res) => res.data?.data),
   });
 
   const { data: { data: products, total } = {} } = useQuery({
@@ -274,6 +295,24 @@ export function Catalog() {
                     onClick={() => setValue("brands", isActive ? values.brands.filter((b) => b !== brand.slug) : values.brands.concat(brand.slug))}
                   >
                     {isActive && <FaCheck />} {brand.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span>Tags</span>
+            <div className="flex flex-wrap gap-2">
+              {tags?.map((tag, i) => {
+                const isActive = values.tags.includes(tag);
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    className={clsx("chip", isActive && "chip--active")}
+                    onClick={() => setValue("tags", isActive ? values.tags.filter((t) => t !== tag) : values.tags.concat(tag))}
+                  >
+                    {isActive && <FaCheck />} {tag}
                   </button>
                 );
               })}

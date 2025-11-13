@@ -1,16 +1,20 @@
-import { Link } from "react-router";
-import { FaMagnifyingGlass, FaSliders } from "react-icons/fa6";
+import { Link, useNavigate } from "react-router";
+import { FaMagnifyingGlass } from "react-icons/fa6";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectCoverflow, Pagination } from "swiper/modules";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@mint-boutique/axios-client";
 import { Card } from "@/components/Card";
+import { useForm } from "react-hook-form";
 
 export default function Hero() {
   const { data: featured } = useQuery({
     queryKey: ["products", "featured"],
     queryFn: () => api.get("/products?isFeatured=1").then((res) => res.data?.data),
   });
+
+  const { register, handleSubmit } = useForm();
+  const navigate = useNavigate();
 
   return (
     <section className="w-full bg-fancy text-white">
@@ -21,18 +25,19 @@ export default function Hero() {
           <p className="leading-wide py-4">
             Bring fresh energy into your home with curated plants and pots. Our environment, the world in which we live and work, is a mirror of our attitudes and expectations.
           </p>
-          <div className="flex gap-2">
-            <Link to="/all" className="btn btn-outline-light">
-              <FaSliders className="size-5" />
-            </Link>
-            <input className="border border-white/50 outline-none px-4 w-full rounded-lg focus:border-white" placeholder="Search for products..." />
-            <button className="btn btn-cta">
+          <form className="flex gap-2" onSubmit={handleSubmit(({ name }) => name && navigate(`/all?name=${name}`))}>
+            <input {...register("name")} className="border border-white/50 outline-none px-4 w-full rounded-lg focus:border-white" placeholder="Search for products..." />
+            <button type="submit" className="btn btn-cta">
               <FaMagnifyingGlass className="size-5" />
             </button>
-          </div>
+          </form>
           <div className="flex gap-2">
-            <button className="btn btn-cta btn-jump">Shop now</button>
-            <button className="btn btn-outline-light btn-jump">Explore</button>
+            <a href="#bestSellers" className="btn btn-cta btn-jump">
+              Shop now
+            </a>
+            <Link to="/all" className="btn btn-outline-light btn-jump">
+              Explore
+            </Link>
           </div>
         </div>
         <div className="relative">

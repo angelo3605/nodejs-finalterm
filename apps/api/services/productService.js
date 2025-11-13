@@ -154,7 +154,7 @@ export const getAllProductsService = async (sorting, filtering, { page, pageSize
     orderBy = { [sortBy]: sortOrder };
   }
 
-  const [total, data, tagsRaw] = await Promise.all([
+  const [total, data] = await Promise.all([
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,
@@ -163,12 +163,7 @@ export const getAllProductsService = async (sorting, filtering, { page, pageSize
       take: pageSize,
       orderBy,
     }),
-    prisma.product.findMany({
-      select: { tags: true },
-    }),
   ]);
-
-  const allTags = [...new Set(tagsRaw.flatMap((product) => product.tags))];
 
   if (sortBy === "mostOrders") {
     const orderCounts = await prisma.orderItem.groupBy({
@@ -190,7 +185,14 @@ export const getAllProductsService = async (sorting, filtering, { page, pageSize
     });
   }
 
-  return { data, total, tags: allTags };
+  return { data, total };
+};
+
+export const getAllProductTagsService = async () => {
+  const tagsRaw = await prisma.product.findMany({
+    select: { tags: true },
+  });
+  return [...new Set(tagsRaw.flatMap((product) => product.tags))];
 };
 
 export const getDeletedProductsService = async () => {

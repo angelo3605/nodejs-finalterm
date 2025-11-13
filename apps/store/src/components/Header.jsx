@@ -1,5 +1,19 @@
 import { Link, useNavigate } from "react-router";
-import { FaAnglesRight, FaArrowRight, FaArrowRightFromBracket, FaArrowRightToBracket, FaCartShopping, FaCircleUser, FaGaugeHigh, FaMagnifyingGlass, FaUser } from "react-icons/fa6";
+import {
+  FaAnglesRight,
+  FaArrowRight,
+  FaArrowRightFromBracket,
+  FaArrowRightToBracket,
+  FaCartShopping,
+  FaCircleUser,
+  FaGaugeHigh,
+  FaHouse,
+  FaMagnifyingGlass,
+  FaSeedling,
+  FaShapes,
+  FaStore,
+  FaUser,
+} from "react-icons/fa6";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@mint-boutique/axios-client";
 import { useSelect } from "downshift";
@@ -87,12 +101,12 @@ function CatalogMenu() {
   });
 
   return (
-    <div className="lg:relative">
+    <div>
       <button {...getToggleButtonProps()} className="nav-item">
-        Catalog
+        <FaShapes /> Catalog
       </button>
       <div
-        className="popover text-black shadow-lg absolute flex flex-col left-1/2 lg:left-full -translate-x-1/2 rounded-lg top-12 bg-white dark:bg-gray-800 dark:text-white z-50 overflow-hidden"
+        className="popover text-black shadow-lg absolute flex flex-col left-1/2 -translate-x-1/2 rounded-lg top-[54px] bg-white dark:bg-gray-800 dark:text-white z-50 overflow-hidden"
         {...getMenuProps()}
       >
         <div className="grid md:grid-cols-[40%_auto] w-screen max-w-[600px] min-h-[400px]">
@@ -150,25 +164,25 @@ export default function Header() {
   return (
     <>
       <header className="sticky top-0 bg-emerald-800 text-white shadow-xl/10 z-50">
-        <div className="flex flex-wrap gap-x-4 gap-y-2 mx-auto w-[min(1200px,92%)] justify-between items-center py-2">
-          <Link to="/" className="group flex items-center gap-4 hover:underline text-xl">
+        <div className="flex flex-wrap gap-x-8 gap-y-2 mx-auto w-[min(1200px,92%)] justify-between items-center py-2">
+          <Link to="/" className="grow-1 basis-[0] group flex items-center gap-4 hover:underline text-xl">
             <Logo className="size-8 group-hover:animate-spin" />
-            <span className="font-brand">Mint Boutique</span>
+            <span className="font-brand w-max">Mint Boutique</span>
           </Link>
           <nav className="flex gap-4">
             <Link to="/" className="nav-item">
-              Home
+              <FaHouse /> Home
             </Link>
             <Link to="/all" className="nav-item">
-              All
+              <FaSeedling /> All
             </Link>
             <CatalogMenu />
             <Link to="/about" className="nav-item">
-              About
+              <FaStore /> About
             </Link>
           </nav>
-          <div className="relative flex items-center gap-2">
-            <Link to="/all" className="btn btn-outline-light btn-jump">
+          <div className="grow-1 basis-[0] relative flex justify-end items-center gap-2">
+            <Link to="/all?searchFocus=1" className="btn btn-outline-light btn-jump">
               <FaMagnifyingGlass className="size-5 text-yellow-200" />
             </Link>
             <Link to="/cart" className="btn btn-outline-light btn-jump relative">
