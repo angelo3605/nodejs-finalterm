@@ -1,0 +1,21 @@
+import { Outlet } from "react-router";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+
+import { SiteHeader } from "@/components/site-header";
+import { AppSidebar } from "@/components/app-sidebar";
+
+import Logo from "@mint-boutique/assets/logo.svg?react";
+
+export function RootLayout() {
+  return (
+    <SidebarProvider className="flex-col">
+      <SiteHeader appName="Mint Boutique" Logo={Logo} />
+      <div className="justify-center flex flex-1">
+        <AppSidebar />
+        <SidebarInset className="@container max-w-6xl flex-1 p-8">
+          <Outlet />
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
+  );
+}

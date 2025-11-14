@@ -1,0 +1,332 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  BLOCKED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  DELIVERING
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+enum CartStatus {
+  ACTIVE
+  CHECKED_OUT
+}
+
+type ShippingInfo {
+  address     String
+  province    String
+  district    String
+  ward        String?
+  phoneNumber String
+  fullName    String
+}
+
+model User {
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  fullName      String?
+  email         String? @unique
+  password      String?
+  role          Role    @default(CUSTOMER)
+  loyaltyPoints Int     @default(0)
+
+  oauths            OAuthAccount[]
+  resetTokens       PasswordResetToken[]
+  shippingAddresses ShippingAddress[]
+  orders            Order[]
+  ratings           Rating[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OAuthAccount {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  provider   String
+  providerId String
+  userId     String @db.ObjectId
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([provider, providerId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  token     String
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model ShippingAddress {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  fullName    String
+  province    String
+  district    String
+  ward        String?
+  address     String
+  phoneNumber String
+  isDefault   Boolean @default(false)
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([id, userId])
+  @@unique([userId, fullName, address, phoneNumber])
+}
+
+model Brand {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  slug      String  @unique
+  name      String
+  isDeleted Boolean @default(false)
+
+  products Product[]
+}
+
+model Category {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  slug      String  @unique
+  name      String
+  desc      String?
+  imageUrl  String?
+  isDeleted Boolean @default(false)
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug       String   @unique
+  name       String
+  desc       String?
+  tags       String[] @default([])
+  isFeatured Boolean  @default(false)
+  isDeleted  Boolean  @default(false)
+
+  brandId    String?   @db.ObjectId
+  brand      Brand?    @relation(fields: [brandId], references: [id])
+  categoryId String?   @db.ObjectId
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  variants  ProductVariant[]
+  comments  Comment[]
+  ratings   Rating[]
+  imageUrls String[]         @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  OrderItem OrderItem[]
+}
+
+model ProductVariant {
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  price         Float
+  stockQuantity Int
+  isDeleted     Boolean @default(false)
+
+  productSlug String
+  product     Product @relation(fields: [productSlug], references: [slug])
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Image {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  url     String
+  altText String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Comment {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  message String
+
+  parentId   String?   @db.ObjectId
+  parent     Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies    Comment[] @relation("CommentReplies")
+  senderName String
+
+  userId  String?
+  guestId String?
+
+  productSlug String
+  product     Product @relation(fields: [productSlug], references: [slug])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Rating {
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  stars  Int
+  review String?
+
+  userId      String  @db.ObjectId
+  user        User    @relation(fields: [userId], references: [id])
+  productSlug String
+  product     Product @relation(fields: [productSlug], references: [slug])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productSlug])
+}
+
+model Cart {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  sumAmount Float
+  status    CartStatus @default(ACTIVE)
+
+  userId  String?
+  guestId String?
+
+  cartItems CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  quantity Int    @default(1)
+
+  cartId    String         @db.ObjectId
+  cart      Cart           @relation(fields: [cartId], references: [id])
+  variantId String         @db.ObjectId
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, variantId])
+}
+
+model Order {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  sumAmount   Float
+  totalAmount Float
+  status      OrderStatus @default(PENDING)
+
+  userId            String      @db.ObjectId
+  user              User        @relation(fields: [userId], references: [id])
+  orderItems        OrderItem[]
+  payments          Payment[]
+  discountCode      String?
+  discountValue     Int
+  loyaltyPointsUsed Int
+
+  shippingAddress ShippingInfo
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  OrderLog OrderLog[]
+}
+
+model OrderItem {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  quantity  Int
+  unitPrice Float
+  sumAmount Float
+
+  orderId String @db.ObjectId
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  variantId String         @db.ObjectId
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  productSlug String
+  product     Product @relation(fields: [productSlug], references: [slug])
+
+  productName String
+  variantName String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderLog {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?
+  oldStatus OrderStatus?
+  newStatus OrderStatus
+
+  orderId String @db.ObjectId
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  transactionId String
+  method        String
+  currency      String
+  amount        Float
+  status        PaymentStatus @default(PENDING)
+  expireDate    DateTime
+
+  orderId String @db.ObjectId
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DiscountCode {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  code       String       @unique
+  desc       String?
+  type       DiscountType
+  value      Float
+  usageLimit Int?
+  numOfUsage Int          @default(0)
+  isDeleted  Boolean      @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

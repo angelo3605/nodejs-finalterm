@@ -1,3 +1,9 @@
-/.turbo
+**/.turbo
 **/node_modules
-package-lock.json
+**/package-lock.json
+**/.env
+**/.idea
+
+/apps/api/generated/prisma
+/apps/api/public/uploads
+/apps/api/public/data

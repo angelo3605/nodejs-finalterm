@@ -1,4 +1,5 @@
 {
+  "name": "mint-boutique",
   "private": true,
   "scripts": {
     "build": "turbo run build",
@@ -14,5 +15,8 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "react-use": "^17.6.0"
+  }
 }
