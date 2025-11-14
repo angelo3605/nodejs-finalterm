@@ -40,6 +40,9 @@ enum CartStatus {
 
 type ShippingInfo {
   address     String
+  province    String
+  district    String
+  ward        String?
   phoneNumber String
   fullName    String
 }
@@ -87,6 +90,9 @@ model PasswordResetToken {
 model ShippingAddress {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
   fullName    String
+  province    String
+  district    String
+  ward        String?
   address     String
   phoneNumber String
   isDefault   Boolean @default(false)

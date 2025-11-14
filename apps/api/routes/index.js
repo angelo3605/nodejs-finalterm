@@ -21,6 +21,7 @@ import vnpayRouter from "./vnpayRoutes.js";
 import discountCodeRouter from "./discountCodeRoutes.js";
 import userRouter from "./userRoutes.js";
 import tagRouter from "./tagRoutes.js";
+import ghnRouter from "./ghnRoutes.js";
 
 const router = Router();
 
@@ -45,6 +46,7 @@ router.use(commentRouter);
 router.use(ratingRouter);
 router.use("/payment", vnpayRouter);
 router.use("/users", userRouter);
+router.use("/shipment", ghnRouter);
 
 router.use(handleError);
 

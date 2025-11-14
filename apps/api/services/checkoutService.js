@@ -67,6 +67,9 @@ export const checkoutService = async ({ userId, guestId, shippingAddressId, disc
       totalAmount: total,
       shippingAddress: {
         address: shippingAddress.address,
+        province: shippingAddress.province,
+        district: shippingAddress.district,
+        ward: shippingAddress.ward,
         phoneNumber: shippingAddress.phoneNumber,
         fullName: user.fullName,
       },
@@ -88,7 +91,7 @@ export const postCheckoutService = async ({ guestId, order }) => {
       loyaltyPoints: order.user.loyaltyPoints - order.loyaltyPointsUsed + Math.floor(order.totalAmount / 1000.0),
     }),
     markCartAsCheckedOutService({ userId: order.user.id, guestId }),
-    discountRecord &&
+    Object.keys(discountRecord) &&
       updateDiscountCodeService(order.discountCode, {
         numOfUsage: discountRecord.numOfUsage + 1,
       }),
@@ -112,7 +115,7 @@ export const postCheckoutService = async ({ guestId, order }) => {
   });
 };
 
-export const guestCheckoutService = async ({ guestId, email, fullName, address, phoneNumber, discountCode }) => {
+export const guestCheckoutService = async ({ guestId, email, fullName, address, province, district, ward, phoneNumber, discountCode }) => {
   if (
     await prisma.user.findUnique({
       where: { email },
@@ -131,6 +134,9 @@ export const guestCheckoutService = async ({ guestId, email, fullName, address, 
       fullName,
       address,
       phoneNumber,
+      province,
+      district,
+      ward,
     },
   );
 

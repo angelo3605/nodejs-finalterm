@@ -11,7 +11,6 @@ import { handleError } from "@/utils/errorHandler";
 
 export function Card({ product, className }) {
   const minPrice = product?.variants.reduce((min, variant) => (min < variant.price ? variant.price : min), 0);
-  const minPriceStr = product?.variants.length ? longCurrencyFormatter.format(minPrice) : "Not for sale";
 
   const totalStars = product?.ratings?.reduce((sum, rating) => sum + rating.stars, 0) ?? 0;
   const avgStars = totalStars / (product?.ratings?.length ?? 1);
@@ -80,7 +79,9 @@ export function Card({ product, className }) {
           {product ? (
             <>
               <span className="text-sm">{product.category?.name ?? "Other"}</span>
-              <span className="row-span-2 font-medium text-emerald-800 dark:text-emerald-400">{minPriceStr}</span>
+              <span className={clsx("row-span-2 font-medium", product?.variants.length ? "text-emerald-800 dark:text-emerald-400" : "text-rose-800 dark:text-rose-400")}>
+                {product?.variants.length ? longCurrencyFormatter.format(minPrice) : "Contact us!"}
+              </span>
               <span className="font-bold">{product.name}</span>
             </>
           ) : (

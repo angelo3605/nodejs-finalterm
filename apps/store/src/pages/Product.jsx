@@ -2,9 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { api } from "@mint-boutique/axios-client";
 import { formatDistanceToNow } from "date-fns";
-import { FaPaperPlane, FaRegStar, FaSpinner, FaStar, FaTrash } from "react-icons/fa6";
+import { FaBagShopping, FaCheck, FaEnvelope, FaPaperPlane, FaRegStar, FaSpinner, FaStar, FaTrash } from "react-icons/fa6";
 import { io } from "socket.io-client";
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { commentSchema, ratingSchema } from "@mint-boutique/zod-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,9 +12,39 @@ import clsx from "clsx";
 import { Swiper, SwiperSlide } from "swiper/react";
 import toast from "react-hot-toast";
 import { handleError } from "@/utils/errorHandler";
+import { Image } from "@/components/Image";
+import { EffectFade, FreeMode, Navigation, Thumbs, Zoom } from "swiper/modules";
+import { longCurrencyFormatter } from "@mint-boutique/formatters";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
+import confetti from "canvas-confetti";
 
 const commentSocket = io(`${import.meta.env.VITE_API_URL}/comments`);
 const ratingSocket = io(`${import.meta.env.VITE_API_URL}/ratings`);
+
+const fireConfetti = () => {
+  confetti({
+    particleCount: 100,
+    angle: 60,
+    spread: 55,
+    origin: { x: 0 },
+  });
+  confetti({
+    particleCount: 100,
+    angle: 120,
+    spread: 55,
+    origin: { x: 1 },
+  });
+};
+
+function TitleDivider({ title }) {
+  return (
+    <div className="flex items-center gap-4 font-bold">
+      <h5>{title}</h5>
+      <hr className="flex-1 border-gray-300 dark:border-gray-700" />
+    </div>
+  );
+}
 
 function Comment({ comment }) {
   const { mutate, isPending } = useMutation({
@@ -118,9 +148,14 @@ function RatingForm() {
         stars,
         review,
       }),
-    onSuccess: () => {
+    onSuccess: (data) => {
       reset();
-      toast.success("Thank you for rating out product!");
+      if (data.data.data.stars === 5) {
+        fireConfetti();
+        toast.success("You are awesome :D");
+      } else {
+        toast.success("Thank you for rating out product!");
+      }
     },
     onError: handleError,
   });
@@ -218,10 +253,18 @@ export default function Product() {
 
   const queryClient = useQueryClient();
 
-  const { data: product } = useQuery({
+  const [activeVariant, setActiveVariant] = useState(null);
+
+  const { data: product, isPending: isProductLoading } = useQuery({
     queryKey: ["products", slug],
     queryFn: () => api.get(`/products/${slug}`).then((res) => res.data?.data),
   });
+
+  useEffect(() => {
+    if (product?.variants.length) {
+      setActiveVariant(product.variants.find((variant) => variant.stockQuantity));
+    }
+  }, [product]);
 
   const sortByDate = (a, b) => new Date(b.createdAt) - new Date(a.createdAt);
 
@@ -289,31 +332,157 @@ export default function Product() {
     retry: false,
   });
 
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  const [addedToCart, setAddedToCart] = useState(false);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () =>
+      api.post("/cart", {
+        variantId: activeVariant.id,
+        amount: 1,
+      }),
+    onSuccess: () =>
+      queryClient
+        .invalidateQueries({
+          queryKey: ["cart"],
+        })
+        .then(() => {
+          setAddedToCart(true);
+          fireConfetti();
+          setTimeout(() => setAddedToCart(false), 2000);
+        }),
+    onError: handleError,
+  });
+
   return (
     <div className="mx-auto w-[min(1200px,92%)] py-10 space-y-5">
-      <button className="btn btn-primary" onClick={() => toast.success("Hello, world!")}>
-        Toast test
-      </button>
-      <div>
-        <Swiper slidesPerView="auto" spaceBetween={20} className="mask-x-from-99% mask-x-to-100%">
-          {user && (
-            <SwiperSlide className="home-carousel">
-              <RatingForm />
-            </SwiperSlide>
+      <div className="grid lg:grid-cols-[3fr_2fr] gap-5 w-full">
+        <div className="grid lg:grid-cols-[auto_auto] w-full gap-4">
+          <Swiper
+            slidesPerView={1}
+            modules={[EffectFade, Thumbs, Navigation, Zoom]}
+            zoom={true}
+            navigation={true}
+            thumbs={{ swiper: thumbsSwiper }}
+            effect="fade"
+            crossfade={true.toString()}
+            className="w-full h-[300px] lg:h-full lg:aspect-video"
+          >
+            {product?.imageUrls.map((url) => (
+              <SwiperSlide>
+                <div className="swiper-zoom-container">
+                  <Image src={url} className="size-full rounded-lg" />
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+          <Swiper
+            slidesPerView="auto"
+            spaceBetween={8}
+            modules={[Thumbs, FreeMode]}
+            navigation={true}
+            loop={true}
+            onSwiper={setThumbsSwiper}
+            watchSlidesProgress={true}
+            freeMode={true}
+            className="w-full h-[50px] lg:w-[50px] lg:h-full shrink-0"
+            breakpoints={{
+              1024: { direction: "vertical" },
+            }}
+          >
+            {product?.imageUrls.map((url) => (
+              <SwiperSlide className="size-[50px]! not-[&.swiper-slide-thumb-active]:opacity-50 cursor-pointer">
+                <Image src={url} className="size-full rounded-lg" />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+        <div className="lg:ml-5 flex flex-col gap-4">
+          <span>
+            {product?.category?.name} / {product?.brand?.name}
+          </span>
+          <h2 className="text-3xl font-medium">{product?.name}</h2>
+          <ul className="flex flex-wrap items-center gap-2">
+            <li className="mr-2">Tags:</li>
+            {product?.tags.map((tag, i) => (
+              <li key={i} className="bg-gray-100 dark:bg-gray-800 rounded-lg py-0.5 px-2">
+                {tag}
+              </li>
+            ))}
+          </ul>
+          <span className={clsx("text-xl font-medium", activeVariant ? "text-emerald-800 dark:text-emerald-400" : "text-rose-800 dark:text-rose-400")}>
+            {activeVariant ? longCurrencyFormatter.format(activeVariant.price) : "Contact us!"}
+          </span>
+          <TitleDivider title="Options" />
+          <div className="flex flex-wrap gap-2">
+            {product?.variants.map((variant, i) => {
+              const isActive = activeVariant?.id === variant.id;
+              return (
+                <button
+                  key={i}
+                  className={clsx("chip", isActive && "chip--active", variant.stockQuantity || "chip--disabled")}
+                  onClick={() => {
+                    if (variant.stockQuantity) {
+                      setActiveVariant(variant);
+                    }
+                  }}
+                >
+                  {isActive && <FaCheck />} {variant.name}
+                </button>
+              );
+            })}
+          </div>
+
+          {isPending || isProductLoading ? (
+            <button className="btn btn-primary mt-auto" disabled={true}>
+              <FaSpinner className="animate-spin" /> Loading
+            </button>
+          ) : activeVariant ? (
+            <button className="btn btn-primary mt-auto" onClick={() => mutate()}>
+              {addedToCart ? (
+                <>
+                  <FaCheck /> Added to cart
+                </>
+              ) : (
+                <>
+                  <FaBagShopping /> Add to cart!
+                </>
+              )}
+            </button>
+          ) : (
+            <a href="mailto:support@mint.boutique" className="btn btn-secondary mt-auto">
+              <FaEnvelope /> Request a price!
+            </a>
           )}
-          {product
-            ? product.ratings.map((rating, i) => (
-                <SwiperSlide className="home-carousel">
-                  <Rating key={i} rating={rating} />
-                </SwiperSlide>
-              ))
-            : Array.from({ length: 3 }, (_, i) => (
-                <SwiperSlide className="home-carousel">
-                  <Rating key={i} />
-                </SwiperSlide>
-              ))}
-        </Swiper>
+        </div>
       </div>
+      <TitleDivider title="Reviews" />
+      <Swiper slidesPerView="auto" spaceBetween={20} className="mask-x-from-99% mask-x-to-100%">
+        {user && (
+          <SwiperSlide className="home-carousel">
+            <RatingForm />
+          </SwiperSlide>
+        )}
+        {product
+          ? product.ratings.map((rating, i) => (
+              <SwiperSlide className="home-carousel">
+                <Rating key={i} rating={rating} />
+              </SwiperSlide>
+            ))
+          : Array.from({ length: 3 }, (_, i) => (
+              <SwiperSlide className="home-carousel">
+                <Rating key={i} />
+              </SwiperSlide>
+            ))}
+      </Swiper>
+      <TitleDivider title="Description" />
+      <p
+        className="prose max-w-none dark:prose-invert"
+        dangerouslySetInnerHTML={{
+          __html: DOMPurify.sanitize(marked.parse(product?.desc ?? "")),
+        }}
+      ></p>
+      <TitleDivider title="Comments" />
       <div className="space-y-4">
         <CommentForm disabled={!product} />
         <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg space-y-4">

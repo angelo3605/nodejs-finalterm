@@ -6,3 +6,4 @@
 
 /apps/api/generated/prisma
 /apps/api/public/uploads
+/apps/api/public/data

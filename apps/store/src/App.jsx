@@ -16,12 +16,16 @@ import "swiper/css/effect-coverflow";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
+import "swiper/css/effect-fade";
+import "swiper/css/thumbs";
+import "swiper/css/zoom";
 import { Toaster } from "react-hot-toast";
 import { ProfileLayout } from "@/layouts/ProfileLayout";
 import { Info } from "@/pages/Info";
 import { Addresses } from "@/pages/Addresses";
 import { Password } from "@/pages/Password";
 import { Cart } from "@/pages/Cart";
+import { CheckoutResult } from "@/pages/CheckoutResult";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +71,7 @@ export default function App() {
               <Route path="all" element={<Catalog />} />
               <Route path="category/:slug" element={<Catalog />} />
               <Route path="product/:slug" element={<Product />} />
+              <Route path="checkout/result" element={<CheckoutResult />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Route>

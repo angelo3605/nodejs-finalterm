@@ -15,8 +15,7 @@ export const checkout = async (req, res) => {
     ipAddr: getIpAddress(req),
     language: "en",
   });
-  console.log(vnpayUrl);
-  return res.redirect(vnpayUrl);
+  return res.json({ redirect: vnpayUrl });
 };
 
 export const guestCheckout = async (req, res) => {

@@ -4,7 +4,7 @@ import {
   FaArrowRight,
   FaArrowRightFromBracket,
   FaArrowRightToBracket,
-  FaCartShopping,
+  FaBagShopping,
   FaCircleUser,
   FaGaugeHigh,
   FaHouse,
@@ -29,14 +29,14 @@ function UserMenu({ user }) {
   const { mutate: logout } = useMutation({
     mutationFn: () => api.post("/auth/logout"),
     onSuccess: () =>
-      queryClient
-        .invalidateQueries({
+      Promise.all([
+        queryClient.invalidateQueries({
           queryKey: ["profile"],
-        })
-        .then(() => {
-          toast.success("Logout successfully");
-          navigate("/");
         }),
+        queryClient.invalidateQueries({
+          queryKey: ["cart"],
+        }),
+      ]).then(() => toast.success("Logout successfully")),
     onError: handleError,
   });
 
@@ -186,7 +186,7 @@ export default function Header() {
               <FaMagnifyingGlass className="size-5 text-yellow-200" />
             </Link>
             <Link to="/cart" className="btn btn-outline-light btn-jump relative">
-              <FaCartShopping className="size-5 text-purple-200" />
+              <FaBagShopping className="size-5 text-purple-200" />
               {cart?.cartItems?.length > 0 && <span className="badge">{cart?.cartItems?.length}</span>}
             </Link>
             {isError ? (

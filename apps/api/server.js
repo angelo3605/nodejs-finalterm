@@ -7,6 +7,7 @@ import { createServer } from "http";
 import router from "./routes/index.js";
 import passport from "./utils/passport.js";
 import { getIo, initSocket } from "./utils/socket.js";
+import { saveProvincesAndDistrictsSnapshot } from "./utils/ghn.js";
 
 const __filename__ = fileURLToPath(import.meta.url);
 const __dirname__ = path.dirname(__filename__);
@@ -51,6 +52,8 @@ getIo()
     socket.on("join", (slug) => socket.join(slug));
     socket.on("leave", (slug) => socket.leave(slug));
   });
+
+saveProvincesAndDistrictsSnapshot();
 
 const PORT = process.env.PORT || 5000;
 

@@ -12,6 +12,8 @@ import { Image } from "@/components/Image";
 import { useDebounce } from "react-use";
 import toast from "react-hot-toast";
 import { handleError } from "@/utils/errorHandler";
+import { formatAddress } from "@/utils/formatAddress";
+import { AddressForm } from "@/components/AddressForm";
 
 function CartItemInput({ cartItem }) {
   const { register, control, setValue } = useForm();
@@ -105,31 +107,31 @@ function ShippingAddressSelect({ user, form }) {
   return (
     <>
       <div className="relative">
-        <label className="floating-label w-full h-12 group" {...getToggleButtonProps()}>
-          <button type="button" className="floating-label__input text-left" disabled={isAddressPending} {...getLabelProps()}>
-            {selectedItem?.address ?? ""}
+        <label className="floating-label w-full h-12" {...getToggleButtonProps()}>
+          <button type="button" className="floating-label__input text-left truncate" disabled={isAddressPending} {...getLabelProps()}>
+            {selectedItem ? formatAddress(selectedItem) : ""}
           </button>
           <span className="floating-label__label dark:bg-gray-800!">Shipping address</span>
-          <FaCaretDown className="floating-label__icon floating-label__icon--right group-aria-[expanded=true]:rotate-180 transition" />
+          <FaCaretDown className="floating-label__icon floating-label__icon--right floating-label__icon--combobox" />
         </label>
         <ul className="popover menu absolute top-full right-0 w-full" {...getMenuProps()}>
           {addresses?.map((item, index) => (
             <li key={index} className="menu-item h-auto! py-2" {...getItemProps({ item, index })}>
-              <div className="flex flex-col w-full">
+              <div className="flex flex-col w-full gap-1">
                 <div className="flex justify-between items-center gap-2">
                   <span className="font-bold">{item.fullName}</span>
                   {item.isDefault && <span className="text-sm bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-lg">Default</span>}
                 </div>
-                <span>{item.address}</span>
+                <span>{formatAddress(item)}</span>
                 <span>+84 {parsePhoneNumber(item.phoneNumber, "VN").formatNational()}</span>
               </div>
             </li>
           ))}
         </ul>
       </div>
-      <ul className="space-y-1 [&>li]:flex [&>li]:justify-between [&>li]:gap-2 [&_span]:first:font-bold [&_span]:first:opacity-75">
+      <ul className="space-y-2 [&>li]:flex [&>li]:justify-between [&>li]:gap-4 [&>li]:text-right [&_span]:first:font-bold [&_span]:first:opacity-75 [&_span]:first:text-left">
         <li>
-          <span>Address:</span> {selectedItem?.address ?? "None"}
+          <span>Address:</span> <span>{selectedItem ? formatAddress(selectedItem) : "None"}</span>
         </li>
         <li>
           <span>Full name:</span> {selectedItem?.fullName ?? "None"}
@@ -145,7 +147,11 @@ function ShippingAddressSelect({ user, form }) {
 export function Cart() {
   const [discountValue, setDiscountValue] = useState(0);
 
-  const { data: user, isPending: isUserPending } = useQuery({
+  const {
+    isError,
+    data: user,
+    isPending: isUserPending,
+  } = useQuery({
     queryKey: ["profile"],
     queryFn: () => api.get("/profile").then((res) => res.data?.data),
     retry: false,
@@ -166,6 +172,7 @@ export function Cart() {
     handleSubmit,
     trigger,
     clearErrors,
+    reset,
   } = form;
   const { discountCode, loyaltyPointsToUse } = useWatch({ control });
 
@@ -194,8 +201,27 @@ export function Cart() {
     }
   }, [loyaltyPointsToUse]);
 
+  useEffect(() => {
+    if (isError) {
+      reset();
+    }
+  }, [isError]);
+
   const finalLoyaltyPoints = errors.loyaltyPointsToUse ? 0 : loyaltyPointsToUse || 0;
   const finalAmount = Math.max((cart?.sumAmount ?? 0) - discountValue - finalLoyaltyPoints, 0);
+
+  const { mutate: checkout, isPending: isCheckingOut } = useMutation({
+    mutationFn: (data) =>
+      api.post("/checkout", data).then((res) => {
+        window.location.href = res.data?.redirect;
+      }),
+    onError: handleError,
+  });
+
+  const onSubmit = (values) => {
+    const newValues = Object.fromEntries(Object.entries(values).filter(([_, v]) => v));
+    checkout(newValues);
+  };
 
   return (
     <main className="mx-auto w-[min(1200px,92%)] py-10 space-y-5">
@@ -218,7 +244,7 @@ export function Cart() {
             </li>
           ))}
         </ul>
-        <form className="space-y-4" onSubmit={handleSubmit(() => {})}>
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 space-y-4">
             <h3 className="text-xl font-bold">Summary</h3>
             <label className="floating-label mb-2">
@@ -260,7 +286,7 @@ export function Cart() {
                 <FaSpinner className="animate-spin size-5 opacity-50" />
               </div>
             ) : (
-              user && (
+              isError || (
                 <>
                   <label className="floating-label mb-2">
                     <input
@@ -280,7 +306,7 @@ export function Cart() {
               )
             )}
             <hr className="border-dashed border-t-2 border-gray-300 dark:border-gray-600" />
-            <ul className="space-y-1 [&>li]:flex [&>li]:justify-between [&>li]:gap-2 [&_span]:first:font-bold [&_span]:first:opacity-75">
+            <ul className="space-y-2 [&>li]:flex [&>li]:justify-between [&>li]:gap-4 [&>li]:text-right [&_span]:first:font-bold [&_span]:first:opacity-75 [&_span]:first:text-left">
               <li>
                 <span>Subtotal:</span> {cart ? longCurrencyFormatter.format(cart.sumAmount) : <div className="placeholder w-20 my-1"></div>}
               </li>
@@ -298,34 +324,29 @@ export function Cart() {
           </div>
           <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 space-y-4">
             <h3 className="text-xl font-bold">Shipping Info</h3>
-            {user ? (
+            {!isError ? (
               <ShippingAddressSelect user={user} form={form} />
             ) : (
               <>
-                <label className="floating-label">
-                  <input placeholder="" className="floating-label__input" />
-                  <span className="floating-label__label dark:bg-gray-800!">Full name</span>
-                </label>
-                <label className="floating-label">
-                  <input placeholder="" className="floating-label__input" />
+                <label className="floating-label mb-2">
+                  <input
+                    {...register("email", {
+                      required: true,
+                    })}
+                    placeholder=""
+                    className="floating-label__input"
+                  />
                   <span className="floating-label__label dark:bg-gray-800!">Email</span>
                 </label>
-                <label className="floating-label">
-                  <input placeholder="" className="floating-label__input" />
-                  <span className="floating-label__label dark:bg-gray-800!">Address</span>
-                </label>
-                <label className="floating-label">
-                  <input placeholder="" className="floating-label__input" />
-                  <span className="floating-label__label dark:bg-gray-800!">Phone number</span>
-                </label>
+                <AddressForm form={form} hideSetDefault={true} />
                 <p className="opacity-75 text-sm flex items-center gap-2">
                   <FaCircleInfo className="size-4 text-blue-600" /> An account will be created to save these info.
                 </p>
               </>
             )}
           </div>
-          <button type="submit" className="btn btn-primary w-full" disabled={false}>
-            {false ? <FaSpinner className="animate-spin" /> : <FaCreditCard />}
+          <button type="submit" className="btn btn-primary w-full" disabled={isCheckingOut}>
+            {isCheckingOut ? <FaSpinner className="animate-spin" /> : <FaCreditCard />}
             Checkout now!
           </button>
         </form>
