@@ -84,14 +84,13 @@ export const checkoutService = async ({ userId, guestId, shippingAddressId, disc
 
 export const postCheckoutService = async ({ guestId, order }) => {
   const cart = await getOrCreateCartService(guestId ? { guestId } : { userId: order.user.id });
-  const discountRecord = await getDiscountCodeByCodeService(order.discountCode);
 
   await Promise.all([
     updateUserService(order.user.id, {
       loyaltyPoints: order.user.loyaltyPoints - order.loyaltyPointsUsed + Math.floor(order.totalAmount / 1000.0),
     }),
     markCartAsCheckedOutService({ userId: order.user.id, guestId }),
-    Object.keys(discountRecord) &&
+    order.discountCode &&
       updateDiscountCodeService(order.discountCode, {
         numOfUsage: discountRecord.numOfUsage + 1,
       }),
