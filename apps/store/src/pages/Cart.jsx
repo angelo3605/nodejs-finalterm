@@ -14,6 +14,8 @@ import toast from "react-hot-toast";
 import { handleError } from "@/utils/errorHandler";
 import { formatAddress } from "@/utils/formatAddress";
 import { AddressForm } from "@/components/AddressForm";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { guestCheckoutSchema, userCheckoutSchema } from "@mint-boutique/zod-schemas";
 
 function CartItemInput({ cartItem }) {
   const { register, control, setValue } = useForm();
@@ -164,6 +166,7 @@ export function Cart() {
 
   const form = useForm({
     reValidateMode: "onSubmit",
+    resolver: zodResolver(isError ? guestCheckoutSchema : userCheckoutSchema),
   });
   const {
     register,
@@ -302,6 +305,7 @@ export function Cart() {
                   <p className={clsx("text-sm flex items-center gap-2 opacity-75", errors.loyaltyPointsToUse && "text-red-500")}>
                     Available: {new Intl.NumberFormat("vi-VN").format(user.loyaltyPoints)} {errors.loyaltyPointsToUse && <FaExclamationTriangle className="size-4" />}
                   </p>
+                  {errors.loyaltyPointsToUse && <p className="text-red-500 mb-2">{errors.loyaltyPointsToUse.message}</p>}
                 </>
               )
             )}
@@ -338,6 +342,7 @@ export function Cart() {
                   />
                   <span className="floating-label__label dark:bg-gray-800!">Email</span>
                 </label>
+                {errors.email && <p className="text-red-500 mb-2">{errors.email.message}</p>}
                 <AddressForm form={form} hideSetDefault={true} />
                 <p className="opacity-75 text-sm flex items-center gap-2">
                   <FaCircleInfo className="size-4 text-blue-600" /> An account will be created to save these info.

@@ -47,6 +47,13 @@ type ShippingInfo {
   fullName    String
 }
 
+type ShipmentDetails {
+  orderCode           String
+  transportation       String
+  expectedDeliveryTime String
+  fee                  Float
+}
+
 model User {
   id            String  @id @default(auto()) @map("_id") @db.ObjectId
   fullName      String?
@@ -135,6 +142,10 @@ model Product {
   slug       String   @unique
   name       String
   desc       String?
+  weight     Int      @default(0)
+  length     Int      @default(0)
+  width      Int      @default(0)
+  height     Int      @default(0)
   tags       String[] @default([])
   isFeatured Boolean  @default(false)
   isDeleted  Boolean  @default(false)
@@ -258,6 +269,9 @@ model Order {
   discountCode      String?
   discountValue     Int
   loyaltyPointsUsed Int
+  shipmentOrderCode String?
+
+  shipment ShipmentDetails?
 
   shippingAddress ShippingInfo
 
@@ -284,6 +298,10 @@ model OrderItem {
 
   productName String
   variantName String
+  weight      Int    @default(0)
+  length      Int    @default(0)
+  width       Int    @default(0)
+  height      Int    @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -39,6 +39,10 @@ export const checkoutService = async ({ userId, guestId, shippingAddressId, disc
       productSlug: item.variant.product.slug,
       productName: item.variant.product.name,
       variantName: item.variant.name,
+      width: item.variant.product.width,
+      height: item.variant.product.height,
+      length: item.variant.product.length,
+      weight: item.variant.product.weight,
     };
   });
 

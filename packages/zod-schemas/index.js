@@ -8,10 +8,12 @@ import { orderSchema, orderStatusSchema } from "./schemas/orderSchema.js";
 import { paginationSchema } from "./schemas/paginationSchema.js";
 import { productFilteringSchema, productSchema, productSortingSchema } from "./schemas/productSchema.js";
 import { ratingSchema } from "./schemas/ratingSchema.js";
-import { shippingAddressSchema } from "./schemas/shippingAddressSchema.js";
-import { changePasswordSchema, forgotSchema, loginSchema, registerSchema, resetSchema, userSchema, passwordSchema } from "./schemas/userSchema.js";
+import { phoneNumberSchema, shippingAddressSchema } from "./schemas/shippingAddressSchema.js";
+import { changePasswordSchema, forgotSchema, loginSchema, passwordSchema, registerSchema, resetSchema, userSchema } from "./schemas/userSchema.js";
 import { variantSchema } from "./schemas/variantSchema.js";
 import { dashboardChartSchema } from "./schemas/dashboardChartSchema.js";
+import { ghnSchema } from "./schemas/ghnSchema.js";
+import { guestCheckoutSchema, userCheckoutSchema } from "./schemas/checkoutSchema.js";
 
 export {
   brandSchema,
@@ -37,4 +39,8 @@ export {
   resetSchema,
   dashboardChartSchema,
   passwordSchema,
+  ghnSchema,
+  phoneNumberSchema,
+  userCheckoutSchema,
+  guestCheckoutSchema,
 };

@@ -10,6 +10,7 @@ const orderSelect = {
   discountValue: true,
   shippingAddress: true,
   loyaltyPointsUsed: true,
+  shipment: true,
   user: {
     select: {
       id: true,
@@ -25,6 +26,10 @@ const orderSelect = {
       sumAmount: true,
       productName: true,
       variantName: true,
+      weight: true,
+      length: true,
+      width: true,
+      height: true,
     },
   },
 };
