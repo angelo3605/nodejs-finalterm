@@ -49,13 +49,21 @@ export const dataProvider = {
 
   getApiUrl: () => api.defaults.baseURL,
 
-  custom: ({ url, method, query }) => {
-    return api[method](url, {
-      params: query
-        ? Object.fromEntries(
-            Object.entries(query).filter(([_, value]) => value),
-          )
-        : {},
-    }).then((res) => res.data);
+  custom: ({ url, method, query, payload }) => {
+    const params = query
+      ? Object.fromEntries(
+          Object.entries(query).filter(
+            ([_, value]) =>
+              value !== "" && value !== null && value !== undefined,
+          ),
+        )
+      : {};
+    return (
+      method === "get"
+        ? api.get(url, { params })
+        : api[method](url, payload, { params })
+    )
+      .then((res) => res.data)
+      .catch((err) => err.response?.data);
   },
 };

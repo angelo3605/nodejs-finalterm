@@ -112,7 +112,7 @@ function DashboardBarChart({ chartData, items, metric, interval }) {
             dataKey={name}
             stackId="a"
             fill={`oklch(${60 + i * 10}% 0.12 ${strToOkLchHue(name)})`}
-            radius={getBarRadius(i, items.length, 8)}
+            // radius={getBarRadius(i, items.length, 8)}
           />
         ))}
       </BarChart>

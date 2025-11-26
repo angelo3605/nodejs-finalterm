@@ -1,9 +1,4 @@
-import {
-  createGhnOrderService,
-  getShipmentDetailsService,
-  getShippingFeeService,
-  getWardService
-} from "../services/ghnService.js";
+import { createGhnOrderService, getShipmentDetailsService, getShippingFeeService, getWardService } from "../services/ghnService.js";
 
 export const getWard = async (req, res) => {
   const ward = await getWardService(req.query?.district);
@@ -25,7 +20,14 @@ export const getShipmentDetails = async (req, res) => {
 };
 
 export const getShippingFee = async (req, res) => {
-  const fee = await getShippingFeeService(req.body);
+  const fee = await getShippingFeeService(
+    req.query.orderId,
+    {
+      userId: req.user?.id,
+      guestId: req.guestId,
+    },
+    req.query,
+  );
   return res.json({
     data: fee,
   });

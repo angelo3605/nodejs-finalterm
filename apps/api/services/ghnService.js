@@ -3,13 +3,14 @@ import path from "path";
 import { ghn } from "../utils/ghn.js";
 import { getOrderByIdService } from "./orderService.js";
 import prisma from "../prisma/client.js";
+import { getOrCreateCartService } from "./cartService.js";
 
 const SNAPSHOT_FILE_PATH = "public/data/provinces.json";
 
-const raw = fs.readFileSync(path.resolve(SNAPSHOT_FILE_PATH));
-const provinces = JSON.parse(raw);
-
 const getDistrict = (districtName) => {
+  const raw = fs.readFileSync(path.resolve(SNAPSHOT_FILE_PATH));
+  const provinces = JSON.parse(raw);
+
   for (const province of provinces) {
     const district = province.districts.find((d) => d.name === districtName);
     if (district) {
@@ -27,17 +28,29 @@ export const getWardService = async (districtName) => {
     } = await ghn.get("/master-data/ward", {
       params: { district_id: district.id },
     });
-    return wards.map((ward) => ({
-      id: ward.WardCode,
-      name: ward.WardName,
-    }));
+    return (
+      wards?.map((ward) => ({
+        id: ward.WardCode,
+        name: ward.WardName,
+      })) ?? []
+    );
   }
   throw new Error("Cannot find district");
 };
 
-export const getShippingFeeService = async ({ wardName, districtName, weight }) => {
+export const getShippingFeeService = async (orderId, { userId, guestId }, { wardName, districtName, width, height, length, weight }) => {
   const district = getDistrict(districtName);
   const ward = (await getWardService(districtName)).find((w) => w.name === wardName);
+
+  let order;
+  if (orderId) {
+    order = await getOrderByIdService(orderId);
+  }
+
+  let cart;
+  if (userId || guestId) {
+    cart = await getOrCreateCartService({ userId, guestId });
+  }
 
   if (ward) {
     try {
@@ -47,19 +60,30 @@ export const getShippingFeeService = async ({ wardName, districtName, weight }) 
         to_ward_code: ward.id,
         to_district_id: district.id,
         service_type_id: 2,
-        weight,
+        ...(width ? { width: Number(width) } : {}),
+        ...(height ? { height: Number(height) } : {}),
+        ...(length ? { length: Number(length) } : {}),
+        weight: Number(weight),
+        items: (order ? order.orderItems : cart.cartItems).map((item) => ({
+          name: `${item.productName} - ${item.variantName}`,
+          quantity: item.quantity,
+          weight: item.weight,
+          height: item.height,
+          length: item.length,
+          width: item.width,
+        })),
       });
       return data.total;
     } catch (err) {
       console.error(err.response?.data);
-      throw new Error(err.response?.data?.code_message_value ?? err.response?.data?.message);
+      throw new Error(err.response?.data?.code_message_value ?? err.response?.data?.message ?? err.message);
     }
   }
 
   throw new Error("Cannot find ward");
 };
 
-export const createGhnOrderService = async (orderId, { width, height, length, weight, traditionalDelivery = false }) => {
+export const createGhnOrderService = async (orderId, { width, height, length, weight }) => {
   const order = await getOrderByIdService(orderId);
 
   if (order.shipment?.orderCode) {
@@ -75,7 +99,7 @@ export const createGhnOrderService = async (orderId, { width, height, length, we
     to_ward_name: order.shippingAddress.ward,
     to_district_name: order.shippingAddress.district,
     to_province_name: order.shippingAddress.province,
-    service_type_id: traditionalDelivery ? 5 : 2,
+    service_type_id: 2,
     payment_type_id: 2,
     width: width || 200,
     height: height || 200,
@@ -92,6 +116,8 @@ export const createGhnOrderService = async (orderId, { width, height, length, we
     })),
   };
 
+  console.log(payload);
+
   try {
     const {
       data: { data },
@@ -106,6 +132,13 @@ export const createGhnOrderService = async (orderId, { width, height, length, we
           expectedDeliveryTime: data.expected_delivery_time,
         },
         status: "DELIVERING",
+      },
+    });
+    await prisma.orderLog.create({
+      data: {
+        orderId: order.id,
+        oldStatus: order.status,
+        newStatus: "DELIVERING",
       },
     });
     return {

@@ -53,10 +53,10 @@ getIo()
     socket.on("leave", (slug) => socket.leave(slug));
   });
 
-saveProvincesAndDistrictsSnapshot();
-
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
-  console.log(`Server is running on port http://localhost:${PORT}`);
+saveProvincesAndDistrictsSnapshot().then(() => {
+  server.listen(PORT, () => {
+    console.log(`Server is running on port http://localhost:${PORT}`);
+  });
 });

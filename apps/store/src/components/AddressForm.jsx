@@ -194,13 +194,12 @@ export function AddressForm({ form, className, hideSetDefault = false }) {
         <div className="relative">
           <label className="floating-label">
             <input
-              disabled={isProvincePending}
               placeholder=""
               className="floating-label__input"
               {...districtCombo.getInputProps({
                 required: true,
               })}
-              disabled={!provinceCombo.selectedItem}
+              disabled={isProvincePending || !provinceCombo.selectedItem}
             />
             <span className="floating-label__label">District</span>
             <FaCaretDown className="floating-label__icon floating-label__icon--right floating-label__icon--combobox" />
@@ -219,7 +218,7 @@ export function AddressForm({ form, className, hideSetDefault = false }) {
         </div>
         <div className="relative">
           <label className="floating-label">
-            <input disabled={isWardPending} placeholder="" className="floating-label__input" {...wardCombo.getInputProps()} disabled={!districtCombo.selectedItem} />
+            <input placeholder="" className="floating-label__input" {...wardCombo.getInputProps()} disabled={isWardPending || !districtCombo.selectedItem} />
             <span className="floating-label__label">Ward</span>
             <FaCaretDown className="floating-label__icon floating-label__icon--right floating-label__icon--combobox" />
           </label>
@@ -237,13 +236,7 @@ export function AddressForm({ form, className, hideSetDefault = false }) {
         </div>
         <div className="space-y-2">
           <label className="floating-label">
-            <input
-              {...form.register("address", {
-                required: true,
-              })}
-              placeholder=""
-              className="floating-label__input"
-            />
+            <input {...form.register("address")} placeholder="" className="floating-label__input" />
             <span className="floating-label__label">Address</span>
           </label>
           {errors.address && <p className="text-red-500">{errors.address.message}</p>}

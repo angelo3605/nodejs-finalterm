@@ -39,6 +39,7 @@ import { ListDiscountCodes } from "./pages/discount-codes/list";
 import { CreateDiscountCode } from "./pages/discount-codes/create";
 import { EditDiscountCode } from "./pages/discount-codes/edit";
 import { ListUsers } from "./pages/users/list";
+import { Shipment } from "@/pages/orders/shipment.jsx";
 
 const resources = [
   {
@@ -57,6 +58,14 @@ const resources = [
       section: "Sales & Discounts",
       label: "Orders",
       icon: <ShoppingBag />,
+    },
+  },
+  {
+    name: "orders-shipment",
+    list: "/orders/shipment/:id",
+    meta: {
+      hide: true,
+      label: "Shipment",
     },
   },
   {
@@ -155,6 +164,7 @@ export function App() {
             <Route index element={<Dashboard />} />
             <Route path="orders">
               <Route index element={<ListOrders />} />
+              <Route path="shipment/:id" element={<Shipment />} />
             </Route>
             <Route path="discount-codes">
               <Route index element={<ListDiscountCodes />} />

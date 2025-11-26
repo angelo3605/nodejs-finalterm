@@ -1,0 +1,15 @@
+export const vnpayMessages = {
+  0: "Transaction successful",
+  7: "Suspicious transaction — money deducted",
+  9: "Internet banking not registered",
+  10: "Card/account verification failed too many times",
+  11: "Payment window expired, please try again",
+  12: "Card/account is locked",
+  13: "Wrong OTP, please try again",
+  24: "Customer cancelled the transaction",
+  51: "Insufficient balance",
+  65: "Daily transaction limit exceeded",
+  75: "Bank is under maintenance",
+  79: "Payment password entered incorrectly too many times",
+  99: "Something went wrong",
+};

@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import crypto from "crypto";
 import { getOrderByIdService, updateOrderStatusService } from "./orderService.js";
 import { postCheckoutService } from "./checkoutService.js";
+import prisma from "../prisma/client.js";
 
 const sortObject = (o) =>
   Object.keys(o)
@@ -74,6 +75,25 @@ export const handleVnpayCallback = async (vnpParams, { userId, guestId, redirect
   }
 
   const order = await getOrderByIdService(vnpParams.vnp_TxnRef);
+
+  const payDateStr = vnpParams?.vnp_PayDate;
+  const payDate = payDateStr
+    ? new Date(
+        payDateStr.slice(0, 4) +
+          "-" +
+          payDateStr.slice(4, 6) +
+          "-" +
+          payDateStr.slice(6, 8) +
+          "T" +
+          payDateStr.slice(8, 10) +
+          ":" +
+          payDateStr.slice(10, 12) +
+          ":" +
+          payDateStr.slice(12, 14) +
+          "+07:00",
+      )
+    : new Date();
+
   if (order.status === "PENDING") {
     const newStatus = vnpParams.vnp_ResponseCode === "00" ? "PROCESSING" : "CANCELLED";
     await updateOrderStatusService(
@@ -83,15 +103,23 @@ export const handleVnpayCallback = async (vnpParams, { userId, guestId, redirect
       },
       {},
     );
+    await prisma.order.update({
+      where: { id: order.id },
+      data: {
+        payment: {
+          cardType: vnpParams?.vnp_CardType,
+          transactionId: vnpParams?.vnp_TransactionNo,
+          bankCode: vnpParams?.vnp_BankCode,
+          payDate,
+          responseCode: Number(vnpParams?.vnp_ResponseCode),
+        },
+      },
+    });
     await postCheckoutService({ guestId, order });
   }
 
   const newRedirectUrl = new URL(redirectUrl);
-  for (const [key, value] of [
-    ["status", vnpParams.vnp_ResponseCode],
-    ["orderId", vnpParams.vnp_TxnRef],
-    ["orderInfo", vnpParams.vnp_OrderInfo],
-  ]) {
+  for (const [key, value] of [["orderId", vnpParams?.vnp_TxnRef]]) {
     newRedirectUrl.searchParams.set(key, value);
   }
 

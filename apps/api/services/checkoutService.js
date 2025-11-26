@@ -9,6 +9,7 @@ import prisma from "../prisma/client.js";
 import { updateVariantService } from "./variantService.js";
 import { getEmailTemplate, transporter } from "../utils/mailer.js";
 import { longCurrencyFormatter } from "@mint-boutique/formatters";
+import { getShippingFeeService } from "./ghnService.js";
 
 const generatePassword = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 20);
 
@@ -19,7 +20,7 @@ export const checkoutService = async ({ userId, guestId, shippingAddressId, disc
     await getOrCreateCartService(guestId ? { guestId } : { userId }),
   ]);
 
-  if (cart.cartItems.length === 0) {
+  if (!cart.cartItems.length) {
     throw new Error("Cart is empty");
   }
 
@@ -60,7 +61,14 @@ export const checkoutService = async ({ userId, guestId, shippingAddressId, disc
     throw new Error("Not enough loyalty points");
   }
 
-  const total = Math.max(subTotal - discountValue - loyaltyPointsToUse, 0.0);
+  const totalWeight = cart.cartItems.reduce((acc, item) => acc + item.variant.product.weight * item.quantity, 0);
+  const shippingFee = await getShippingFeeService(undefined, guestId ? { guestId } : { userId }, {
+    wardName: shippingAddress.ward,
+    districtName: shippingAddress.district,
+    weight: totalWeight,
+  });
+
+  const total = Math.max(subTotal + (shippingFee || 0) - discountValue - loyaltyPointsToUse * 1_000, 0.0);
 
   const order = await createOrderService(
     {
@@ -81,6 +89,7 @@ export const checkoutService = async ({ userId, guestId, shippingAddressId, disc
       discountValue,
       loyaltyPointsUsed: loyaltyPointsToUse,
       orderItems,
+      initialShippingFee: shippingFee ?? 0,
     },
   );
   return order;
@@ -91,12 +100,12 @@ export const postCheckoutService = async ({ guestId, order }) => {
 
   await Promise.all([
     updateUserService(order.user.id, {
-      loyaltyPoints: order.user.loyaltyPoints - order.loyaltyPointsUsed + Math.floor(order.totalAmount / 1000.0),
+      loyaltyPoints: order.user.loyaltyPoints - order.loyaltyPointsUsed + Math.floor(order.totalAmount / 10_000),
     }),
     markCartAsCheckedOutService({ userId: order.user.id, guestId }),
     order.discountCode &&
       updateDiscountCodeService(order.discountCode, {
-        numOfUsage: discountRecord.numOfUsage + 1,
+        numOfUsage: { increment: 1 },
       }),
     cart.cartItems.map((item) =>
       updateVariantService(item.variant.id, {
@@ -119,6 +128,11 @@ export const postCheckoutService = async ({ guestId, order }) => {
 };
 
 export const guestCheckoutService = async ({ guestId, email, fullName, address, province, district, ward, phoneNumber, discountCode }) => {
+  const cart = await getOrCreateCartService({ guestId });
+  if (!cart.cartItems.length) {
+    throw new Error("Cart is empty");
+  }
+
   if (
     await prisma.user.findUnique({
       where: { email },

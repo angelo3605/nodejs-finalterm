@@ -19,6 +19,10 @@ const cartSelect = {
               slug: true,
               name: true,
               imageUrls: true,
+              weight: true,
+              length: true,
+              width: true,
+              height: true,
             },
           },
         },
@@ -66,6 +70,17 @@ export const addOrSubtractToCartService = async ({ userId, guestId }, data) => {
   const newQuantity = amount + (item?.quantity ?? 0);
   if (!deleteItem && newQuantity > variant.stockQuantity) {
     throw new Error("Not enough stock");
+  }
+
+  const getMeasure = (key) => cart.cartItems.reduce((acc, item) => acc + item.variant.product[key] * item.quantity, 0);
+  if (
+    !deleteItem &&
+    (getMeasure("width") + variant.product.width * (newQuantity || 0) >= 200 ||
+      getMeasure("height") + variant.product.height * (newQuantity || 0) >= 200 ||
+      getMeasure("length") + variant.product.length * (newQuantity || 0) >= 200 ||
+      getMeasure("weight") + variant.product.weight * (newQuantity || 0) >= 50_000)
+  ) {
+    throw new Error("Cart is over limit");
   }
 
   if (item && (newQuantity <= 0 || deleteItem)) {

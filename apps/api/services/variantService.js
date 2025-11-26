@@ -28,5 +28,6 @@ export const getAllVariantsService = async ({ productSlug }, { page, pageSize })
 export const getVariantByIdService = async (id) => {
   return await prisma.productVariant.findUnique({
     where: { id },
+    include: { product: true },
   });
 };

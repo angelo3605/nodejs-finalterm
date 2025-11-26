@@ -169,7 +169,7 @@ export default function Header() {
             <Logo className="size-8 group-hover:animate-spin" />
             <span className="font-brand w-max">Mint Boutique</span>
           </Link>
-          <nav className="flex gap-4">
+          <nav className="flex flex-wrap space-x-4">
             <Link to="/" className="nav-item">
               <FaHouse /> Home
             </Link>

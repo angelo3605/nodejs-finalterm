@@ -15,8 +15,5 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ],
-  "dependencies": {
-    "react-use": "^17.6.0"
-  }
+  ]
 }
