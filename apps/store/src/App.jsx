@@ -28,6 +28,7 @@ import { Cart } from "@/pages/Cart";
 import { CheckoutResult } from "@/pages/CheckoutResult";
 import { Orders } from "@/pages/Orders";
 import { Order } from "@/pages/Order";
+import { About } from "@/pages/About";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ export default function App() {
               <Route path="category/:slug" element={<Catalog />} />
               <Route path="product/:slug" element={<Product />} />
               <Route path="checkout/result" element={<CheckoutResult />} />
+              <Route path="about" element={<About />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Route>

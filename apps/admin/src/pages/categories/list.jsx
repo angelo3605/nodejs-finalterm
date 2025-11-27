@@ -21,7 +21,7 @@ export function ListCategories() {
     <ListView>
       <ListViewHeader />
       <LoadingOverlay loading={isLoading} className="h-[300px]">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid @lg:grid-cols-2 @2xl:grid-cols-3 @4xl:grid-cols-4 gap-4">
           {categories.map((category) => (
             <SimpleCard
               resource="categories"

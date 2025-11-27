@@ -46,11 +46,7 @@ export function Orders() {
     queryFn: () => api.get(`/orders/me?page=${page}&pageSize=${pageSize}`).then((res) => res.data),
   });
 
-  useEffect(() => {
-    if (orders?.total) {
-      setNumOfPages(Math.ceil(orders.total / 6));
-    }
-  }, [orders?.total]);
+  useEffect(() => setNumOfPages(Math.ceil((orders?.total || pageSize) / pageSize)), [orders?.total]);
 
   return (
     <>

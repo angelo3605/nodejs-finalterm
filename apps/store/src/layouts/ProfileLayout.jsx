@@ -84,9 +84,9 @@ export function ProfileLayout() {
             </div>
             <div className="w-full space-y-1">
               {Object.entries(profileInfo)?.map(([key, value]) => (
-                <div key={key} className="flex justify-between">
+                <div key={key} className="flex flex-wrap space-x-4 justify-between">
                   <span className="font-bold opacity-75">{key}:</span>
-                  {value ?? <div className="placeholder w-40"></div>}
+                  {<span className="truncate">{value}</span> ?? <div className="placeholder w-40"></div>}
                 </div>
               ))}
             </div>

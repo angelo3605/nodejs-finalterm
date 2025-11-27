@@ -219,18 +219,18 @@ function RatingForm() {
 
 function Rating({ rating }) {
   return (
-    <div className="w-[300px] min-h-[300px] h-full p-4 bg-gray-100 dark:bg-gray-800 rounded-lg space-y-4">
+    <div className="w-[300px] min-h-[300px] h-full p-4 bg-gray-100 dark:bg-gray-800 rounded-lg space-y-2">
       <div className="flex justify-between gap-2">
         <div className="flex gap-1 *:size-5 text-yellow-600 dark:text-yellow-500">
           {Array.from({ length: 5 }, (_, i) => (
             <Fragment key={i}>{i + 1 <= rating?.stars ? <FaStar /> : <FaRegStar />}</Fragment>
           ))}
         </div>
-        <div className="flex flex-col items-end *:leading-none gap-1">
+        <div className="flex flex-col items-end gap-1">
           {rating ? (
             <>
-              <span className="font-bold">{rating.user.fullName}</span>
-              <span className="text-sm">
+              <span className="font-bold truncate leading-5">{rating.user.fullName}</span>
+              <span className="text-sm -mt-1">
                 {formatDistanceToNow(new Date(rating.updatedAt), {
                   addSuffix: true,
                 })}
@@ -468,7 +468,7 @@ export default function Product() {
           </div>
         </div>
       </div>
-      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 flex flex-col gap-4 min-h-[400px] h-max lg:sticky lg:top-25 min-w-[350px] shrink-0">
+      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 flex flex-col gap-4 min-h-[400px] h-max lg:sticky lg:top-25 min-w-[350px] lg:max-w-[350px] shrink-0">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             {isProductLoading ? <div className="placeholder w-20 my-1"></div> : <span className={clsx(product.category ?? "opacity-75")}>{product.category?.name || "No category"}</span>}/
@@ -476,7 +476,7 @@ export default function Product() {
           </div>
           {isProductLoading ? <div className="placeholder h-5! w-40 mt-2"></div> : <h2 className="font-medium text-xl">{product.name}</h2>}
         </div>
-        <ul className="flex flex-wrap items-center gap-2 h-7">
+        <ul className="flex flex-wrap items-center gap-2">
           <li className="mr-2">Tags:</li>
           {isProductLoading ? (
             <FaSpinner className="animate-spin" />

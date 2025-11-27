@@ -1,8 +1,8 @@
-export function UnsplashCredit({ photographerName, photographerUrl, imageUrl }) {
+export function UnsplashCredit({ type = "Photo", photographerName, site = "Unsplash", photographerUrl, imageUrl }) {
   return (
     <p className="flex flex-col sm:flex-row sm:gap-2 *:flex *:gap-2 absolute right-4 bottom-4 px-3 py-1 rounded-lg shadow-lg/50 overflow-hidden backdrop-blur-sm bg-white/75 dark:bg-gray-900/75 font-bold">
       <span>
-        Photo by
+        {type} by
         <a className="link" href={photographerUrl}>
           {photographerName}
         </a>
@@ -10,7 +10,7 @@ export function UnsplashCredit({ photographerName, photographerUrl, imageUrl }) 
       <span>
         on
         <a className="link" href={imageUrl}>
-          Unsplash
+          {site}
         </a>
       </span>
     </p>

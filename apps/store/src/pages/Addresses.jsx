@@ -22,7 +22,7 @@ function AddressCard({ address, onEdit, onDelete }) {
       </div>
       <div className="flex flex-col gap-1">
         {address ? <span>{formatAddress(address)}</span> : <div className="placeholder w-40 my-1"></div>}
-        {address ? <span>+84 {parsePhoneNumber(address.phoneNumber, "VN").formatNational()}</span> : <div className="placeholder w-40 my-1"></div>}
+        {address ? <span>{parsePhoneNumber(address.phoneNumber, "VN").formatNational()}</span> : <div className="placeholder w-40 my-1"></div>}
       </div>
       <div className="flex flex-wrap items-center gap-2 pt-2 mt-auto *:h-9!">
         <button type="button" className="btn btn-outline-dark dark:btn-outline-light" onClick={onEdit}>

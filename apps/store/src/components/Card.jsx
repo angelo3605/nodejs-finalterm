@@ -70,7 +70,7 @@ export function Card({ product, className }) {
 
   return (
     <div
-      className={clsx("relative w-[300px] rounded-lg shadow-lg bg-white text-black dark:bg-gray-800 dark:text-white cursor-pointer hover:-translate-y-1 transition", className)}
+      className={clsx("relative w-[300px] rounded-lg shadow-lg bg-white text-black dark:bg-gray-800 dark:text-white cursor-pointer hover:-translate-y-1 transition h-max", className)}
       onClick={() => navigate(`/product/${product.slug}`)}
     >
       <Image src={product?.imageUrls?.[0]} className="w-full h-40 rounded-tl-lg rounded-tr-lg" />
@@ -82,7 +82,7 @@ export function Card({ product, className }) {
               <span className={clsx("row-span-2 font-medium", product?.variants.length ? "text-emerald-800 dark:text-emerald-400" : "text-rose-800 dark:text-rose-400")}>
                 {product?.variants.length ? longCurrencyFormatter.format(minPrice) : "Contact us!"}
               </span>
-              <span className="font-bold">{product.name}</span>
+              <span className="font-bold truncate">{product.name}</span>
             </>
           ) : (
             <>
