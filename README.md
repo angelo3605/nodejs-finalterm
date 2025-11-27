@@ -103,6 +103,6 @@ npm run dev  # or `npx turbo dev`
 
 | Server / Page | URL |
 | --- | --- |
-| **API** | ![localhost:5000](http://localhost:5000) |
-| **Store** | ![localhost:5173](http://localhost:5173) |
-| **Admin** | ![localhost:5174](http://localhost:5174) |
+| **API** | [localhost:5000](http://localhost:5000) |
+| **Store** | [localhost:5173](http://localhost:5173) |
+| **Admin** | [localhost:5174](http://localhost:5174) |
