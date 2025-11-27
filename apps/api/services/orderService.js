@@ -10,6 +10,9 @@ const orderSelect = {
   discountValue: true,
   shippingAddress: true,
   loyaltyPointsUsed: true,
+  shipment: true,
+  payment: true,
+  initialShippingFee: true,
   user: {
     select: {
       id: true,
@@ -25,6 +28,10 @@ const orderSelect = {
       sumAmount: true,
       productName: true,
       variantName: true,
+      weight: true,
+      length: true,
+      width: true,
+      height: true,
     },
   },
 };
@@ -36,23 +43,65 @@ export const getAllOrdersService = async ({ userId }, { page, pageSize }) => {
     }),
     prisma.order.findMany({
       where: { userId },
-      select: orderSelect,
+      select: {
+        ...orderSelect,
+        OrderLog: true,
+      },
       skip: (page - 1) * pageSize,
       take: pageSize,
+      orderBy: { createdAt: "desc" },
     }),
   ]);
-  return { data, total };
+  return {
+    data: data.map((item) => ({
+      ...item,
+      OrderLog: item.OrderLog.map((log) => ({
+        ...log,
+        userId: !!log.userId,
+      })),
+    })),
+    total,
+  };
 };
 
 export const getOrderByIdService = async (id) => {
   const order = await prisma.order.findUnique({
     where: { id },
-    select: orderSelect,
+    select: {
+      ...orderSelect,
+      OrderLog: true,
+    },
   });
   if (!order) {
     throw new Error("Order not found");
   }
-  return order;
+  return {
+    ...order,
+    OrderLog: order.OrderLog.map((log) => ({
+      ...log,
+      userId: !!log.userId,
+    })),
+  };
+};
+
+export const getOrderByIdAndUserService = async (id, { userId }) => {
+  const order = await prisma.order.findUnique({
+    where: { id, userId },
+    select: {
+      ...orderSelect,
+      OrderLog: true,
+    },
+  });
+  if (!order) {
+    throw new Error("Order not found");
+  }
+  return {
+    ...order,
+    OrderLog: order.OrderLog.map((log) => ({
+      ...log,
+      userId: !!log.userId,
+    })),
+  };
 };
 
 export const createOrderService = async ({ userId }, data) => {

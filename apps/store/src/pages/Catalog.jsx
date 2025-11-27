@@ -174,7 +174,7 @@ export function Catalog() {
         <div className="flex flex-col gap-10">
           <div className={clsx("grid sm:grid-cols-2 xl:grid-cols-3 gap-4 *:w-auto *:min-w-[250px]", products?.length ? "h-max" : "h-full")}>
             {!products ? (
-              Array.from({ length: 6 }, (_, i) => <Card key={i} />)
+              Array.from({ length: 10 }, (_, i) => <Card key={i} />)
             ) : products.length ? (
               products.map((product, i) => <Card key={i} product={product} />)
             ) : (

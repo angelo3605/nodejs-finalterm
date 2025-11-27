@@ -4,7 +4,10 @@ import axios from "axios";
 
 export const ghn = axios.create({
   baseURL: "https://dev-online-gateway.ghn.vn/shiip/public-api",
-  headers: { Token: process.env.GHN_TOKEN },
+  headers: {
+    ShopId: process.env.GHN_SHOP_ID,
+    Token: process.env.GHN_TOKEN,
+  },
 });
 
 export async function saveProvincesAndDistrictsSnapshot(filePath = "public/data/provinces.json", maxAge = 1000 * 60 * 60 * 24 * 30) {

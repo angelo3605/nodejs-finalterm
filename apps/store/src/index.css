@@ -353,3 +353,45 @@ button.floating-label__input:not(:empty) + .floating-label__label {
         @apply hover:bg-black/10 dark:hover:bg-white/10;
     }
 }
+
+table {
+    @apply rounded-lg overflow-hidden;
+}
+
+table tr {
+    @apply text-left;
+}
+
+table thead tr {
+    @apply bg-emerald-600 text-white;
+}
+
+table tbody tr {
+    @apply not-last:border-b border-gray-300 dark:border-gray-600;
+}
+
+table tfoot tr {
+    @apply not-last:border-b bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200 border-emerald-800/20 dark:border-emerald-200/20;
+}
+
+table td, table th {
+    @apply px-4 h-9 py-2;
+}
+
+@layer base {
+    :root {
+        --status-delivered: oklch(0.56 0.086 161.501);
+        --status-processing: oklch(0.561 0.15 341.459);
+        --status-cancelled: oklch(0.56 0.114 41.76);
+        --status-delivering: oklch(0.561 0.111 251.805);
+        --status-pending: oklch(0.559 0.09 71.405);
+    }
+
+    .dark {
+        --status-delivered: oklch(0.759 0.102 161.652);
+        --status-processing: oklch(0.76 0.107 341.522);
+        --status-cancelled: oklch(0.757 0.096 40.777);
+        --status-delivering: oklch(0.762 0.085 250.633);
+        --status-pending: oklch(0.757 0.099 70.952);
+    }
+}

@@ -1,9 +1,10 @@
 import { checkoutService, guestCheckoutService } from "../services/checkoutService.js";
 import { getVnpayPaymentUrl } from "../services/vnpayService.js";
 import { getIpAddress } from "../utils/ipAddress.js";
+import { guestCheckoutSchema, userCheckoutSchema } from "@mint-boutique/zod-schemas";
 
 export const checkout = async (req, res) => {
-  const { shippingAddressId, discountCode, loyaltyPointsToUse } = req.body;
+  const { shippingAddressId, discountCode, loyaltyPointsToUse } = userCheckoutSchema.parse(req.body);
   const order = await checkoutService({
     userId: req.user.id,
     shippingAddressId,
@@ -19,7 +20,7 @@ export const checkout = async (req, res) => {
 };
 
 export const guestCheckout = async (req, res) => {
-  const { email, fullName, address, phoneNumber, discountCode } = req.body;
+  const { email, fullName, address, province, district, ward, phoneNumber, discountCode } = guestCheckoutSchema.parse(req.body);
   const order = await guestCheckoutService({
     guestId: req.guestId,
     email,
@@ -27,12 +28,14 @@ export const guestCheckout = async (req, res) => {
     address,
     phoneNumber,
     discountCode,
+    province,
+    district,
+    ward,
   });
   const vnpayUrl = getVnpayPaymentUrl({
     order,
     ipAddr: getIpAddress(req),
     language: "en",
   });
-  console.log(vnpayUrl);
-  return res.redirect(vnpayUrl);
+  return res.json({ redirect: vnpayUrl });
 };

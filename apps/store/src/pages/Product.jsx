@@ -2,22 +2,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { api } from "@mint-boutique/axios-client";
 import { formatDistanceToNow } from "date-fns";
-import { FaBagShopping, FaCheck, FaEnvelope, FaPaperPlane, FaRegStar, FaSpinner, FaStar, FaTrash } from "react-icons/fa6";
+import { FaArrowsLeftRight, FaArrowsUpDown, FaBagShopping, FaCheck, FaImages, FaPaperPlane, FaRegStar, FaRuler, FaSpinner, FaStar, FaTrash, FaWeightHanging } from "react-icons/fa6";
 import { io } from "socket.io-client";
 import { Fragment, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { commentSchema, ratingSchema } from "@mint-boutique/zod-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
-import { Swiper, SwiperSlide } from "swiper/react";
 import toast from "react-hot-toast";
 import { handleError } from "@/utils/errorHandler";
-import { Image } from "@/components/Image";
-import { EffectFade, FreeMode, Navigation, Thumbs, Zoom } from "swiper/modules";
-import { longCurrencyFormatter } from "@mint-boutique/formatters";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
 import confetti from "canvas-confetti";
+import { FaEnvelope } from "react-icons/fa";
+import { FreeMode, Navigation, Thumbs, Zoom } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Image } from "@/components/Image";
+import DOMPurify from "dompurify";
+import { marked } from "marked";
+import { longCurrencyFormatter } from "@mint-boutique/formatters";
 
 const commentSocket = io(`${import.meta.env.VITE_API_URL}/comments`);
 const ratingSocket = io(`${import.meta.env.VITE_API_URL}/ratings`);
@@ -218,18 +219,18 @@ function RatingForm() {
 
 function Rating({ rating }) {
   return (
-    <div className="w-[300px] min-h-[300px] h-full p-4 bg-gray-100 dark:bg-gray-800 rounded-lg space-y-4">
+    <div className="w-[300px] min-h-[300px] h-full p-4 bg-gray-100 dark:bg-gray-800 rounded-lg space-y-2">
       <div className="flex justify-between gap-2">
         <div className="flex gap-1 *:size-5 text-yellow-600 dark:text-yellow-500">
           {Array.from({ length: 5 }, (_, i) => (
             <Fragment key={i}>{i + 1 <= rating?.stars ? <FaStar /> : <FaRegStar />}</Fragment>
           ))}
         </div>
-        <div className="flex flex-col items-end *:leading-none gap-1">
+        <div className="flex flex-col items-end gap-1">
           {rating ? (
             <>
-              <span className="font-bold">{rating.user.fullName}</span>
-              <span className="text-sm">
+              <span className="font-bold truncate leading-5">{rating.user.fullName}</span>
+              <span className="text-sm -mt-1">
                 {formatDistanceToNow(new Date(rating.updatedAt), {
                   addSuffix: true,
                 })}
@@ -354,73 +355,159 @@ export default function Product() {
     onError: handleError,
   });
 
+  const Specification = ({ Icon, title, value }) => (
+    <div className="grid grid-cols-[max-content_auto] grid-rows-2 items-center space-x-6">
+      <Icon className="row-span-2 size-7 opacity-50" />
+      <span className="font-medium text-emerald-800 dark:text-emerald-400">{title}</span>
+      {value}
+    </div>
+  );
+
   return (
-    <div className="mx-auto w-[min(1200px,92%)] py-10 space-y-5">
-      <div className="grid lg:grid-cols-[3fr_2fr] gap-5 w-full">
-        <div className="grid lg:grid-cols-[auto_auto] w-full gap-4">
-          <Swiper
-            slidesPerView={1}
-            modules={[EffectFade, Thumbs, Navigation, Zoom]}
-            zoom={true}
-            navigation={true}
-            thumbs={{ swiper: thumbsSwiper }}
-            effect="fade"
-            crossfade={true.toString()}
-            className="w-full h-[300px] lg:h-full lg:aspect-video"
-          >
-            {product?.imageUrls.map((url) => (
-              <SwiperSlide>
-                <div className="swiper-zoom-container">
-                  <Image src={url} className="size-full rounded-lg" />
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-          <Swiper
-            slidesPerView="auto"
-            spaceBetween={8}
-            modules={[Thumbs, FreeMode]}
-            navigation={true}
-            loop={true}
-            onSwiper={setThumbsSwiper}
-            watchSlidesProgress={true}
-            freeMode={true}
-            className="w-full h-[50px] lg:w-[50px] lg:h-full shrink-0"
-            breakpoints={{
-              1024: { direction: "vertical" },
-            }}
-          >
-            {product?.imageUrls.map((url) => (
-              <SwiperSlide className="size-[50px]! not-[&.swiper-slide-thumb-active]:opacity-50 cursor-pointer">
-                <Image src={url} className="size-full rounded-lg" />
-              </SwiperSlide>
-            ))}
-          </Swiper>
+    <div className="mx-auto w-[min(1200px,92%)] py-10 flex flex-col-reverse lg:flex-row gap-5">
+      <div className="space-y-5 min-w-0 flex-1">
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg grid overflow-hidden">
+          {isProductLoading ? (
+            <div className="h-[370px] flex justify-center items-center">
+              <FaSpinner className="size-8 animate-spin opacity-50" />
+            </div>
+          ) : product.imageUrls.length ? (
+            <>
+              <Swiper slidesPerView={1} spaceBetween={20} modules={[Thumbs, Navigation, Zoom]} zoom={true} navigation={true} thumbs={{ swiper: thumbsSwiper }} className="w-full h-[300px]">
+                {product?.imageUrls.map((url) => (
+                  <SwiperSlide>
+                    <div className="swiper-zoom-container">
+                      <Image src={url} className="size-full" />
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              <div className="p-2">
+                <Swiper slidesPerView="auto" modules={[Thumbs, FreeMode]} spaceBetween={8} onSwiper={setThumbsSwiper} watchSlidesProgress={true} freeMode={true} className="w-full h-[54px]">
+                  {product?.imageUrls.map((url) => (
+                    <SwiperSlide className="max-w-[54px] not-[&.swiper-slide-thumb-active]:opacity-50 cursor-pointer">
+                      <Image src={url} className="size-full rounded-md" />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </div>
+            </>
+          ) : (
+            <div className="h-[370px] flex justify-center items-center opacity-50 gap-4 flex-col">
+              <FaImages className="size-10" />
+              <p className="text-xl">No images :(</p>
+            </div>
+          )}
         </div>
-        <div className="lg:ml-5 flex flex-col gap-4">
-          <span>
-            {product?.category?.name} / {product?.brand?.name}
-          </span>
-          <h2 className="text-3xl font-medium">{product?.name}</h2>
-          <ul className="flex flex-wrap items-center gap-2">
-            <li className="mr-2">Tags:</li>
-            {product?.tags.map((tag, i) => (
-              <li key={i} className="bg-gray-100 dark:bg-gray-800 rounded-lg py-0.5 px-2">
+        <Swiper slidesPerView="auto" spaceBetween={20} className="mask-x-from-99% mask-x-to-100%">
+          {user && (
+            <SwiperSlide className="home-carousel">
+              <RatingForm />
+            </SwiperSlide>
+          )}
+          {product
+            ? product.ratings.map((rating, i) => (
+                <SwiperSlide className="home-carousel">
+                  <Rating key={i} rating={rating} />
+                </SwiperSlide>
+              ))
+            : Array.from({ length: 3 }, (_, i) => (
+                <SwiperSlide className="home-carousel">
+                  <Rating key={i} />
+                </SwiperSlide>
+              ))}
+        </Swiper>
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 space-y-6">
+          <TitleDivider title="Specifications" />
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Specification Icon={FaArrowsLeftRight} title="Width" value={isProductLoading ? <div className="placeholder w-10 my-1"></div> : product.width + "cm"} />
+            <Specification Icon={FaArrowsUpDown} title="Height" value={isProductLoading ? <div className="placeholder w-10 my-1"></div> : product.height + "cm"} />
+            <Specification Icon={FaRuler} title="Length" value={isProductLoading ? <div className="placeholder w-10 my-1"></div> : product.length + "cm"} />
+            <Specification Icon={FaWeightHanging} title="Weight" value={isProductLoading ? <div className="placeholder w-10 my-1"></div> : product.weight + "g"} />
+          </div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 space-y-6">
+          <TitleDivider title="Description" />
+          {isProductLoading ? (
+            <div className="h-[500px] flex justify-center items-center">
+              <FaSpinner className="size-8 animate-spin opacity-50" />
+            </div>
+          ) : (
+            <p
+              className="prose max-w-none dark:prose-invert"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(marked.parse(product?.desc || "No description")),
+              }}
+            ></p>
+          )}
+        </div>
+        <div className="space-y-4">
+          <CommentForm disabled={!product} />
+          <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg space-y-4">
+            {product ? (
+              <>
+                <p className="font-bold">{product.comments.length} comments</p>
+                {product.comments.map((comment, i) => (
+                  <div key={i}>
+                    <Comment comment={comment} />
+                    <div className="space-y-4 pt-4 pl-4 ml-4 border-l border-gray-300 dark:border-gray-700">
+                      <CommentForm parentId={comment.id} />
+                      <div className="space-y-2">
+                        {comment.replies.map((reply, i) => (
+                          <Comment key={i} comment={reply} />
+                        ))}
+                      </div>
+                      <span className="opacity-75">{comment.replies.length ?? 0} replies</span>
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <FaSpinner className="size-6 animate-spin text-gray-600 mx-auto" />
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 flex flex-col gap-4 min-h-[400px] h-max lg:sticky lg:top-25 min-w-[350px] lg:max-w-[350px] shrink-0">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            {isProductLoading ? <div className="placeholder w-20 my-1"></div> : <span className={clsx(product.category ?? "opacity-75")}>{product.category?.name || "No category"}</span>}/
+            {isProductLoading ? <div className="placeholder w-20 my-1"></div> : <span className={clsx(product.brand ?? "opacity-75")}>{product.brand?.name || "No brand"}</span>}
+          </div>
+          {isProductLoading ? <div className="placeholder h-5! w-40 mt-2"></div> : <h2 className="font-medium text-xl">{product.name}</h2>}
+        </div>
+        <ul className="flex flex-wrap items-center gap-2">
+          <li className="mr-2">Tags:</li>
+          {isProductLoading ? (
+            <FaSpinner className="animate-spin" />
+          ) : product?.tags.length ? (
+            product.tags.map((tag, i) => (
+              <li key={i} className="bg-gray-100 dark:bg-gray-700 rounded-lg py-0.5 px-2">
                 {tag}
               </li>
-            ))}
-          </ul>
-          <span className={clsx("text-xl font-medium", activeVariant ? "text-emerald-800 dark:text-emerald-400" : "text-rose-800 dark:text-rose-400")}>
-            {activeVariant ? longCurrencyFormatter.format(activeVariant.price) : "Contact us!"}
-          </span>
-          <TitleDivider title="Options" />
-          <div className="flex flex-wrap gap-2">
-            {product?.variants.map((variant, i) => {
+            ))
+          ) : (
+            <span className="opacity-75">No tag</span>
+          )}
+        </ul>
+        <span className={clsx("text-xl font-medium", activeVariant ? "text-emerald-800 dark:text-emerald-400" : "text-rose-800 dark:text-rose-400")}>
+          {isProductLoading ? <div className="placeholder w-20 h-5! my-1"></div> : activeVariant ? longCurrencyFormatter.format(activeVariant.price) : "Contact us!"}
+        </span>
+        <TitleDivider title="Options" />
+        <div className="flex flex-wrap gap-2">
+          {isProductLoading ? (
+            Array.from({ length: 2 }, (_, i) => (
+              <div className="chip dark:not-[.chip--active]:bg-gray-700!">
+                <div className="placeholder w-20"></div>
+              </div>
+            ))
+          ) : product?.variants.length ? (
+            product.variants.map((variant, i) => {
               const isActive = activeVariant?.id === variant.id;
               return (
                 <button
                   key={i}
-                  className={clsx("chip", isActive && "chip--active", variant.stockQuantity || "chip--disabled")}
+                  className={clsx("chip dark:not-[.chip--active]:bg-gray-700!", isActive && "chip--active", variant.stockQuantity || "chip--disabled")}
                   onClick={() => {
                     if (variant.stockQuantity) {
                       setActiveVariant(variant);
@@ -430,84 +517,32 @@ export default function Product() {
                   {isActive && <FaCheck />} {variant.name}
                 </button>
               );
-            })}
-          </div>
-
-          {isPending || isProductLoading ? (
-            <button className="btn btn-primary mt-auto" disabled={true}>
-              <FaSpinner className="animate-spin" /> Loading
-            </button>
-          ) : activeVariant ? (
-            <button className="btn btn-primary mt-auto" onClick={() => mutate()}>
-              {addedToCart ? (
-                <>
-                  <FaCheck /> Added to cart
-                </>
-              ) : (
-                <>
-                  <FaBagShopping /> Add to cart!
-                </>
-              )}
-            </button>
+            })
           ) : (
-            <a href="mailto:support@mint.boutique" className="btn btn-secondary mt-auto">
-              <FaEnvelope /> Request a price!
-            </a>
+            <p className="text-center w-full py-1.5 opacity-75">No option</p>
           )}
         </div>
-      </div>
-      <TitleDivider title="Reviews" />
-      <Swiper slidesPerView="auto" spaceBetween={20} className="mask-x-from-99% mask-x-to-100%">
-        {user && (
-          <SwiperSlide className="home-carousel">
-            <RatingForm />
-          </SwiperSlide>
+        {isPending || isProductLoading ? (
+          <button className="btn btn-primary mt-auto w-full" disabled={true}>
+            <FaSpinner className="animate-spin" /> Loading
+          </button>
+        ) : activeVariant ? (
+          <button className="btn btn-primary mt-auto w-full" onClick={() => mutate()}>
+            {addedToCart ? (
+              <>
+                <FaCheck /> Added to cart
+              </>
+            ) : (
+              <>
+                <FaBagShopping /> Add to cart!
+              </>
+            )}
+          </button>
+        ) : (
+          <a href="mailto:support@mint.boutique" className="btn btn-secondary mt-auto w-full">
+            <FaEnvelope /> Request a price!
+          </a>
         )}
-        {product
-          ? product.ratings.map((rating, i) => (
-              <SwiperSlide className="home-carousel">
-                <Rating key={i} rating={rating} />
-              </SwiperSlide>
-            ))
-          : Array.from({ length: 3 }, (_, i) => (
-              <SwiperSlide className="home-carousel">
-                <Rating key={i} />
-              </SwiperSlide>
-            ))}
-      </Swiper>
-      <TitleDivider title="Description" />
-      <p
-        className="prose max-w-none dark:prose-invert"
-        dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(marked.parse(product?.desc ?? "")),
-        }}
-      ></p>
-      <TitleDivider title="Comments" />
-      <div className="space-y-4">
-        <CommentForm disabled={!product} />
-        <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg space-y-4">
-          {product ? (
-            <>
-              <p className="font-bold">{product.comments.length} comments</p>
-              {product.comments.map((comment, i) => (
-                <div key={i}>
-                  <Comment comment={comment} />
-                  <div className="space-y-4 pt-4 pl-4 ml-4 border-l border-gray-300 dark:border-gray-700">
-                    <CommentForm parentId={comment.id} />
-                    <div className="space-y-2">
-                      {comment.replies.map((reply, i) => (
-                        <Comment key={i} comment={reply} />
-                      ))}
-                    </div>
-                    <span className="opacity-75">{comment.replies.length ?? 0} replies</span>
-                  </div>
-                </div>
-              ))}
-            </>
-          ) : (
-            <FaSpinner className="size-6 animate-spin text-gray-600 mx-auto" />
-          )}
-        </div>
       </div>
     </div>
   );

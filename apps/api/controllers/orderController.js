@@ -1,4 +1,4 @@
-import { getAllOrdersService, updateOrderStatusService } from "../services/orderService.js";
+import { getAllOrdersService, getOrderByIdAndUserService, updateOrderStatusService } from "../services/orderService.js";
 
 export const getAllOrders = async (req, res) => {
   const data = await getAllOrdersService({}, req.pagination);
@@ -13,6 +13,13 @@ export const getMyOrders = async (req, res) => {
     req.pagination,
   );
   return res.json(data);
+};
+
+export const getOrderById = async (req, res) => {
+  const data = await getOrderByIdAndUserService(req.params.id, {
+    userId: req.user.id,
+  });
+  return res.json({ data });
 };
 
 export const updateOrderStatus = async (req, res) => {

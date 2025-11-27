@@ -106,13 +106,13 @@ function DashboardBarChart({ chartData, items, metric, interval }) {
         />
         <YAxis tickLine={false} tickMargin={10} axisLine={false} />
         <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-        {items?.map((name, i) => (
+        {items.map((name, i) => (
           <Bar
             key={name}
             dataKey={name}
             stackId="a"
             fill={`oklch(${60 + i * 10}% 0.12 ${strToOkLchHue(name)})`}
-            radius={getBarRadius(i, items.length, 8)}
+            // radius={getBarRadius(i, items.length, 8)}
           />
         ))}
       </BarChart>
@@ -230,7 +230,7 @@ function SummaryCard({ color, value, title, Icon }) {
 }
 
 export function Dashboard() {
-  const [groupBy, setGroupBy] = useState("product");
+  const [groupBy, setGroupBy] = useState("category");
   const [metric, setMetric] = useState("revenue");
   const [interval, setInterval] = useState("month");
 

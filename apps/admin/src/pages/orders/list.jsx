@@ -5,7 +5,11 @@ import {
 } from "@/components/refine-ui/views/list-view";
 import { useTable } from "@refinedev/react-table";
 import { useMemo } from "react";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Select,
   SelectContent,
@@ -16,17 +20,20 @@ import {
 import { useNotification, useUpdate } from "@refinedev/core";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import {
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  Package2,
+  TriangleAlert,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { longCurrencyFormatter } from "@mint-boutique/formatters";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { format } from "date-fns";
 import parsePhoneNumber from "libphonenumber-js";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.jsx";
+import { Separator } from "@/components/ui/separator.jsx";
+import { Link } from "react-router";
 
 const statusColors = {
   PENDING: "bg-chart-5/10! *:text-chart-5!",
@@ -161,7 +168,7 @@ export function ListOrders() {
   const OrderInfo = ({ title, children }) => (
     <div>
       <span className="text-muted-foreground text-sm">{title}</span>
-      <p className="pt-1">{children}</p>
+      <p className="pt-1 text-wrap">{children}</p>
     </div>
   );
 
@@ -174,7 +181,7 @@ export function ListOrders() {
 
   const renderSubComponent = ({ row: { original: order } }) => (
     <div className="space-y-6 p-6 @container">
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-8">
         <OrderInfo title="Date of Purchase">
           {format(new Date(order.createdAt), "dd MMM yyyy")}
           <br />
@@ -188,9 +195,22 @@ export function ListOrders() {
           ).formatNational()}
           )
           <br />
-          {order.shippingAddress.address}
+          {["address", "ward", "district", "province"]
+            .map((k) => order.shippingAddress[k])
+            .filter(Boolean)
+            .join(", ")}
         </OrderInfo>
-        <OrderInfo title="Payment Method">None</OrderInfo>
+        <OrderInfo title="Payment Method">
+          {order.payment ? (
+            <>
+              {order.payment.cardType} ({order.payment.bankCode})
+              <br />
+              {format(order.payment.payDate, "dd/MM/yyyy HH:mm")}
+            </>
+          ) : (
+            "None"
+          )}
+        </OrderInfo>
       </div>
       <div className="grid grid-cols-2 border min-h-[300px]">
         <div className="border-r p-4 flex flex-col gap-4">
@@ -211,7 +231,7 @@ export function ListOrders() {
               isMuted={true}
             />
             <OrderDetailEntry
-              left={`Discount code (${order.discountCode})`}
+              left={`Discount code (${order.discountCode || "None"})`}
               right={longCurrencyFormatter.format(-order.discountValue)}
               isMuted={true}
             />
@@ -233,77 +253,83 @@ export function ListOrders() {
             />
           </div>
         </div>
-        <div className="p-4">
-          <h6 className="font-bold">Payment & shipping</h6>
+        <div className="p-4 flex flex-col space-y-4">
+          <h6 className="font-bold">Status</h6>
+          {order.OrderLog.length ? (
+            <div className="flex flex-col">
+              {order.OrderLog.map((log, i) => {
+                const isNotLast = i < order.OrderLog.length - 1;
+                return (
+                  <div
+                    key={i}
+                    className="*:grid *:grid-cols-[20px_auto] *:gap-4 group"
+                  >
+                    <div>
+                      <div
+                        className={cn(
+                          "h-full aspect-square rounded-full",
+                          isNotLast ? "bg-foreground/25" : "bg-primary",
+                        )}
+                      ></div>
+                      <span>{format(log.createdAt, "dd/MM/yyyy HH:mm")}</span>
+                    </div>
+                    <div>
+                      <Separator
+                        orientation="vertical"
+                        className={cn("mx-2.5", isNotLast || "opacity-0")}
+                      />
+                      <div className="grid grid-cols-[max-content_max-content] space-x-8 *:odd:text-muted-foreground mt-2 group-not-last:mb-6">
+                        <span>Status</span>
+                        <div
+                          className={cn(
+                            statusColors[log.newStatus],
+                            "w-max px-1.5 py-0.5 rounded-sm",
+                          )}
+                        >
+                          <span>{log.newStatus}</span>
+                        </div>
+                        <span>Changed by</span>
+                        <span>{log.userId ? "Administrator" : "System"}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="h-full flex justify-center items-center text-muted-foreground">
+              Emptiness...
+            </div>
+          )}
+          <Link
+            to={
+              order.status === "PROCESSING"
+                ? `/orders/shipment/${order.id}`
+                : "#"
+            }
+            className="mt-auto"
+          >
+            <Button
+              disabled={order.status !== "PROCESSING"}
+              className=" w-full"
+            >
+              {order.status.includes("DELIVER") ? (
+                <>
+                  <CheckCircle /> Already delivering
+                </>
+              ) : order.status === "PROCESSING" ? (
+                <>
+                  <Package2 /> Start delivery
+                </>
+              ) : (
+                <>
+                  <TriangleAlert /> Cannot deliver
+                </>
+              )}
+            </Button>
+          </Link>
         </div>
       </div>
-      {/*<div className="grid grid-cols-2 gap-2">*/}
-      {/*  {[*/}
-      {/*    { label: "Full name", value: order.user.fullName },*/}
-      {/*    { label: "Email address", value: order.user.email },*/}
-      {/*    { label: "Phone number", value: order.shippingAddress.phoneNumber },*/}
-      {/*    { label: "Shipping address", value: order.shippingAddress.address },*/}
-      {/*  ].map(({ label, value }, i) => (*/}
-      {/*    <span key={i}>*/}
-      {/*      <strong>{label}:</strong> {value}*/}
-      {/*    </span>*/}
-      {/*  ))}*/}
-      {/*</div>*/}
-      {/*<Table className="border">*/}
-      {/*  <TableHeader className="border-b">*/}
-      {/*    <TableRow>*/}
-      {/*      <TableHead>Product</TableHead>*/}
-      {/*      <TableHead>Variant</TableHead>*/}
-      {/*      <TableHead className="text-right">Quantity</TableHead>*/}
-      {/*      <TableHead className="text-right">Unit price</TableHead>*/}
-      {/*      <TableHead className="text-right">Sum</TableHead>*/}
-      {/*    </TableRow>*/}
-      {/*  </TableHeader>*/}
-      {/*  <TableBody>*/}
-      {/*    {order.orderItems.map((item, i) => (*/}
-      {/*      <TableRow key={i}>*/}
-      {/*        <TableCell>{item.productName}</TableCell>*/}
-      {/*        <TableCell>{item.variantName}</TableCell>*/}
-      {/*        <TableCell className="text-right">{item.quantity}</TableCell>*/}
-      {/*        <TableCell className="text-right">*/}
-      {/*          {longCurrencyFormatter.format(item.unitPrice)}*/}
-      {/*        </TableCell>*/}
-      {/*        <TableCell className="text-right">*/}
-      {/*          {longCurrencyFormatter.format(item.sumAmount)}*/}
-      {/*        </TableCell>*/}
-      {/*      </TableRow>*/}
-      {/*    ))}*/}
-      {/*  </TableBody>*/}
-      {/*  <TableFooter>*/}
-      {/*    <TableRow>*/}
-      {/*      <TableCell colSpan={4}>Total</TableCell>*/}
-      {/*      <TableCell className="text-right">*/}
-      {/*        {longCurrencyFormatter.format(order.sumAmount)}*/}
-      {/*      </TableCell>*/}
-      {/*    </TableRow>*/}
-      {/*    <TableRow>*/}
-      {/*      <TableCell colSpan={4}>*/}
-      {/*        Discount code ({order.discountCode || "none"})*/}
-      {/*      </TableCell>*/}
-      {/*      <TableCell className="text-right">*/}
-      {/*        {longCurrencyFormatter.format(order.discountValue * -1)}*/}
-      {/*      </TableCell>*/}
-      {/*    </TableRow>*/}
-      {/*    <TableRow>*/}
-      {/*      <TableCell colSpan={4}>Loyalty points</TableCell>*/}
-      {/*      <TableCell className="text-right">*/}
-      {/*        {order.loyaltyPointsUsed} &times;{" "}*/}
-      {/*        {longCurrencyFormatter.format(-1000)}*/}
-      {/*      </TableCell>*/}
-      {/*    </TableRow>*/}
-      {/*    <TableRow>*/}
-      {/*      <TableCell colSpan={4}>Final</TableCell>*/}
-      {/*      <TableCell className="text-right text-red-700 dark:text-red-400">*/}
-      {/*        {longCurrencyFormatter.format(order.totalAmount)}*/}
-      {/*      </TableCell>*/}
-      {/*    </TableRow>*/}
-      {/*  </TableFooter>*/}
-      {/*</Table>*/}
     </div>
   );
 

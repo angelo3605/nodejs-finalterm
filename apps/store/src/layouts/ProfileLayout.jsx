@@ -84,9 +84,9 @@ export function ProfileLayout() {
             </div>
             <div className="w-full space-y-1">
               {Object.entries(profileInfo)?.map(([key, value]) => (
-                <div key={key} className="flex justify-between">
+                <div key={key} className="flex flex-wrap space-x-4 justify-between">
                   <span className="font-bold opacity-75">{key}:</span>
-                  {value ?? <div className="placeholder w-40"></div>}
+                  {<span className="truncate">{value}</span> ?? <div className="placeholder w-40"></div>}
                 </div>
               ))}
             </div>
@@ -100,8 +100,8 @@ export function ProfileLayout() {
           </nav>
         </div>
         <div>
-          <section className="bg-white dark:bg-gray-800 shadow-lg rounded-lg min-h-[600px] p-6 space-y-6 @container">
-            <h2 className="text-xl font-bold">{activeTab.label}</h2>
+          <section className="bg-white dark:bg-gray-800 shadow-lg rounded-lg min-h-[600px] p-6 space-y-6 @container flex flex-col">
+            {activeTab && <h2 className="text-xl font-bold">{activeTab.label}</h2>}
             <Outlet />
           </section>
           <Cat className="ml-auto mt-5 -mb-2.5 size-20" />

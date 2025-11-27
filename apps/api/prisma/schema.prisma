@@ -47,6 +47,22 @@ type ShippingInfo {
   fullName    String
 }
 
+type Payment {
+  method        String    @default("VNPay")
+  cardType      String?
+  transactionId String?
+  bankCode      String
+  payDate       DateTime?
+  responseCode  Int
+}
+
+type ShipmentDetails {
+  orderCode            String
+  transportation       String
+  expectedDeliveryTime String
+  fee                  Float
+}
+
 model User {
   id            String  @id @default(auto()) @map("_id") @db.ObjectId
   fullName      String?
@@ -135,6 +151,10 @@ model Product {
   slug       String   @unique
   name       String
   desc       String?
+  weight     Int      @default(0)
+  length     Int      @default(0)
+  width      Int      @default(0)
+  height     Int      @default(0)
   tags       String[] @default([])
   isFeatured Boolean  @default(false)
   isDeleted  Boolean  @default(false)
@@ -251,13 +271,16 @@ model Order {
   totalAmount Float
   status      OrderStatus @default(PENDING)
 
-  userId            String      @db.ObjectId
-  user              User        @relation(fields: [userId], references: [id])
-  orderItems        OrderItem[]
-  payments          Payment[]
-  discountCode      String?
-  discountValue     Int
-  loyaltyPointsUsed Int
+  userId             String      @db.ObjectId
+  user               User        @relation(fields: [userId], references: [id])
+  orderItems         OrderItem[]
+  discountCode       String?
+  discountValue      Int
+  loyaltyPointsUsed  Int
+  initialShippingFee Float?
+
+  shipment ShipmentDetails?
+  payment  Payment?
 
   shippingAddress ShippingInfo
 
@@ -284,6 +307,10 @@ model OrderItem {
 
   productName String
   variantName String
+  weight      Int    @default(0)
+  length      Int    @default(0)
+  width       Int    @default(0)
+  height      Int    @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -299,22 +326,6 @@ model OrderLog {
   order   Order  @relation(fields: [orderId], references: [id])
 
   createdAt DateTime @default(now())
-}
-
-model Payment {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  transactionId String
-  method        String
-  currency      String
-  amount        Float
-  status        PaymentStatus @default(PENDING)
-  expireDate    DateTime
-
-  orderId String @db.ObjectId
-  order   Order  @relation(fields: [orderId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model DiscountCode {

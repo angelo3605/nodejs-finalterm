@@ -126,6 +126,10 @@ export function AddressForm({ form, className, hideSetDefault = false }) {
     wardCombo.inputValue = newWard?.name || "";
   }, [province, district, ward, provinces, wards]);
 
+  const {
+    formState: { errors },
+  } = form;
+
   return (
     <div className="space-y-2">
       {hideSetDefault || (
@@ -136,26 +140,32 @@ export function AddressForm({ form, className, hideSetDefault = false }) {
         </label>
       )}
       <div className={clsx("grid gap-2", className)}>
-        <label className="floating-label">
-          <input
-            {...form.register("fullName", {
-              required: true,
-            })}
-            placeholder=""
-            className="floating-label__input"
-          />
-          <span className="floating-label__label dark:bg-gray-800!">Full name</span>
-        </label>
-        <label className="floating-label">
-          <input
-            {...form.register("phoneNumber", {
-              required: true,
-            })}
-            placeholder=""
-            className="floating-label__input"
-          />
-          <span className="floating-label__label dark:bg-gray-800!">Phone number</span>
-        </label>
+        <div className="space-y-2">
+          <label className="floating-label">
+            <input
+              {...form.register("fullName", {
+                required: true,
+              })}
+              placeholder=""
+              className="floating-label__input"
+            />
+            <span className="floating-label__label dark:bg-gray-800!">Full name</span>
+          </label>
+          {errors.fullName && <p className="text-red-500">{errors.fullName.message}</p>}
+        </div>
+        <div className="space-y-2">
+          <label className="floating-label">
+            <input
+              {...form.register("phoneNumber", {
+                required: true,
+              })}
+              placeholder=""
+              className="floating-label__input"
+            />
+            <span className="floating-label__label dark:bg-gray-800!">Phone number</span>
+          </label>
+          {errors.phoneNumber && <p className="text-red-500">{errors.phoneNumber.message}</p>}
+        </div>
         <div className="relative">
           <label className="floating-label">
             <input
@@ -184,13 +194,12 @@ export function AddressForm({ form, className, hideSetDefault = false }) {
         <div className="relative">
           <label className="floating-label">
             <input
-              disabled={isProvincePending}
               placeholder=""
               className="floating-label__input"
               {...districtCombo.getInputProps({
                 required: true,
               })}
-              disabled={!provinceCombo.selectedItem}
+              disabled={isProvincePending || !provinceCombo.selectedItem}
             />
             <span className="floating-label__label">District</span>
             <FaCaretDown className="floating-label__icon floating-label__icon--right floating-label__icon--combobox" />
@@ -209,7 +218,7 @@ export function AddressForm({ form, className, hideSetDefault = false }) {
         </div>
         <div className="relative">
           <label className="floating-label">
-            <input disabled={isWardPending} placeholder="" className="floating-label__input" {...wardCombo.getInputProps()} disabled={!districtCombo.selectedItem} />
+            <input placeholder="" className="floating-label__input" {...wardCombo.getInputProps()} disabled={isWardPending || !districtCombo.selectedItem} />
             <span className="floating-label__label">Ward</span>
             <FaCaretDown className="floating-label__icon floating-label__icon--right floating-label__icon--combobox" />
           </label>
@@ -225,16 +234,13 @@ export function AddressForm({ form, className, hideSetDefault = false }) {
             )}
           </ul>
         </div>
-        <label className="floating-label">
-          <input
-            {...form.register("address", {
-              required: true,
-            })}
-            placeholder=""
-            className="floating-label__input"
-          />
-          <span className="floating-label__label">Address</span>
-        </label>
+        <div className="space-y-2">
+          <label className="floating-label">
+            <input {...form.register("address")} placeholder="" className="floating-label__input" />
+            <span className="floating-label__label">Address</span>
+          </label>
+          {errors.address && <p className="text-red-500">{errors.address.message}</p>}
+        </div>
       </div>
       <p className={clsx("flex gap-2", isAddressComplete || "text-rose-700 dark:text-rose-300")}>
         <FaArrowTurnUp className="rotate-90 text-gray-400 dark:text-gray-600 mt-1" />

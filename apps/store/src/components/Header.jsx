@@ -75,7 +75,7 @@ function UserMenu({ user }) {
     <>
       <button className="btn btn-outline-light btn-jump" {...getToggleButtonProps()}>
         <FaUser className="size-5 text-blue-200" />
-        {user?.fullName ?? <div className="placeholder w-20"></div>}
+        {user?.fullName.split(" ").at(-1) ?? <div className="placeholder w-20"></div>}
       </button>
       <ul className="popover origin-[75%_0%]! menu absolute top-12 right-12 min-w-50" {...getMenuProps()}>
         {items.map((item, index) => (
@@ -169,7 +169,7 @@ export default function Header() {
             <Logo className="size-8 group-hover:animate-spin" />
             <span className="font-brand w-max">Mint Boutique</span>
           </Link>
-          <nav className="flex gap-4">
+          <nav className="flex flex-wrap space-x-4">
             <Link to="/" className="nav-item">
               <FaHouse /> Home
             </Link>

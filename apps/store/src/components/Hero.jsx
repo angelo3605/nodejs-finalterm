@@ -63,7 +63,7 @@ export default function Hero() {
                     <Card product={product} />
                   </SwiperSlide>
                 ))
-              : Array.from({ length: 3 }, (_, i) => (
+              : Array.from({ length: 6 }, (_, i) => (
                   <SwiperSlide key={i} className="max-w-[300px] my-5">
                     <Card />
                   </SwiperSlide>

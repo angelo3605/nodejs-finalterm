@@ -106,7 +106,7 @@ function ImageManagerDialog({ onRefresh }) {
           Manage images
         </Button>
       </DialogTrigger>
-      <DialogContent className="@container md:w-[calc(100%-2rem)] max-w-full sm:max-w-[1200px]">
+      <DialogContent className="@container md:w-[calc(100%-2rem)] max-w-full sm:max-w-[1200px] max-h-[90%] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Manage images</DialogTitle>
           <DialogDescription>

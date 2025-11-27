@@ -17,6 +17,10 @@ export const productSchema = z.object({
   tags: z.array(z.string().trim()).optional(),
   brand: optionalString,
   category: optionalString,
+  width: z.coerce.number().int().min(0),
+  height: z.coerce.number().int().min(0),
+  length: z.coerce.number().int().min(0),
+  weight: z.coerce.number().int().min(0),
   isFeatured: z.coerce.boolean().default(false),
 });
 
