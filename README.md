@@ -1,4 +1,8 @@
-<h1 align="center">:potted_plant: Mint Boutique</h1>
+<h1 align="center">
+  <img src="packages/assets/spinny-logo.gif" width="100" height="100" />
+  <br />
+  Mint Boutique
+</h1>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Turborepo-FF1E56?style=for-the-badge&logo=turborepo&logoColor=white" />
