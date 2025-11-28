@@ -26,12 +26,13 @@
     "redis": "^5.8.3",
     "slugify": "^1.6.6",
     "socket.io": "^4.8.1",
-    "vnpay": "^2.4.4",
     "zod": "^4.1.11"
   },
   "scripts": {
     "dev": "dotenvx run -f ../../.env -- nodemon",
-    "seed": "dotenvx run -f ../../.env -- node prisma/seed.js"
+    "db:push": "dotenvx run -f ../../.env -- prisma db push",
+    "db:seed": "dotenvx run -f ../../.env -- node prisma/seed.js",
+    "db:generate": "dotenvx run -f ../../.env -- prisma generate"
   },
   "version": "1.0.0",
   "description": "",

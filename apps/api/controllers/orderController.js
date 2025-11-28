@@ -17,7 +17,7 @@ export const getMyOrders = async (req, res) => {
 
 export const getOrderById = async (req, res) => {
   const data = await getOrderByIdAndUserService(req.params.id, {
-    userId: req.user.id,
+    userId: req.user.role === "ADMIN" ? undefined : req.user.id,
   });
   return res.json({ data });
 };
