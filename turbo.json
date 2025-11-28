@@ -6,6 +6,9 @@
         "^build"
       ]
     },
+    "db:seed": {},
+    "db:push": {},
+    "db:generate": {},
     "lint": {},
     "dev": {
       "cache": false,
